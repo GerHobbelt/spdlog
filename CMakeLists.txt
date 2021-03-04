@@ -1,6 +1,8 @@
 # Copyright(c) 2019 spdlog authors Distributed under the MIT License (http://opensource.org/licenses/MIT)
 
 cmake_minimum_required(VERSION 3.10)
+# cmake --help-policy CMP0077
+cmake_policy(SET CMP0077 NEW)
 
 # ---------------------------------------------------------------------------------------
 # Start spdlog project
