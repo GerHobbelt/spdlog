@@ -10,6 +10,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define SPDLOG_COMPILED_LIB
+
 ///////////////////////////////////////////////////////////////////////////////
 // Under Linux, the much faster CLOCK_REALTIME_COARSE clock can be used.
 // This clock is less accurate - can be off by dozens of millis - depending on
@@ -71,7 +73,14 @@
 // In this case spdlog will try to include <fmt/format.h> so set your -I flag
 // accordingly.
 //
-// #define SPDLOG_FMT_EXTERNAL
+#define SPDLOG_FMT_EXTERNAL
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Uncomment to use C++20 std::format instead of fmt. This removes compile
+// time checking of format strings, but doesn't depend on the fmt library.
+//
+// #define SPDLOG_USE_STD_FORMAT
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,8 +98,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Uncomment to customize level names (e.g. "MY TRACE")
 //
-// #define SPDLOG_LEVEL_NAMES { "MY TRACE", "MY DEBUG", "MY INFO", "MY WARNING",
-// "MY ERROR", "MY CRITICAL", "OFF" }
+// #define SPDLOG_LEVEL_NAMES { "MY TRACE", "MY DEBUG", "MY INFO", "MY WARNING", "MY ERROR", "MY CRITICAL", "OFF" }
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -120,5 +128,9 @@
 // __PRETTY_FUNCTION__ might be nicer in clang/gcc, and __FUNCTION__ in msvc.
 // Defaults to __FUNCTION__ (should work on all compilers) if not defined.
 //
-// #define SPDLOG_FUNCTION __PRETTY_FUNCTION__
+// #ifdef __PRETTY_FUNCTION__
+// # define SPDLOG_FUNCTION __PRETTY_FUNCTION__
+// #else
+// # define SPDLOG_FUNCTION __FUNCTION__
+// #endif
 ///////////////////////////////////////////////////////////////////////////////
