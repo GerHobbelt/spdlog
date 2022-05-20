@@ -22,7 +22,6 @@ files {
 
 defines {
   "SPDLOG_COMPILED_LIB",
-  "SPDLOG_FMT_EXTERNAL",
 }
 
 if (_PLATFORM_ANDROID) then
