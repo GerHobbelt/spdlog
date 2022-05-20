@@ -3,7 +3,7 @@ from conans import ConanFile
 
 class SPDLogConan(ConanFile):
     name = "spdlog"
-    version = "1.9.2"
+    version = "1.10.0"
     url = "https://github.com/Esri/spdlog/tree/runtimecore"
     license = "https://github.com/Esri/spdlog/blob/runtimecore/LICENSE"
     description = "Very fast, header-only/compiled, C++ logging library."
