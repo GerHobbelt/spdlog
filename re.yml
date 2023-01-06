@@ -1,0 +1,11 @@
+type: static-library
+name: spdlog
+
+deps:
+  - global:fmt
+
+cxx-compile-definitions:
+  SPDLOG_COMPILED_LIB: 1
+  SPDLOG_FMT_EXTERNAL: 1
+
+cxx-standard: 17

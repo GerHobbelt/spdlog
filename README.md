@@ -2,6 +2,10 @@
 
 Very fast, header-only/compiled, C++ logging library. [![ci](https://github.com/gabime/spdlog/actions/workflows/ci.yml/badge.svg)](https://github.com/gabime/spdlog/actions/workflows/ci.yml)&nbsp; [![Build status](https://ci.appveyor.com/api/projects/status/d2jnxclg20vd0o50?svg=true&branch=v1.x)](https://ci.appveyor.com/project/gabime/spdlog) [![Release](https://img.shields.io/github/release/gabime/spdlog.svg)](https://github.com/gabime/spdlog/releases/latest)
 
+**FORK:** Moved the project to the Re build system. Rights to the code remain with its original authors.
+
+In order to build the project with Re, make sure a global dep named `fmt` exists.
+
 ## Install 
 #### Header only version
 Copy the include [folder](https://github.com/gabime/spdlog/tree/v1.x/include/spdlog) to your build tree and use a C++11 compiler.
@@ -34,6 +38,7 @@ $ cmake .. && make -j
 * conan: `spdlog/[>=1.4.1]`
 * conda: `conda install -c conda-forge spdlog`
 * build2: ```depends: spdlog ^1.8.2```
+* re: ```deps: [github:osdeverr/spdlog]``` OR ```re pkg install github:osdeverr/spdlog as spdlog```
 
 
 ## Features
