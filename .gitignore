@@ -90,3 +90,7 @@ cmake-build-*/
 # macos
 *.DS_store
 *.xcodeproj/
+
+# visual studio
+/out/
+/.vs
