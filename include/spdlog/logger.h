@@ -109,6 +109,19 @@ public:
         log(loc, lvl, "{}", msg);
     }
 
+    void log(log_clock::time_point log_time, source_loc loc, process_info pinfo, level::level_enum lvl, string_view_t msg)
+    {
+        bool log_enabled = should_log(lvl);
+        bool traceback_enabled = tracer_.enabled();
+        if (!log_enabled && !traceback_enabled)
+        {
+            return;
+        }
+
+        details::log_msg log_msg(log_time, loc, pinfo, name_, lvl, msg);
+        log_it_(log_msg, log_enabled, traceback_enabled);
+    }
+
     void log(log_clock::time_point log_time, source_loc loc, level::level_enum lvl, string_view_t msg)
     {
         bool log_enabled = should_log(lvl);
@@ -119,6 +132,19 @@ public:
         }
 
         details::log_msg log_msg(log_time, loc, name_, lvl, msg);
+        log_it_(log_msg, log_enabled, traceback_enabled);
+    }
+
+    void log(source_loc loc, process_info pinfo, level::level_enum lvl, string_view_t msg)
+    {
+        bool log_enabled = should_log(lvl);
+        bool traceback_enabled = tracer_.enabled();
+        if (!log_enabled && !traceback_enabled)
+        {
+            return;
+        }
+
+        details::log_msg log_msg(loc, pinfo, name_, lvl, msg);
         log_it_(log_msg, log_enabled, traceback_enabled);
     }
 
@@ -133,6 +159,11 @@ public:
 
         details::log_msg log_msg(loc, name_, lvl, msg);
         log_it_(log_msg, log_enabled, traceback_enabled);
+    }
+
+    void log(process_info pinfo, level::level_enum lvl, string_view_t msg)
+    {
+        log(source_loc{}, pinfo, lvl, msg);
     }
 
     void log(level::level_enum lvl, string_view_t msg)

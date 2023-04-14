@@ -35,6 +35,9 @@ int main(int, char *[])
 {
     // Log levels can be loaded from argv/env using "SPDLOG_LEVEL"
     load_levels_example();
+    spdlog::set_pattern("[%H:%M:%S %z] [process %P] [thread %t] [%n] %v");
+
+    spdlog::default_logger()->log(spdlog::process_info(6789, 44), spdlog::level::critical, "Spoofed pid and thread message");
 
     spdlog::info("Welcome to spdlog version {}.{}.{}  !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR, SPDLOG_VER_PATCH);
 

@@ -11,8 +11,12 @@ namespace details {
 struct SPDLOG_API log_msg
 {
     log_msg() = default;
+    log_msg(log_clock::time_point log_time, source_loc loc, process_info pinfo, string_view_t logger_name, level::level_enum lvl,
+        string_view_t msg);
     log_msg(log_clock::time_point log_time, source_loc loc, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
+    log_msg(source_loc loc, process_info pinfo, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
     log_msg(source_loc loc, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
+    log_msg(process_info pinfo, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
     log_msg(string_view_t logger_name, level::level_enum lvl, string_view_t msg);
     log_msg(const log_msg &other) = default;
     log_msg &operator=(const log_msg &other) = default;
@@ -20,7 +24,7 @@ struct SPDLOG_API log_msg
     string_view_t logger_name;
     level::level_enum level{level::off};
     log_clock::time_point time;
-    size_t thread_id{0};
+    process_info process_info;
 
     // wrapping the formatted text with color (updated by pattern_formatter).
     mutable size_t color_range_start{0};

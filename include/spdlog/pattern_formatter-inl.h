@@ -652,9 +652,9 @@ public:
 
     void format(const details::log_msg &msg, const std::tm &, memory_buf_t &dest) override
     {
-        const auto field_size = ScopedPadder::count_digits(msg.thread_id);
+        const auto field_size = ScopedPadder::count_digits(msg.process_info.thread_id);
         ScopedPadder p(field_size, padinfo_, dest);
-        fmt_helper::append_int(msg.thread_id, dest);
+        fmt_helper::append_int(msg.process_info.thread_id, dest);
     }
 };
 
@@ -667,9 +667,10 @@ public:
         : flag_formatter(padinfo)
     {}
 
-    void format(const details::log_msg &, const std::tm &, memory_buf_t &dest) override
+    void format(const details::log_msg &msg, const std::tm &, memory_buf_t &dest) override
     {
-        const auto pid = static_cast<uint32_t>(details::os::pid());
+        // uses the log message process id if available and valid
+        const auto pid = msg.process_info.process_id > 0 ? msg.process_info.process_id : static_cast<uint32_t>(details::os::pid());
         auto field_size = ScopedPadder::count_digits(pid);
         ScopedPadder p(field_size, padinfo_, dest);
         fmt_helper::append_int(pid, dest);
