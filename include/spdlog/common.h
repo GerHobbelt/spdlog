@@ -329,8 +329,8 @@ struct source_loc
 struct process_info
 {
     SPDLOG_CONSTEXPR process_info() = default;
-    SPDLOG_CONSTEXPR process_info(size_t thread_id)
-        : thread_id(thread_id)
+    SPDLOG_CONSTEXPR process_info(int process_id)
+        : process_id(process_id)
     {}
     SPDLOG_CONSTEXPR process_info(int process_id, size_t thread_id)
         : process_id(process_id)
