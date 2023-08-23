@@ -4,6 +4,7 @@
 
 // spdlog usage example
 
+#include "spdlog/common.h"
 #include <cstdio>
 #include <chrono>
 
@@ -30,7 +31,6 @@ void replace_default_logger_example();
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"  // support for loading levels from the environment variable
 #include "spdlog/fmt/ostr.h" // support for user defined types
-
 
 int main(int, char *[])
 {
@@ -113,9 +113,14 @@ int main(int, char *[])
 void stdout_logger_example()
 {
     // Create color multi threaded logger.
-    auto console = spdlog::stdout_color_mt("console");
+    // auto console = spdlog::stdout_color_mt("console");
     // or for stderr:
     // auto console = spdlog::stderr_color_mt("error-logger");
+    auto dual_sink = spdlog::dual_color_mt("dual-sink");
+    dual_sink->set_level(spdlog::level::debug);
+    dual_sink->info("dual-sink");
+    dual_sink->error("error");
+    dual_sink->debug("debug");
 }
 
 #include "spdlog/sinks/basic_file_sink.h"
@@ -185,7 +190,7 @@ void async_example()
 // {:n} - don't split the output to lines.
 
 #if !defined SPDLOG_USE_STD_FORMAT || defined(_MSC_VER)
-#include "spdlog/fmt/bin_to_hex.h"
+#    include "spdlog/fmt/bin_to_hex.h"
 void binary_example()
 {
     std::vector<char> buf(80);
@@ -203,7 +208,8 @@ void binary_example()
     // logger->info("hexdump style, 20 chars per line {:a}", spdlog::to_hex(buf, 20));
 }
 #else
-void binary_example() {
+void binary_example()
+{
     // not supported with std::format yet
 }
 #endif

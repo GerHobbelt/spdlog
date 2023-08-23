@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "spdlog/common.h"
 #ifndef SPDLOG_HEADER_ONLY
 #    include <spdlog/sinks/ansicolor_sink.h>
 #endif
@@ -63,6 +64,14 @@ SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::log(const details::log_msg &msg
         print_range_(formatted, 0, formatted.size());
     }
     fflush(target_file_);
+}
+
+template<typename ConsoleMutex>
+SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::set_output(FILE *override_output)
+{
+    std::lock_guard<mutex_t> guard(mutex_);
+    target_file_ = override_output;
+    set_color_mode(color_mode::automatic);
 }
 
 template<typename ConsoleMutex>
@@ -138,8 +147,29 @@ SPDLOG_INLINE ansicolor_stdout_sink<ConsoleMutex>::ansicolor_stdout_sink(color_m
 // ansicolor_stderr_sink
 template<typename ConsoleMutex>
 SPDLOG_INLINE ansicolor_stderr_sink<ConsoleMutex>::ansicolor_stderr_sink(color_mode mode)
-    : ansicolor_sink<ConsoleMutex>(stderr, mode)
+    : ansicolor_sink<ConsoleMutex>(stdout, mode)
 {}
+
+// ansicolor_dual_sink
+template<typename ConsoleMutex>
+SPDLOG_INLINE ansicolor_dual_sink<ConsoleMutex>::ansicolor_dual_sink(color_mode mode)
+    : ansicolor_sink<ConsoleMutex>(stdout, mode)
+{}
+
+template<typename ConsoleMutex>
+SPDLOG_INLINE void ansicolor_dual_sink<ConsoleMutex>::log(const details::log_msg &msg)
+{
+    if (msg.level <= level::warn && msg.level > level::debug)
+    {
+        ansicolor_sink<ConsoleMutex>::set_output(stdout);
+    }
+    else
+    {
+        ansicolor_sink<ConsoleMutex>::set_output(stderr);
+    }
+
+    ansicolor_sink<ConsoleMutex>::log(msg);
+}
 
 } // namespace sinks
 } // namespace spdlog

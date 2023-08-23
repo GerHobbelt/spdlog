@@ -37,10 +37,11 @@ public:
     void set_pattern(const std::string &pattern) override final;
     void set_formatter(std::unique_ptr<spdlog::formatter> sink_formatter) override final;
     void set_color_mode(color_mode mode);
+protected:
+    void *out_handle_;
 
 protected:
     using mutex_t = typename ConsoleMutex::mutex_t;
-    void *out_handle_;
     mutex_t &mutex_;
     bool should_do_colors_;
     std::unique_ptr<spdlog::formatter> formatter_;
