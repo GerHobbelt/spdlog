@@ -429,6 +429,17 @@ SPDLOG_INLINE int pid() SPDLOG_NOEXCEPT
 #endif
 }
 
+SPDLOG_INLINE process_info pinfo() SPDLOG_NOEXCEPT
+{
+    const auto pid_ = pid();
+#ifndef SPDLOG_NO_THREAD_ID
+    const size_t thread_id_ = thread_id();
+#else
+    const size_t thread_id_ = 0;
+#endif
+    return process_info(pid_, thread_id_);
+}
+
 // Determine if the terminal supports colors
 // Based on: https://github.com/agauniyal/rang/
 SPDLOG_INLINE bool is_color_terminal() SPDLOG_NOEXCEPT

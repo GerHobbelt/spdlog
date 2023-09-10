@@ -72,7 +72,6 @@ install_manifest.txt
 /tests/logs/*
 spdlogConfig.cmake
 spdlogConfigVersion.cmake
-compile_commands.json
 
 # idea
 .idea/
@@ -94,3 +93,6 @@ cmake-build-*/
 *.DS_store
 *.xcodeproj/
 bin-int
+# visual studio
+/out/
+/.vs

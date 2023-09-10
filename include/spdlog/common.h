@@ -393,6 +393,21 @@ private:
 [[noreturn]] SPDLOG_API void throw_spdlog_ex(const std::string &msg, int last_errno);
 [[noreturn]] SPDLOG_API void throw_spdlog_ex(std::string msg);
 
+struct process_info
+{
+    SPDLOG_CONSTEXPR process_info() = default;
+    SPDLOG_CONSTEXPR process_info(int process_id)
+        : process_id(process_id)
+    {}
+    SPDLOG_CONSTEXPR process_info(int process_id, size_t thread_id)
+        : process_id(process_id)
+        , thread_id(thread_id)
+    {}
+
+    int process_id{0};
+    size_t thread_id{0};
+};
+
 struct file_event_handlers
 {
     file_event_handlers()
