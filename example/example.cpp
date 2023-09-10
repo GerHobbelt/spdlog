@@ -29,7 +29,6 @@ void replace_default_logger_example();
 
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"  // support for loading levels from the environment variable
-#include "spdlog/fmt/ostr.h" // support for user defined types
 
 int main(int, char *[])
 {
@@ -136,11 +135,11 @@ void callback_example()
     });
 }
 
-#include "spdlog/cfg/env.h"
 void load_levels_example()
 {
     // Set the log level to "info" and mylogger to "trace":
     // SPDLOG_LEVEL=info,mylogger=trace && ./example
+    // must #include "spdlog/cfg/env.h"
     spdlog::cfg::load_env_levels();
     // or from command line:
     // ./example SPDLOG_LEVEL=info,mylogger=trace
@@ -338,15 +337,13 @@ public:
 
     std::unique_ptr<custom_flag_formatter> clone() const override
     {
-        return spdlog::details::make_unique<my_formatter_flag>();
+        return std::make_unique<my_formatter_flag>();
     }
 };
 
 void custom_flags_example()
 {
-
-    using spdlog::details::make_unique; // for pre c++14
-    auto formatter = make_unique<spdlog::pattern_formatter>();
+    auto formatter = std::make_unique<spdlog::pattern_formatter>();
     formatter->add_flag<my_formatter_flag>('*').set_pattern("[%n] [%*] [%^%l%$] %v");
     // set the new formatter using spdlog::set_formatter(formatter) or logger->set_formatter(formatter)
     // spdlog::set_formatter(std::move(formatter));

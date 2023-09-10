@@ -114,6 +114,9 @@ using format_string_t = std::format_string<Args...>;
 using format_string_t = std::string_view;
 #    endif
 
+using wstring_view_t = std::wstring_view;
+using wmemory_buf_t = std::wstring;
+
 template<class T, class Char = char>
 struct is_convertible_to_basic_format_string : std::integral_constant<bool, std::is_convertible<T, std::basic_string_view<Char>>::value>
 {};
@@ -328,31 +331,15 @@ constexpr std::basic_string_view<T> to_string_view(std::basic_format_string<T, A
 }
 #endif
 
-// make_unique support for pre c++14
-
-#if __cplusplus >= 201402L // C++14 and beyond
-using std::enable_if_t;
-using std::make_unique;
-#else
-template<bool B, class T = void>
-using enable_if_t = typename std::enable_if<B, T>::type;
-
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args &&...args)
-{
-    static_assert(!std::is_array<T>::value, "arrays not supported");
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-#endif
 
 // to avoid useless casts (see https://github.com/nlohmann/json/issues/2893#issuecomment-889152324)
-template<typename T, typename U, enable_if_t<!std::is_same<T, U>::value, int> = 0>
+template<typename T, typename U, std::enable_if_t<!std::is_same<T, U>::value, int> = 0>
 constexpr T conditional_static_cast(U value)
 {
     return static_cast<T>(value);
 }
 
-template<typename T, typename U, enable_if_t<std::is_same<T, U>::value, int> = 0>
+template<typename T, typename U, std::enable_if_t<std::is_same<T, U>::value, int> = 0>
 constexpr T conditional_static_cast(U value)
 {
     return value;
