@@ -17,6 +17,7 @@
 #include <spdlog/common.h>
 #include <spdlog/details/log_msg.h>
 #include <spdlog/details/backtracer.h>
+#include <spdlog/details/source_location.h>
 
 #ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
 #    ifndef _WIN32
@@ -87,13 +88,13 @@ public:
     template<typename... Args>
     void log(source_loc loc, level::level_enum lvl, format_string_t<Args...> fmt, Args &&...args)
     {
-        log_(loc, lvl, details::to_string_view(fmt), std::forward<Args>(args)...);
+        log_(loc, lvl, details::to_string_view(fmt.format_string()), std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     void log(level::level_enum lvl, format_string_t<Args...> fmt, Args &&...args)
     {
-        log(source_loc{}, lvl, fmt, std::forward<Args>(args)...);
+        log(fmt.location(), lvl, fmt, std::forward<Args>(args)...);
     }
 
     template<typename T>
@@ -180,13 +181,13 @@ public:
     template<typename... Args>
     void log(source_loc loc, level::level_enum lvl, wformat_string_t<Args...> fmt, Args &&...args)
     {
-        log_(loc, lvl, details::to_string_view(fmt), std::forward<Args>(args)...);
+        log_(loc, lvl, details::to_string_view(fmt.format_string()), std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     void log(level::level_enum lvl, wformat_string_t<Args...> fmt, Args &&...args)
     {
-        log(source_loc{}, lvl, fmt, std::forward<Args>(args)...);
+        log(fmt.location(), lvl, fmt, std::forward<Args>(args)...);
     }
 
     void log(log_clock::time_point log_time, source_loc loc, level::level_enum lvl, wstring_view_t msg)

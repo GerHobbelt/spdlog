@@ -14,6 +14,7 @@
 #include <spdlog/logger.h>
 #include <spdlog/version.h>
 #include <spdlog/details/synchronous_factory.h>
+#include <spdlog/details/source_location.h>
 
 #include <chrono>
 #include <functional>

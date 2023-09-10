@@ -5,6 +5,7 @@
 
 #include <spdlog/tweakme.h>
 #include <spdlog/details/null_mutex.h>
+#include <spdlog/details/source_location.h>
 
 #include <atomic>
 #include <chrono>
@@ -15,6 +16,7 @@
 #include <type_traits>
 #include <functional>
 #include <cstdio>
+
 
 #ifdef SPDLOG_USE_STD_FORMAT
 #    include <version>
@@ -111,9 +113,87 @@
         {}
 #endif
 
+#if SPDLOG_CPLUSPLUS > 201811L
+#   define SPDLOG_CONSTEVAL consteval
+#elif SPDLOG_CPLUSPLUS < 201402L
+#    define SPDLOG_CONSTEVAL 
+#else
+#    define SPDLOG_CONSTEVAL constexpr
+#endif
+
 namespace spdlog {
 
 class formatter;
+
+#if !defined(SPDLOG_USE_STD_FORMAT)
+template <typename Char>
+#    if FMT_VERSION >= 90101
+using fmt_runtime_string = fmt::runtime_format_string<Char>;
+#    else
+using fmt_runtime_string = fmt::basic_runtime<Char>;
+#    endif
+#endif
+
+struct source_loc
+{
+    SPDLOG_CONSTEXPR source_loc() = default;
+    SPDLOG_CONSTEXPR source_loc(const char *filename_in, unsigned line_in, const char *funcname_in)
+        : filename{filename_in}
+        , line{line_in}
+        , funcname{funcname_in}
+    {}
+    SPDLOG_CONSTEXPR source_loc(details::source_location location)
+        : filename{location.file_name()}
+        , line{location.line()}
+        , funcname{location.function_name()}
+    {}
+    SPDLOG_CONSTEXPR source_loc static current(details::source_location cur = details::source_location::current())
+    {
+        return source_loc{cur.file_name(), cur.line(), cur.function_name()};
+    }
+
+    SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT
+    {
+        return line == 0;
+    }
+    const char *filename{nullptr};
+    unsigned line{0};
+    const char *funcname{nullptr};
+};
+
+template<typename T, typename Char>
+struct format_string_wrapper
+{
+    SPDLOG_CONSTEVAL format_string_wrapper(const Char* fmtstr, source_loc loc = source_loc::current())
+        : fmt_{fmtstr}
+        , loc_{loc}
+    {}
+#if !defined(SPDLOG_USE_STD_FORMAT) && FMT_VERSION >= 80000
+    SPDLOG_CONSTEXPR format_string_wrapper(fmt_runtime_string<Char> fmtstr, source_loc loc = source_loc::current())
+        : fmt_{fmtstr}
+        , loc_{loc}
+    {}
+#elif defined(SPDLOG_USE_STD_FORMAT) && SPDLOG_CPLUSPLUS >= 202002L
+    template <typename S>
+    requires std::is_convertible_v<S, T>
+    SPDLOG_CONSTEXPR format_string_wrapper(S fmtstr, source_loc loc = source_loc::current())
+        : fmt_{fmtstr}
+        , loc_{loc}
+    {}
+#endif
+    T format_string()
+    {
+        return fmt_;
+    }
+    source_loc location()
+    {
+        return loc_;
+    }
+
+private:
+    T fmt_;
+    source_loc loc_;
+};
 
 namespace sinks {
 class sink;
@@ -139,12 +219,14 @@ namespace fmt_lib = std;
 using string_view_t = std::string_view;
 using memory_buf_t = std::string;
 
+
 template<typename... Args>
 #    if __cpp_lib_format >= 202207L
-using format_string_t = std::format_string<Args...>;
+using format_string_t = format_string_wrapper<std::format_string<Args...>, char>;
 #    else
-using format_string_t = std::string_view;
+using format_string_t = format_string_wrapper<std::string_view, char>;
 #    endif
+
 
 template<class T, class Char = char>
 struct is_convertible_to_basic_format_string : std::integral_constant<bool, std::is_convertible<T, std::basic_string_view<Char>>::value>
@@ -156,9 +238,9 @@ using wmemory_buf_t = std::wstring;
 
 template<typename... Args>
 #        if __cpp_lib_format >= 202207L
-using wformat_string_t = std::wformat_string<Args...>;
+using wformat_string_t = format_string_wrapper<std::wformat_string<Args...>, wchar_t>;
 #        else
-using wformat_string_t = std::wstring_view;
+using wformat_string_t = format_string_wrapper<std::wstring_view, wchar_t>;
 #        endif
 #    endif
 #    define SPDLOG_BUF_TO_STRING(x) x
@@ -169,10 +251,11 @@ using string_view_t = fmt::basic_string_view<char>;
 using memory_buf_t = fmt::basic_memory_buffer<char, 250>;
 
 template<typename... Args>
-using format_string_t = fmt::format_string<Args...>;
+using format_string_t = format_string_wrapper<fmt::format_string<Args...>, char>;
 
 template<class T>
 using remove_cvref_t = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+
 
 template<typename Char>
 #    if FMT_VERSION >= 90101
@@ -180,6 +263,7 @@ using fmt_runtime_string = fmt::runtime_format_string<Char>;
 #    else
 using fmt_runtime_string = fmt::basic_runtime<Char>;
 #    endif
+
 
 // clang doesn't like SFINAE disabled constructor in std::is_convertible<> so have to repeat the condition from basic_format_string here,
 // in addition, fmt::basic_runtime<Char> is only convertible to basic_format_string<Char> but not basic_string_view<Char>
@@ -194,7 +278,7 @@ using wstring_view_t = fmt::basic_string_view<wchar_t>;
 using wmemory_buf_t = fmt::basic_memory_buffer<wchar_t, 250>;
 
 template<typename... Args>
-using wformat_string_t = fmt::wformat_string<Args...>;
+using wformat_string_t = format_string_wrapper<fmt::wformat_string<Args...>, wchar_t>;
 #    endif
 #    define SPDLOG_BUF_TO_STRING(x) fmt::to_string(x)
 #endif
@@ -308,24 +392,6 @@ private:
 
 [[noreturn]] SPDLOG_API void throw_spdlog_ex(const std::string &msg, int last_errno);
 [[noreturn]] SPDLOG_API void throw_spdlog_ex(std::string msg);
-
-struct source_loc
-{
-    SPDLOG_CONSTEXPR source_loc() = default;
-    SPDLOG_CONSTEXPR source_loc(const char *filename_in, int line_in, const char *funcname_in)
-        : filename{filename_in}
-        , line{line_in}
-        , funcname{funcname_in}
-    {}
-
-    SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT
-    {
-        return line == 0;
-    }
-    const char *filename{nullptr};
-    int line{0};
-    const char *funcname{nullptr};
-};
 
 struct file_event_handlers
 {
