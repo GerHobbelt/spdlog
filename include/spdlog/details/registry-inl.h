@@ -253,13 +253,13 @@ SPDLOG_INLINE void registry::free() {
 //    (as another thread might have changed it by this point). If it's still null, allocate and update the atomic instance pointer, unlock mutex and return the reference.
 // https://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/
 SPDLOG_INLINE registry &registry::instance() {
-    auto *instance = s_instance.load();
+    auto *instance = s_instance.load(std::memory_order_acquire);
     if (instance == nullptr) {
         std::lock_guard<std::mutex> lock(s_instanceMutex);
-        instance = s_instance.load();
+        instance = s_instance.load(std::memory_order_relaxed);
         if (instance == nullptr) {
             instance = new registry();
-            s_instance.store(instance);
+            s_instance.store(instance, std::memory_order_release);
         }
     }
     return *instance;
