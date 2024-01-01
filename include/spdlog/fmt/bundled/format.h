@@ -3784,7 +3784,7 @@ template <typename Char = char> class dynamic_formatter {
   }
 
   template <typename T, typename FormatContext>
-  auto format(const T& val, FormatContext& ctx) -> decltype(ctx.out()) {
+  auto format(const T& val, FormatContext& ctx) const -> decltype(ctx.out()) {
     handle_specs(ctx);
     detail::specs_checker<null_handler> checker(
         null_handler(), detail::mapped_type_constant<T, FormatContext>::value);
@@ -3863,7 +3863,7 @@ template <> struct formatter<bytes> {
   }
 
   template <typename FormatContext>
-  auto format(bytes b, FormatContext& ctx) -> decltype(ctx.out()) {
+  auto format(bytes b, FormatContext& ctx) const -> decltype(ctx.out()) {
     detail::handle_dynamic_spec<detail::width_checker>(specs_.width,
                                                        specs_.width_ref, ctx);
     detail::handle_dynamic_spec<detail::precision_checker>(
