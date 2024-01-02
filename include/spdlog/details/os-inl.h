@@ -267,7 +267,7 @@ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm) {
 
     #if defined(sun) || defined(__sun) || defined(_AIX) || \
         (defined(__NEWLIB__) && !defined(__TM_GMTOFF)) ||  \
-        (!defined(_BSD_SOURCE) && !defined(_GNU_SOURCE))
+        (!defined(_BSD_SOURCE) && !defined(_GNU_SOURCE)) || defined(__freertos__)
     // 'tm_gmtoff' field is BSD extension and it's missing on SunOS/Solaris
     struct helper {
         static long int calculate_gmt_offset(const std::tm &localtm = details::os::localtime(),
@@ -394,6 +394,17 @@ SPDLOG_INLINE int pid() SPDLOG_NOEXCEPT {
 #else
     return conditional_static_cast<int>(::getpid());
 #endif
+}
+
+SPDLOG_INLINE process_info pinfo() SPDLOG_NOEXCEPT
+{
+    const auto pid_ = pid();
+#ifndef SPDLOG_NO_THREAD_ID
+    const size_t thread_id_ = thread_id();
+#else
+    const size_t thread_id_ = 0;
+#endif
+    return process_info(pid_, thread_id_);
 }
 
 // Determine if the terminal supports colors

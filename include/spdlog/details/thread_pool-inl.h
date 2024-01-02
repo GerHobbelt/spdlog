@@ -82,7 +82,12 @@ void SPDLOG_INLINE thread_pool::post_async_msg_(async_msg &&new_msg,
     if (overflow_policy == async_overflow_policy::block) {
         q_.enqueue(std::move(new_msg));
     } else if (overflow_policy == async_overflow_policy::overrun_oldest) {
-        q_.enqueue_nowait(std::move(new_msg));
+        auto overrun_callback = [](item_type&& item)
+        {
+            item.worker_ptr->on_log_dump_();
+        };
+
+        q_.enqueue_nowait(std::move(new_msg), overrun_callback);
     } else {
         assert(overflow_policy == async_overflow_policy::discard_new);
         q_.enqueue_if_have_room(std::move(new_msg));

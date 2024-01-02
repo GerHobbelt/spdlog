@@ -38,7 +38,8 @@ public:
     }
 
     // enqueue immediately. overrun oldest message in the queue if no room left.
-    void enqueue_nowait(T &&item) {
+    void enqueue_nowait(T &&item, void(*callback)(T&& element) = nullptr)
+    {
         {
             std::unique_lock<std::mutex> lock(queue_mutex_);
             q_.push_back(std::move(item));

@@ -81,6 +81,8 @@ SPDLOG_API std::string filename_to_str(const filename_t &filename);
 
 SPDLOG_API int pid() SPDLOG_NOEXCEPT;
 
+SPDLOG_API process_info pinfo() SPDLOG_NOEXCEPT;
+
 // Determine if the terminal supports colors
 // Source: https://github.com/agauniyal/rang/
 SPDLOG_API bool is_color_terminal() SPDLOG_NOEXCEPT;

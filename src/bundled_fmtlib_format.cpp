@@ -33,6 +33,7 @@ template FMT_API void buffer<char>::append(const char *, const char *);
 // incompatibility between clang and gcc (#2377).
 template FMT_API void vformat_to(buffer<char> &,
                                  string_view,
+                                 // typename vformat_args<>::type, locale_ref);
                                  basic_format_args<FMT_BUFFER_CONTEXT(char)>,
                                  locale_ref);
 

@@ -26,6 +26,8 @@ void udp_example();
 void custom_flags_example();
 void file_events_example();
 void replace_default_logger_example();
+void hierarchical_logger_example();
+void extended_stlying();
 
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"   // support for loading levels from the environment variable
@@ -34,6 +36,9 @@ void replace_default_logger_example();
 int main(int, char *[]) {
     // Log levels can be loaded from argv/env using "SPDLOG_LEVEL"
     load_levels_example();
+    spdlog::set_pattern("[%H:%M:%S %z] [process %P] [thread %t] [%n] %v");
+
+    spdlog::default_logger()->log(spdlog::process_info(6789, 44), spdlog::level::critical, "Spoofed pid and thread message");
 
     spdlog::info("Welcome to spdlog version {}.{}.{}  !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR,
                  SPDLOG_VER_PATCH);
@@ -84,6 +89,8 @@ int main(int, char *[]) {
         custom_flags_example();
         file_events_example();
         replace_default_logger_example();
+        hierarchical_logger_example();
+        extended_stlying();
 
         // Flush all *registered* loggers using a worker thread every 3 seconds.
         // note: registered loggers *must* be thread safe for this to work correctly!
@@ -166,6 +173,10 @@ void async_example() {
     for (int i = 1; i < 101; ++i) {
         async_file->info("Async message #{}", i);
     }
+    async_file->flush();
+
+    auto async_logger = static_cast<spdlog::async_logger*>(&(*async_file));
+    async_logger->wait();
 }
 
 // Log binary data as hex.
@@ -375,4 +386,94 @@ void replace_default_logger_example() {
     spdlog::debug("This message should be displayed..");
 
     spdlog::set_default_logger(old_logger);
+}
+
+void hierarchical_logger_example()
+{
+    spdlog::default_logger()->set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>("root [%n] [%^%l%$] %v"));
+
+    auto lvl1 = spdlog::stdout_color_mt("propagate_lvl1");
+
+    lvl1->set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>("lvl1 [%n] [%^%l%$] %v"));
+    lvl1->set_level(spdlog::level::debug);
+    auto lvl2 = std::make_shared<spdlog::logger>("propagate_lvl1.lvl2");
+    spdlog::register_logger(lvl2);
+    // skip level 3
+    auto lvl4 = std::make_shared<spdlog::logger>("propagate_lvl1.lvl2.lvl3.lvl4");
+    spdlog::register_logger(lvl4);
+
+
+    lvl4->debug("I am a debug message at Level 4 but will be printed by Level 1 logger");
+    lvl2->debug("I am a debug message at Level 2 but will be printed by Level 1 logger");
+
+
+    auto multi_lvl1 = spdlog::stdout_color_mt("multi_lvl1");
+    multi_lvl1->set_level(spdlog::level::debug);
+    multi_lvl1->set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>("lvl1 [%n] [%^%l%$] %v"));
+    auto multi_lvl2 = spdlog::stdout_color_mt("multi_lvl1.lvl2");
+    multi_lvl2->set_level(spdlog::level::info);
+    multi_lvl2->set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>("lvl2 [%n] [%^%l%$] %v"));
+    // skip level 3
+    auto multi_lvl4 = std::make_shared<spdlog::logger>("multi_lvl1.lvl2.lvl3.lvl4");
+    spdlog::register_logger(multi_lvl4);
+
+
+    multi_lvl4->debug("I am a debug message at Level 4 but will be printed by Level 1 logger");
+    multi_lvl4->info("I am an info message at Level 4 but will be printed by Level 2, Level 1 and root logger");
+}
+
+void extended_stlying()
+{
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+    // with extended styling you may use the mutliple color
+    // area formatter "%^" in more than one spot in your pattern.
+    // in addition there are syntax extensions to the color formatter
+    // they are defined by squirley braces { } after the '%' but before
+    // the '^'. (example: "%{bold}^")
+    //
+    // mutliple stylings can apply to a single area by delimiting the key
+    // words with a ';'. (example: "%{bold;fg_blue}^")
+    //
+    // styling key words come in three flavors font style, font foreground
+    // color, and font background color
+    //
+    // font styles:
+    // reset bold dark underline blink reverse
+    //
+    // font foreground colors:
+    // fg_black fg_red fg_green fg_yellow fg_blue fg_magenta fg_cyan fg_white fg_default
+    //
+    // font background colors:
+    // bg_black bg_red bg_green bg_yellow bg_blue bg_magenta bg_cyan bg_white bg_default
+
+
+    spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [thread %t] %v");
+    spdlog::info("regular log message");
+
+    spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [thread %t] %^%v%$");
+    spdlog::info("multiple color areas");
+
+    spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%{fg_yellow}^thread %t%$] %^%v%$");
+    spdlog::info("multiple color areas with more than one color");
+
+    spdlog::set_pattern("[%{bold;fg_red}^%H:%M:%S %z%$] [%^%L%$] [%{fg_yellow}^thread %t%$] %{bold;fg_cyan}^%v%$");
+    spdlog::info("bold colors?");
+
+    spdlog::set_pattern(
+        "[%{bold;fg_red}^%H:%M:%S %z%$] "
+        "[%^%L%$] [%{fg_yellow}^thread %t%$] "
+        "even %{bold;blink;fg_magenta;bg_black}^%v%$ colors?"
+    );
+    spdlog::info("blinking");
+
+    spdlog::set_pattern("[%{fg_yellow;bold}^%H:%M:%S %z%$] [%^%L%$] [%^thread %t%$] %^%v%$");
+    spdlog::set_level(spdlog::level::trace);
+    spdlog::trace("I work on other levels?");
+    spdlog::debug("I work on other levels?");
+    spdlog::info("I work on other levels?");
+    spdlog::warn("I work on other levels?");
+    spdlog::error("I work on other levels?");
+    spdlog::critical("I work on other levels?");
+    spdlog::set_pattern("%+"); // back to default format
+#endif
 }

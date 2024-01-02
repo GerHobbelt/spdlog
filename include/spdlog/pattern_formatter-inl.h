@@ -552,9 +552,9 @@ public:
         : flag_formatter(padinfo) {}
 
     void format(const details::log_msg &msg, const std::tm &, memory_buf_t &dest) override {
-        const auto field_size = ScopedPadder::count_digits(msg.thread_id);
+        const auto field_size = ScopedPadder::count_digits(msg.process_info.thread_id);
         ScopedPadder p(field_size, padinfo_, dest);
-        fmt_helper::append_int(msg.thread_id, dest);
+        fmt_helper::append_int(msg.process_info.thread_id, dest);
     }
 };
 
@@ -563,10 +563,13 @@ template <typename ScopedPadder>
 class pid_formatter final : public flag_formatter {
 public:
     explicit pid_formatter(padding_info padinfo)
-        : flag_formatter(padinfo) {}
+        : flag_formatter(padinfo)
+    {}
 
-    void format(const details::log_msg &, const std::tm &, memory_buf_t &dest) override {
-        const auto pid = static_cast<uint32_t>(details::os::pid());
+    void format(const details::log_msg &msg, const std::tm &, memory_buf_t &dest) override
+    {
+        // uses the log message process id if available and valid
+        const auto pid = msg.process_info.process_id > 0 ? msg.process_info.process_id : static_cast<uint32_t>(details::os::pid());
         auto field_size = ScopedPadder::count_digits(pid);
         ScopedPadder p(field_size, padinfo_, dest);
         fmt_helper::append_int(pid, dest);
@@ -612,6 +615,38 @@ private:
     std::string str_;
 };
 
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+// mark the style range. expect it to be in the form of "%^colored text%$" or "%{style_spec}^styled text%$"
+class color_start_formatter final : public flag_formatter
+{
+public:
+    explicit color_start_formatter(padding_info padinfo, styling_info style_info)
+        : flag_formatter(padinfo, style_info)
+    {}
+
+    void format(const details::log_msg &msg, const std::tm &, memory_buf_t &dest) override
+    {
+        styleinfo_.is_start = true;
+        styleinfo_.position = dest.size();
+        msg.styling_ranges.push_back(styleinfo_);
+    }
+};
+
+class color_stop_formatter final : public flag_formatter
+{
+public:
+    explicit color_stop_formatter(padding_info padinfo)
+        : flag_formatter(padinfo)
+    {}
+
+    void format(const details::log_msg &msg, const std::tm &, memory_buf_t &dest) override
+    {
+        styleinfo_.is_start = false;
+        styleinfo_.position = dest.size();
+        msg.styling_ranges.push_back(styleinfo_);
+    }
+};
+#else
 // mark the color range. expect it to be in the form of "%^colored text%$"
 class color_start_formatter final : public flag_formatter {
 public:
@@ -632,6 +667,7 @@ public:
         msg.color_range_end = dest.size();
     }
 };
+#endif
 
 // print source location
 template <typename ScopedPadder>
@@ -838,11 +874,25 @@ public:
         }
 
         dest.push_back('[');
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+        // wrap the level name with color
+        styleinfo_.is_start = true;
+        styleinfo_.position = dest.size();
+        msg.styling_ranges.push_back(styleinfo_);
+
+        fmt_helper::append_string_view(level::to_string_view(msg.level), dest);
+
+        styleinfo_.is_start = false;
+        styleinfo_.position = dest.size();
+        msg.styling_ranges.push_back(styleinfo_);
+#else
         // wrap the level name with color
         msg.color_range_start = dest.size();
+
         // fmt_helper::append_string_view(level::to_c_str(msg.level), dest);
         fmt_helper::append_string_view(level::to_string_view(msg.level), dest);
         msg.color_range_end = dest.size();
+#endif
         dest.push_back(']');
         dest.push_back(' ');
 
@@ -942,7 +992,11 @@ SPDLOG_INLINE std::tm pattern_formatter::get_time_(const details::log_msg &msg) 
 }
 
 template <typename Padder>
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+SPDLOG_INLINE void pattern_formatter::handle_flag_(char flag, details::padding_info padding, details::styling_info styling)
+#else
 SPDLOG_INLINE void pattern_formatter::handle_flag_(char flag, details::padding_info padding) {
+#endif
     // process custom flags
     auto it = custom_handlers_.find(flag);
     if (it != custom_handlers_.end()) {
@@ -1099,7 +1153,11 @@ SPDLOG_INLINE void pattern_formatter::handle_flag_(char flag, details::padding_i
             break;
 
         case ('^'):  // color range start
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+        formatters_.push_back(details::make_unique<details::color_start_formatter>(padding, styling));
+#else
             formatters_.push_back(details::make_unique<details::color_start_formatter>(padding));
+#endif
             break;
 
         case ('$'):  // color range end
@@ -1230,6 +1288,99 @@ SPDLOG_INLINE details::padding_info pattern_formatter::handle_padspec_(
     return details::padding_info{std::min<size_t>(width, max_width), side, truncate};
 }
 
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+// Extract given style spec (e.g. %{style}^X, %{style;style}^X, ...)
+// Advance the given it pass the end of the style spec found (if any)
+// Return style.
+SPDLOG_INLINE details::styling_info pattern_formatter::handle_stylespec_(std::string::const_iterator &it, std::string::const_iterator end)
+{
+    using details::styling_info;
+
+    if (it == end || *it != '{' )
+    {   // there is no style spec, shortcuit
+        return styling_info{};
+    }
+    it++; // consume '{'
+
+    std::string input  = static_cast<std::string>(&(*it));
+    size_t end_of_spec = input.find('}');
+
+    if (end_of_spec == std::string::npos)
+    {   // the style spec closing delimtier is not present
+        return styling_info{};
+    }
+    std::string full_spec_(input, 0, end_of_spec);
+
+    // need to advance the iterator the number of characters in the spec
+    // plus the closing delimiter '}'
+    size_t consumed_characters = full_spec_.length() + 1;
+    it  += consumed_characters;
+
+    // the style spec can be delimited by semi-colons to declare
+    // mutliple types of styling (i.e. {fg_green;bold})
+    size_t insert_position = 0;
+    details::styles_array styles{};
+
+    if (full_spec_.find(';') != std::string::npos)
+    {   // spec contains multiple styles
+        for (auto it_s = full_spec_.begin(); it_s != full_spec_.end(); ++it_s)
+        {
+            std::string t_spec_ = static_cast<std::string>(&(*it_s));
+            size_t delimiter    = t_spec_.find(';');
+
+            if (delimiter == std::string::npos)
+            {   // this is the last style in the spec
+                for (int i = 0; i < SPDLOG_ANSI_STLYE_COUNT; i++)
+                {
+                    if (t_spec_.compare(details::style_type_table[i]) == 0)
+                    {   // verify this style spec is valid
+                        try
+                        {
+                            styles[insert_position] = details::style_type(i);
+                            insert_position++;
+                        }
+                        catch (...) // user added more styles than are defined
+                        {}
+                        break;
+                    }
+                }
+                break;
+            }
+
+            std::string s_spec_(t_spec_, 0, delimiter);
+            for (int i = 0; i < SPDLOG_ANSI_STLYE_COUNT; i++)
+            {
+                if (s_spec_.compare(details::style_type_table[i]) == 0)
+                {   // verify this style spec is valid
+                    try
+                    {
+                        styles[insert_position] = details::style_type(i);
+                        insert_position++;
+                    }
+                    catch (...) // user added more styles than are defined
+                    {}
+                    break;
+                }
+            }
+            // advance the iterator, the for loop will consume the semi-colon
+            size_t  consumed_style = s_spec_.length();
+            it_s += consumed_style;
+        }
+    }
+    else
+    {   // style spec contains single style
+        for (int i = 0; i < SPDLOG_ANSI_STLYE_COUNT; i++)
+        {   // verify this style spec is valid
+            if (full_spec_.compare(details::style_type_table[i]) == 0)
+            {
+                styles[insert_position] = details::style_type(i);
+                break;
+            }
+        }
+    }
+    return styling_info{styles};
+}
+#endif
 SPDLOG_INLINE void pattern_formatter::compile_pattern_(const std::string &pattern) {
     auto end = pattern.end();
     std::unique_ptr<details::aggregate_formatter> user_chars;
@@ -1243,13 +1394,31 @@ SPDLOG_INLINE void pattern_formatter::compile_pattern_(const std::string &patter
 
             auto padding = handle_padspec_(++it, end);
 
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+            auto styles  = handle_stylespec_(it, end);
+
+            if (it != end)
+            {
+                if (padding.enabled())
+                {
+                    handle_flag_<details::scoped_padder>(*it, padding, styles);
+                }
+                else
+                {
+                    handle_flag_<details::null_scoped_padder>(*it, padding, styles);
+                }
+            }
+#else
             if (it != end) {
                 if (padding.enabled()) {
                     handle_flag_<details::scoped_padder>(*it, padding);
                 } else {
                     handle_flag_<details::null_scoped_padder>(*it, padding);
                 }
-            } else {
+            }
+#endif
+            else
+            {
                 break;
             }
         } else  // chars not following the % sign should be displayed as is

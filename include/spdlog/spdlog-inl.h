@@ -35,7 +35,7 @@ SPDLOG_INLINE void enable_backtrace(size_t n_messages) {
 
 SPDLOG_INLINE void disable_backtrace() { details::registry::instance().disable_backtrace(); }
 
-SPDLOG_INLINE void dump_backtrace() { default_logger_raw()->dump_backtrace(); }
+SPDLOG_INLINE void dump_backtrace(bool with_message) { default_logger_raw()->dump_backtrace(with_message); }
 
 SPDLOG_INLINE level::level_enum get_level() { return default_logger_raw()->level(); }
 

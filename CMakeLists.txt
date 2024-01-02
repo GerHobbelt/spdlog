@@ -65,7 +65,7 @@ option(SPDLOG_BUILD_SHARED "Build shared library" OFF)
 option(SPDLOG_ENABLE_PCH "Build static or shared library using precompiled header to speed up compilation time" OFF)
 
 # build position independent code
-option(SPDLOG_BUILD_PIC "Build position independent code (-fPIC)" OFF)
+option(SPDLOG_BUILD_PIC "Build position independent code (-fPIC)" ON)
 
 # example options
 option(SPDLOG_BUILD_EXAMPLE "Build example" ${SPDLOG_MASTER_PROJECT})
@@ -119,8 +119,10 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     option(SPDLOG_CLOCK_COARSE "Use CLOCK_REALTIME_COARSE instead of the regular clock," OFF)
+    option(SPDLOG_EXTENDED_STLYING "Use the extended styling system and syntax" OFF)
 else()
     set(SPDLOG_CLOCK_COARSE OFF CACHE BOOL "non supported option" FORCE)
+    set(SPDLOG_EXTENDED_STLYING "non supported option" FORCE)
 endif()
 
 option(SPDLOG_PREVENT_CHILD_FD "Prevent from child processes to inherit log file descriptors" OFF)
@@ -168,7 +170,7 @@ if(SPDLOG_BUILD_SHARED OR BUILD_SHARED_LIBS)
                                              /wd4275>)
     endif()
     if(NOT SPDLOG_USE_STD_FORMAT AND NOT SPDLOG_FMT_EXTERNAL AND NOT SPDLOG_FMT_EXTERNAL_HO)
-        target_compile_definitions(spdlog PRIVATE FMT_EXPORT PUBLIC FMT_SHARED)
+        target_compile_definitions(spdlog PRIVATE FMT_LIB_EXPORT PUBLIC FMT_SHARED)
     endif()
 else()
     add_library(spdlog STATIC ${SPDLOG_SRCS} ${SPDLOG_ALL_HEADERS})
@@ -247,6 +249,7 @@ foreach(
     SPDLOG_WCHAR_FILENAMES
     SPDLOG_NO_EXCEPTIONS
     SPDLOG_CLOCK_COARSE
+    SPDLOG_EXTENDED_STLYING
     SPDLOG_PREVENT_CHILD_FD
     SPDLOG_NO_THREAD_ID
     SPDLOG_NO_TLS
