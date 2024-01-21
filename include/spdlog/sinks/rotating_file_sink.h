@@ -28,7 +28,7 @@ public:
 					   rotate_file_mode rmode = rotate_file_mode::desc, 
                        bool rotate_on_open = false,
                        const file_event_handlers &event_handlers = {});
-    rotating_file_sink(filename_t base_filename, std::size_t max_size, std::size_t max_files, rotate_file_mode rmode = rotate_file_mode::desc,
+    rotating_file_sink(filename_t base_filename, std::size_t max_size, std::size_t max_files, rotate_file_mode rmode,
         filename_t compress_extension, std::function<void(filename_t)> compress_callback, bool rotate_on_open = false, const file_event_handlers &event_handlers = {});
     static filename_t calc_filename(const filename_t &filename, std::size_t index);
     filename_t filename();

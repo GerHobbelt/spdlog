@@ -93,6 +93,7 @@ cmake-build-*/
 *.DS_store
 *.xcodeproj/
 bin-int
+
 # visual studio
 /out/
 /.vs

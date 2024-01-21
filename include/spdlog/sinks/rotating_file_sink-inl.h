@@ -42,13 +42,14 @@ SPDLOG_INLINE rotating_file_sink<Mutex>::rotating_file_sink(
 
 template <typename Mutex>
 SPDLOG_INLINE rotating_file_sink<Mutex>::rotating_file_sink(
-    filename_t base_filename, std::size_t max_size, std::size_t max_files,
+    filename_t base_filename, std::size_t max_size, std::size_t max_files, rotate_file_mode rmode,
     filename_t compress_extension, std::function<void(filename_t)> compress_callback, bool rotate_on_open,
     const file_event_handlers &event_handlers)
     : base_filename_(std::move(base_filename))
     , max_size_(max_size)
     , max_files_(max_files)
-    , file_helper_{event_handlers}
+	, rotate_mode_(rmode)
+	, file_helper_{event_handlers}
     , compress_extension_(std::move(compress_extension))
     , compress_callback_(std::move(compress_callback))
 {
