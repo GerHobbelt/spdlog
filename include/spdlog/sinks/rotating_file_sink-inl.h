@@ -203,7 +203,7 @@ SPDLOG_INLINE void rotating_file_sink<Mutex>::rotate_asc_()
 	{
 		src = last_file;
 	    last_file.append(compress_extension_);
-	    if (path_exists(target_file))
+	    if (path_exists(last_file))
 	    {
 	        reach_max = true;
 	    }
