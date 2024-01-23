@@ -25,20 +25,22 @@
 #include <string>
 #include <thread>
 
+#include "monolithic_examples.h"
+
 using namespace std;
 using namespace std::chrono;
 using namespace spdlog;
 using namespace spdlog::sinks;
 using namespace utils;
 
-void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, int thread_count);
+static void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, int thread_count);
 
 #ifdef _MSC_VER
     #pragma warning(push)
     #pragma warning(disable : 4996)  // disable fopen warning under msvc
 #endif                               // _MSC_VER
 
-int count_lines(const char *filename) {
+static int count_lines(const char *filename) {
     int counter = 0;
     auto *infile = fopen(filename, "r");
     int ch;
@@ -50,7 +52,7 @@ int count_lines(const char *filename) {
     return counter;
 }
 
-void verify_file(const char *filename, int expected_count) {
+static void verify_file(const char *filename, int expected_count) {
     spdlog::info("Verifying {} to contain {} line..", filename, expected_count);
     auto count = count_lines(filename);
     if (count != expected_count) {
@@ -65,7 +67,12 @@ void verify_file(const char *filename, int expected_count) {
     #pragma warning(pop)
 #endif
 
-int main(int argc, char *argv[]) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      spdlog_async_bench_main(cnt, arr)
+#endif
+
+int main(int argc, const char **argv) {
     int howmany = 1000000;
     int queue_size = std::min(howmany + 2, 8192);
     int threads = 10;
@@ -137,13 +144,13 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void thread_fun(std::shared_ptr<spdlog::logger> logger, int howmany) {
+static void thread_fun(std::shared_ptr<spdlog::logger> logger, int howmany) {
     for (int i = 0; i < howmany; i++) {
         logger->info("Hello logger: msg number {}", i);
     }
 }
 
-void bench_mt(int howmany, std::shared_ptr<spdlog::logger> logger, int thread_count) {
+static void bench_mt(int howmany, std::shared_ptr<spdlog::logger> logger, int thread_count) {
     using std::chrono::high_resolution_clock;
     vector<std::thread> threads;
     auto start = high_resolution_clock::now();

@@ -8,7 +8,9 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/pattern_formatter.h"
 
-void bench_formatter(benchmark::State &state, std::string pattern) {
+#include "monolithic_examples.h"
+
+static void bench_formatter(benchmark::State &state, std::string pattern) {
     auto formatter = spdlog::details::make_unique<spdlog::pattern_formatter>(pattern);
     spdlog::memory_buf_t dest;
     std::string logger_name = "logger-name";
@@ -25,7 +27,7 @@ void bench_formatter(benchmark::State &state, std::string pattern) {
     }
 }
 
-void bench_formatters() {
+static void bench_formatters() {
     // basic patterns(single flag)
     std::string all_flags = "+vtPnlLaAbBcCYDmdHIMSefFprRTXzEisg@luioO%";
     std::vector<std::string> basic_patterns;
@@ -53,11 +55,16 @@ void bench_formatters() {
     }
 }
 
-int main(int argc, char *argv[]) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      spdlog_formatter_bench_main(cnt, arr)
+#endif
+
+int main(int argc, const char **argv) {
     spdlog::set_pattern("[%^%l%$] %v");
     if (argc != 2) {
         spdlog::error("Usage: {} <pattern> (or \"all\" to bench all)", argv[0]);
-        exit(1);
+        return 1;
     }
 
     std::string pattern = argv[1];
@@ -68,4 +75,5 @@ int main(int argc, char *argv[]) {
     }
     benchmark::Initialize(&argc, argv);
     benchmark::RunSpecifiedBenchmarks();
+	return 0;
 }

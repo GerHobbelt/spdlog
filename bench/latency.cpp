@@ -16,7 +16,9 @@
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 
-void bench_c_string(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
+#include "monolithic_examples.h"
+
+static void bench_c_string(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
     const char *msg =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum pharetra metus cursus "
         "lacus placerat congue. Nulla egestas, mauris a tincidunt tempus, enim lectus volutpat mi, "
@@ -33,13 +35,13 @@ void bench_c_string(benchmark::State &state, std::shared_ptr<spdlog::logger> log
     }
 }
 
-void bench_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
+static void bench_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
     int i = 0;
     for (auto _ : state) {
         logger->info("Hello logger: msg number {}...............", ++i);
     }
 }
-void bench_global_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
+static void bench_global_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
     spdlog::set_default_logger(std::move(logger));
     int i = 0;
     for (auto _ : state) {
@@ -47,7 +49,7 @@ void bench_global_logger(benchmark::State &state, std::shared_ptr<spdlog::logger
     }
 }
 
-void bench_disabled_macro(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
+static void bench_disabled_macro(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
     int i = 0;
     benchmark::DoNotOptimize(i);       // prevent unused warnings
     benchmark::DoNotOptimize(logger);  // prevent unused warnings
@@ -56,7 +58,7 @@ void bench_disabled_macro(benchmark::State &state, std::shared_ptr<spdlog::logge
     }
 }
 
-void bench_disabled_macro_global_logger(benchmark::State &state,
+static void bench_disabled_macro_global_logger(benchmark::State &state,
                                         std::shared_ptr<spdlog::logger> logger) {
     spdlog::set_default_logger(std::move(logger));
     int i = 0;
@@ -68,7 +70,7 @@ void bench_disabled_macro_global_logger(benchmark::State &state,
 }
 
 #ifdef __linux__
-void bench_dev_null() {
+static void bench_dev_null() {
     auto dev_null_st = spdlog::basic_logger_st("/dev/null_st", "/dev/null");
     benchmark::RegisterBenchmark("/dev/null_st", bench_logger, std::move(dev_null_st))
         ->UseRealTime();
@@ -81,7 +83,12 @@ void bench_dev_null() {
 }
 #endif  // __linux__
 
-int main(int argc, char *argv[]) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      spdlog_latency_bench_main(cnt, arr)
+#endif
+
+int main(int argc, const char **argv) {
     using spdlog::sinks::null_sink_mt;
     using spdlog::sinks::null_sink_st;
 
@@ -217,4 +224,5 @@ int main(int argc, char *argv[]) {
 
     benchmark::Initialize(&argc, argv);
     benchmark::RunSpecifiedBenchmarks();
+	return 0;
 }

@@ -39,6 +39,13 @@ static void android_example();
 #include "spdlog/cfg/env.h"   // support for loading levels from the environment variable
 #include "spdlog/fmt/ostr.h"  // support for user defined types
 
+#include "monolithic_examples.h"
+
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      spdlog_example_main(cnt, arr)
+#endif
+
 int main(int argc, const char **argv) {
     // Log levels can be loaded from argv/env using "SPDLOG_LEVEL"
     load_levels_example();
@@ -114,6 +121,7 @@ int main(int argc, const char **argv) {
         // Release all spdlog resources, and drop all loggers in the registry.
         // This is optional (only mandatory if using windows + async log).
         spdlog::shutdown();
+		return 0;
     }
 
     // Exceptions will only be thrown upon failed logger or sink construction (not during logging).

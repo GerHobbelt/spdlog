@@ -27,8 +27,10 @@
 #include <string>
 #include <thread>
 
-void bench(int howmany, std::shared_ptr<spdlog::logger> log);
-void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, size_t thread_count);
+#include "monolithic_examples.h"
+
+static void bench(int howmany, std::shared_ptr<spdlog::logger> log);
+static void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, size_t thread_count);
 
 // void bench_default_api(int howmany, std::shared_ptr<spdlog::logger> log);
 // void bench_c_string(int howmany, std::shared_ptr<spdlog::logger> log);
@@ -37,7 +39,7 @@ static const size_t file_size = 30 * 1024 * 1024;
 static const size_t rotating_files = 5;
 static const int max_threads = 1000;
 
-void bench_threaded_logging(size_t threads, int iters) {
+static void bench_threaded_logging(size_t threads, int iters) {
     spdlog::info("**************************************************************");
     spdlog::info(spdlog::fmt_lib::format(
         std::locale("en_US.UTF-8"), "Multi threaded: {:L} threads, {:L} messages", threads, iters));
@@ -76,7 +78,7 @@ void bench_threaded_logging(size_t threads, int iters) {
     bench(iters, empty_logger_tracing);
 }
 
-void bench_single_threaded(int iters) {
+static void bench_single_threaded(int iters) {
     spdlog::info("**************************************************************");
     spdlog::info(
         spdlog::fmt_lib::format(std::locale("en_US.UTF-8"), "Single threaded: {} messages", iters));
@@ -116,8 +118,14 @@ void bench_single_threaded(int iters) {
     bench(iters, empty_logger_tracing);
 }
 
-int main(int argc, char *argv[]) {
-    spdlog::set_automatic_registration(false);
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      spdlog_bench_main(cnt, arr)
+#endif
+
+int main(int argc, const char **argv) {
+	std::locale::global(std::locale("en_US.UTF-8"));
+	spdlog::set_automatic_registration(false);
     spdlog::default_logger()->set_pattern("[%^%l%$] %v");
     int iters = 250000;
     size_t threads = 4;
@@ -144,7 +152,7 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
-void bench(int howmany, std::shared_ptr<spdlog::logger> log) {
+static void bench(int howmany, std::shared_ptr<spdlog::logger> log) {
     using std::chrono::duration;
     using std::chrono::duration_cast;
     using std::chrono::high_resolution_clock;
@@ -163,7 +171,7 @@ void bench(int howmany, std::shared_ptr<spdlog::logger> log) {
     spdlog::drop(log->name());
 }
 
-void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, size_t thread_count) {
+static void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, size_t thread_count) {
     using std::chrono::duration;
     using std::chrono::duration_cast;
     using std::chrono::high_resolution_clock;
@@ -191,8 +199,9 @@ void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, size_t thread_co
     spdlog::drop(log->name());
 }
 
-/*
-void bench_default_api(int howmany, std::shared_ptr<spdlog::logger> log)
+#if 0
+
+static void bench_default_api(int howmany, std::shared_ptr<spdlog::logger> log)
 {
     using std::chrono::high_resolution_clock;
     using std::chrono::duration;
@@ -214,7 +223,7 @@ void bench_default_api(int howmany, std::shared_ptr<spdlog::logger> log)
 delta_d));
 }
 
-void bench_c_string(int howmany, std::shared_ptr<spdlog::logger> log)
+static void bench_c_string(int howmany, std::shared_ptr<spdlog::logger> log)
 {
     using std::chrono::high_resolution_clock;
     using std::chrono::duration;
@@ -243,4 +252,4 @@ odio. Maecenas malesuada quam ex, posuere congue nibh turpis duis.";
 delta_d));
 }
 
-*/
+#endif
