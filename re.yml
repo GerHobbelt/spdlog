@@ -2,7 +2,7 @@ type: static-library
 name: spdlog
 
 deps:
-  - global:fmt
+  - uses:fmt
 
 cxx-compile-definitions:
   SPDLOG_COMPILED_LIB: 1
