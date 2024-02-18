@@ -32,11 +32,13 @@ public:
 
     // change the color for the given level
     void set_color(level::level_enum level, std::uint16_t color);
-    void log(const details::log_msg &msg) final override;
+    void log(const details::log_msg &msg) override;
+    void set_output(FILE *override_output);
     void flush() final override;
-    void set_pattern(const std::string &pattern) override final;
+    virtual void set_pattern(const std::string &pattern) override final;
     void set_formatter(std::unique_ptr<spdlog::formatter> sink_formatter) override final;
     void set_color_mode(color_mode mode);
+
 protected:
     void *out_handle_;
 
@@ -73,11 +75,23 @@ public:
     explicit wincolor_stderr_sink(color_mode mode = color_mode::automatic);
 };
 
+template<typename ConsoleMutex>
+class wincolor_dual_sink : public wincolor_sink<ConsoleMutex>
+{
+public:
+    explicit wincolor_dual_sink(color_mode mode = color_mode::automatic);
+
+    void log(const details::log_msg &msg) final;
+};
+
 using wincolor_stdout_sink_mt = wincolor_stdout_sink<details::console_mutex>;
 using wincolor_stdout_sink_st = wincolor_stdout_sink<details::console_nullmutex>;
 
 using wincolor_stderr_sink_mt = wincolor_stderr_sink<details::console_mutex>;
 using wincolor_stderr_sink_st = wincolor_stderr_sink<details::console_nullmutex>;
+
+using wincolor_dual_sink_mt = wincolor_dual_sink<details::console_mutex>;
+using wincolor_dual_sink_st = wincolor_dual_sink<details::console_nullmutex>;
 } // namespace sinks
 } // namespace spdlog
 

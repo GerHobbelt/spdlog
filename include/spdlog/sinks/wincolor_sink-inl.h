@@ -79,6 +79,14 @@ void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::log(const details::log_msg &msg)
 }
 
 template<typename ConsoleMutex>
+void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::set_output(FILE *override_output)
+{
+    std::lock_guard<mutex_t> guard(mutex_);
+    out_handle_ = override_output;
+    set_color_mode(color_mode::automatic);
+}
+
+template<typename ConsoleMutex>
 void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::flush()
 {
     // windows console always flushed?
@@ -171,5 +179,26 @@ template<typename ConsoleMutex>
 SPDLOG_INLINE wincolor_stderr_sink<ConsoleMutex>::wincolor_stderr_sink(color_mode mode)
     : wincolor_sink<ConsoleMutex>(::GetStdHandle(STD_ERROR_HANDLE), mode)
 {}
+
+// wincolor_dual_sink
+template<typename ConsoleMutex>
+SPDLOG_INLINE wincolor_dual_sink<ConsoleMutex>::wincolor_dual_sink(color_mode mode)
+    : wincolor_sink<ConsoleMutex>(stdout, mode)
+{}
+
+template<typename ConsoleMutex>
+SPDLOG_INLINE void wincolor_dual_sink<ConsoleMutex>::log(const details::log_msg &msg)
+{
+    if (msg.level <= level::warn && msg.level > level::debug)
+    {
+        wincolor_sink<ConsoleMutex>::set_output(stdout);
+    }
+    else
+    {
+        wincolor_sink<ConsoleMutex>::set_output(stderr);
+    }
+
+    wincolor_sink<ConsoleMutex>::log(msg);
+}
 } // namespace sinks
 } // namespace spdlog
