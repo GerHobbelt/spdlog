@@ -30,6 +30,9 @@
 namespace spdlog {
 namespace details {
 
+std::atomic<registry *> registry::s_instance{nullptr};
+std::mutex registry::s_instanceMutex;
+
 SPDLOG_INLINE registry::registry()
     : formatter_(new pattern_formatter()) {
 #ifndef SPDLOG_DISABLE_DEFAULT_LOGGER
@@ -265,9 +268,29 @@ SPDLOG_INLINE void registry::set_levels(log_levels levels, level::level_enum *gl
     }
 }
 
+SPDLOG_INLINE void registry::free() {
+    std::lock_guard<std::mutex> lock(s_instanceMutex);
+
+    delete s_instance;
+    s_instance = nullptr;
+}
+
+// Double checked locking to avoid expensive locks when not required.
+// 1) First we atomically check if the instance is valid; in this case it can safely be returned directly without locking.
+// 2) If the instance is actually null, then we can no longer perform the operation atomically, so need to lock the mutex. This will happen only once in the program's lifetime. One the mutex is locked, check if the instance is still null
+//    (as another thread might have changed it by this point). If it's still null, allocate and update the atomic instance pointer, unlock mutex and return the reference.
+// https://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/
 SPDLOG_INLINE registry &registry::instance() {
-    static registry s_instance;
-    return s_instance;
+    auto *instance = s_instance.load(std::memory_order_acquire);
+    if (instance == nullptr) {
+        std::lock_guard<std::mutex> lock(s_instanceMutex);
+        instance = s_instance.load(std::memory_order_relaxed);
+        if (instance == nullptr) {
+            instance = new registry();
+            s_instance.store(instance, std::memory_order_release);
+        }
+    }
+    return *instance;
 }
 
 SPDLOG_INLINE void registry::apply_logger_env_levels(std::shared_ptr<logger> new_logger) {
