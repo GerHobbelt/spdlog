@@ -8,6 +8,8 @@
 #include <spdlog/details/synchronous_factory.h>
 #include <spdlog/sinks/base_sink.h>
 
+#if !defined(_WIN32)
+
 #include <array>
 #ifndef SD_JOURNAL_SUPPRESS_LOCATION
     #define SD_JOURNAL_SUPPRESS_LOCATION
@@ -119,3 +121,5 @@ inline std::shared_ptr<logger> systemd_logger_st(const std::string &logger_name,
     return Factory::template create<sinks::systemd_sink_st>(logger_name, ident, enable_formatting);
 }
 }  // namespace spdlog
+
+#endif

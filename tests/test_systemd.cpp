@@ -1,6 +1,8 @@
 #include "includes.h"
 #include "spdlog/sinks/systemd_sink.h"
 
+#if !defined(_WIN32)
+
 TEST_CASE("systemd", "[all]") {
     auto systemd_sink = std::make_shared<spdlog::sinks::systemd_sink_st>();
     spdlog::logger logger("spdlog_systemd_test", systemd_sink);
@@ -12,3 +14,5 @@ TEST_CASE("systemd", "[all]") {
     SPDLOG_LOGGER_ERROR((&logger), "test spdlog error");
     SPDLOG_LOGGER_CRITICAL((&logger), "test spdlog critical");
 }
+
+#endif
