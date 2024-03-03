@@ -68,7 +68,7 @@ TEST_CASE("rotating_file_logger2", "[rotating_logger]")
 
     {
         // make an initial logger to create the first output file
-        auto logger = spdlog::rotating_logger_mt("logger", basename, max_size, 2, true);
+        auto logger = spdlog::rotating_logger_mt("logger", basename, max_size, 2, spdlog::rotate_file_mode::desc, true);
         for (int i = 0; i < 10; ++i)
         {
             logger->info("Test message {}", i);
@@ -78,7 +78,7 @@ TEST_CASE("rotating_file_logger2", "[rotating_logger]")
         spdlog::drop(logger->name());
     }
 
-    auto logger = spdlog::rotating_logger_mt("logger", basename, max_size, 2, true);
+    auto logger = spdlog::rotating_logger_mt("logger", basename, max_size, 2, spdlog::rotate_file_mode::desc, true);
     for (int i = 0; i < 10; ++i)
     {
         logger->info("Test message {}", i);
