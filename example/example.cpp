@@ -216,7 +216,7 @@ static void async_example() {
 // {:n} - don't split the output to lines.
 
 #if !defined SPDLOG_USE_STD_FORMAT || defined(_MSC_VER)
-#    include "spdlog/fmt/bin_to_hex.h"
+    #include "spdlog/fmt/bin_to_hex.h"
 
 static void binary_example() {
     std::vector<char> buf;
@@ -227,11 +227,12 @@ static void binary_example() {
     spdlog::info("Another binary example:{:n}",
                  spdlog::to_hex(std::begin(buf), std::begin(buf) + 10));
     // more examples:
-    // logger->info("uppercase: {:X}", spdlog::to_hex(buf));
-    // logger->info("uppercase, no delimiters: {:Xs}", spdlog::to_hex(buf));
-    // logger->info("uppercase, no delimiters, no position info: {:Xsp}", spdlog::to_hex(buf));
-    // logger->info("hexdump style: {:a}", spdlog::to_hex(buf));
-    // logger->info("hexdump style, 20 chars per line {:a}", spdlog::to_hex(buf, 20));
+	auto* logger = spdlog::default_logger_raw();
+    logger->info("uppercase: {:X}", spdlog::to_hex(buf));
+    logger->info("uppercase, no delimiters: {:Xs}", spdlog::to_hex(buf));
+    logger->info("uppercase, no delimiters, no position info: {:Xsp}", spdlog::to_hex(buf));
+    logger->info("hexdump style: {:a}", spdlog::to_hex(buf));
+    logger->info("hexdump style, 20 chars per line {:a}", spdlog::to_hex(buf, 20));
 }
 #else
 static void binary_example() {
