@@ -12,6 +12,12 @@ $ git clone https://github.com/gabime/spdlog.git
 $ cd spdlog && mkdir build && cd build
 $ cmake .. && make -j
 ```
+##### or
+```console
+$ git clone https://github.com/gabime/spdlog.git
+$ cd spdlog && mkdir build && cd build
+$ cmake .. && cmake --build . --target all
+```
 
 see example [CMakeLists.txt](https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt) on how to use.
 
@@ -80,7 +86,8 @@ int main()
     spdlog::set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
     
     // Compile time log levels
-    // define SPDLOG_ACTIVE_LEVEL to desired level
+    // Note that this does not change the current log level, it will only
+    // remove (depending on SPDLOG_ACTIVE_LEVEL) the call on the release code.
     SPDLOG_TRACE("Some trace message with param {}", 42);
     SPDLOG_DEBUG("Some debug message");
 }
@@ -128,6 +135,22 @@ void rotating_example()
     auto logger = spdlog::rotating_logger_mt("some_logger_name", "logs/rotating.txt", max_size, max_files);
 }
 ```
+
+It's possible to use callback for manipulating (compressing, copying somewhere, etc) the newly completed and rotated log file (essentially `rotating.1.txt` in this example). If that callback compresses and appends extension (ex. `.gz`) it has to be mentioned in the parameters, otherwise keep it empty string. The callback can be any functional which accepts `spdlog::filename_t` parameter to manipulate it.
+```c++
+#include "spdlog/sinks/rotating_file_sink.h"
+#include <cstdlib>
+void rotating_example()
+{
+    // Create a file rotating logger with 5mb size max and 3 rotated files
+    auto max_size = 1048576 * 5;
+    auto max_files = 3;
+    auto logger = spdlog::rotating_logger_mt("some_logger_name", "logs/rotating.txt", max_size, max_files, ".gz", [](spdlog::filename_t filename){
+        std::system(std::string("gzip " + filename).c_str());
+    });
+}
+```
+
 
 ---
 #### Daily files

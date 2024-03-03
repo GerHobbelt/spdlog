@@ -1,6 +1,6 @@
 # Copyright(c) 2019 spdlog authors Distributed under the MIT License (http://opensource.org/licenses/MIT)
 
-cmake_minimum_required(VERSION 3.10...3.21)
+cmake_minimum_required(VERSION 3.11)
 
 # ---------------------------------------------------------------------------------------
 # Start spdlog project
@@ -40,7 +40,7 @@ endif()
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if(CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
+if(CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS" OR CMAKE_SYSTEM_NAME MATCHES "MINGW")
     set(CMAKE_CXX_EXTENSIONS ON)
 endif()
 
@@ -65,7 +65,7 @@ option(SPDLOG_BUILD_SHARED "Build shared library" OFF)
 option(SPDLOG_ENABLE_PCH "Build static or shared library using precompiled header to speed up compilation time" OFF)
 
 # build position independent code
-option(SPDLOG_BUILD_PIC "Build position independent code (-fPIC)" OFF)
+option(SPDLOG_BUILD_PIC "Build position independent code (-fPIC)" ON)
 
 # example options
 option(SPDLOG_BUILD_EXAMPLE "Build example" ${SPDLOG_MASTER_PROJECT})
@@ -83,6 +83,10 @@ option(SPDLOG_SANITIZE_ADDRESS "Enable address sanitizer in tests" OFF)
 
 # warning options
 option(SPDLOG_BUILD_WARNINGS "Enable compiler warnings" OFF)
+
+# owning sourceloc strings options
+option(SPDLOG_ASYNC_OWNING_SOURCELOC_STRINGS "Async loggers take owership of source_loc strings" OFF)
+
 
 # install options
 option(SPDLOG_SYSTEM_INCLUDES "Include as system headers (skip for clang-tidy)." OFF)
@@ -115,8 +119,10 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     option(SPDLOG_CLOCK_COARSE "Use CLOCK_REALTIME_COARSE instead of the regular clock," OFF)
+    option(SPDLOG_EXTENDED_STLYING "Use the extended styling system and syntax" OFF)
 else()
     set(SPDLOG_CLOCK_COARSE OFF CACHE BOOL "non supported option" FORCE)
+    set(SPDLOG_EXTENDED_STLYING "non supported option" FORCE)
 endif()
 
 option(SPDLOG_PREVENT_CHILD_FD "Prevent from child processes to inherit log file descriptors" OFF)
@@ -129,9 +135,7 @@ option(
 option(SPDLOG_DISABLE_DEFAULT_LOGGER "Disable default logger creation" OFF)
 
 # clang-tidy
-if(${CMAKE_VERSION} VERSION_GREATER "3.5")
-    option(SPDLOG_TIDY "run clang-tidy" OFF)
-endif()
+option(SPDLOG_TIDY "run clang-tidy" OFF)
 
 if(SPDLOG_TIDY)
     set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
@@ -166,7 +170,7 @@ if(SPDLOG_BUILD_SHARED OR BUILD_SHARED_LIBS)
                                              /wd4275>)
     endif()
     if(NOT SPDLOG_USE_STD_FORMAT AND NOT SPDLOG_FMT_EXTERNAL AND NOT SPDLOG_FMT_EXTERNAL_HO)
-        target_compile_definitions(spdlog PRIVATE FMT_EXPORT PUBLIC FMT_SHARED)
+        target_compile_definitions(spdlog PRIVATE FMT_LIB_EXPORT PUBLIC FMT_SHARED)
     endif()
 else()
     add_library(spdlog STATIC ${SPDLOG_SRCS} ${SPDLOG_ALL_HEADERS})
@@ -245,11 +249,13 @@ foreach(
     SPDLOG_WCHAR_FILENAMES
     SPDLOG_NO_EXCEPTIONS
     SPDLOG_CLOCK_COARSE
+    SPDLOG_EXTENDED_STLYING
     SPDLOG_PREVENT_CHILD_FD
     SPDLOG_NO_THREAD_ID
     SPDLOG_NO_TLS
     SPDLOG_NO_ATOMIC_LEVELS
     SPDLOG_DISABLE_DEFAULT_LOGGER
+    SPDLOG_ASYNC_OWNING_SOURCELOC_STRINGS
     SPDLOG_USE_STD_FORMAT)
     if(${SPDLOG_OPTION})
         target_compile_definitions(spdlog PUBLIC ${SPDLOG_OPTION})
@@ -267,7 +273,7 @@ if(SPDLOG_NO_EXCEPTIONS)
     if(NOT MSVC)
         target_compile_options(spdlog PRIVATE -fno-exceptions)
     else()
-        target_compile_options(spdlog PRIVATE /EHsc)
+        target_compile_options(spdlog PRIVATE /EHs-c-)
     endif()
 endif()
 # ---------------------------------------------------------------------------------------
@@ -344,7 +350,8 @@ if(SPDLOG_INSTALL)
     # ---------------------------------------------------------------------------------------
     # Install CMake config files
     # ---------------------------------------------------------------------------------------
-    export(TARGETS spdlog spdlog_header_only NAMESPACE spdlog:: FILE "${CMAKE_CURRENT_BINARY_DIR}/${config_targets_file}")
+    export(TARGETS spdlog spdlog_header_only NAMESPACE spdlog::
+           FILE "${CMAKE_CURRENT_BINARY_DIR}/${config_targets_file}")
     install(EXPORT spdlog DESTINATION ${export_dest_dir} NAMESPACE spdlog:: FILE ${config_targets_file})
 
     include(CMakePackageConfigHelpers)
