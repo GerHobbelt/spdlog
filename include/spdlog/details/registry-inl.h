@@ -268,7 +268,7 @@ SPDLOG_INLINE void registry::set_levels(log_levels levels, level::level_enum *gl
     }
 }
 
-SPDLOG_INLINE void registry::free() {
+SPDLOG_INLINE void registry::destroy() {
     std::lock_guard<std::mutex> lock(s_instanceMutex);
 
     delete s_instance;

@@ -104,7 +104,7 @@ public:
     static registry &instance();
 
     // explicitely free the singleton instance.
-    static void free();
+    static void destroy();
 
     void apply_logger_env_levels(std::shared_ptr<logger> new_logger);   
 
