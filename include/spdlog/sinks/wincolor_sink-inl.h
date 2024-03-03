@@ -79,7 +79,7 @@ void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::set_output(FILE *override_output
 {
     std::lock_guard<mutex_t> guard(mutex_);
     out_handle_ = override_output;
-    set_color_mode(color_mode::automatic);
+	set_color_mode_impl(color_mode::automatic);
 }
 
 template<typename ConsoleMutex>
