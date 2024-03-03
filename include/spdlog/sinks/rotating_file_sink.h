@@ -97,8 +97,8 @@ inline std::shared_ptr<logger> rotating_logger_mt(
     const filename_t &compress_extension, std::function<void(filename_t)> compress_callback, bool rotate_on_open = false,
     const file_event_handlers &event_handlers = {})
 {
-    return Factory::template create<sinks::rotating_file_sink_mt>(logger_name, filename, max_file_size, max_files,
-        compress_extension, std::move(compress_callback), rotate_on_open, event_handlers);
+	return Factory::template create<sinks::rotating_file_sink_mt>(logger_name, filename, max_file_size, max_files,
+		rotate_file_mode::desc, compress_extension, std::move(compress_callback), rotate_on_open, event_handlers);
 }
 
 template<typename Factory = spdlog::synchronous_factory>
