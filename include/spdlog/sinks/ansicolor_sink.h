@@ -44,6 +44,7 @@ public:
     bool should_color();
 
     void log(const details::log_msg &msg) override;
+    void set_output(FILE *override_output);
     void flush() override;
     void set_pattern(const std::string &pattern) final;
     void set_formatter(std::unique_ptr<spdlog::formatter> sink_formatter) override;
@@ -83,8 +84,10 @@ public:
     const string_view_t red_bold = "\033[31m\033[1m";
     const string_view_t bold_on_red = "\033[1m\033[41m";
 
-private:
+protected:
     FILE *target_file_;
+
+private:
     mutex_t &mutex_;
     bool should_do_colors_;
     std::unique_ptr<spdlog::formatter> formatter_;
@@ -112,11 +115,23 @@ public:
     explicit ansicolor_stderr_sink(color_mode mode = color_mode::automatic);
 };
 
+template<typename ConsoleMutex>
+class ansicolor_dual_sink : public ansicolor_sink<ConsoleMutex>
+{
+public:
+    explicit ansicolor_dual_sink(color_mode mode = color_mode::automatic);
+
+    void log(const details::log_msg &msg) final;
+};
+
 using ansicolor_stdout_sink_mt = ansicolor_stdout_sink<details::console_mutex>;
 using ansicolor_stdout_sink_st = ansicolor_stdout_sink<details::console_nullmutex>;
 
 using ansicolor_stderr_sink_mt = ansicolor_stderr_sink<details::console_mutex>;
 using ansicolor_stderr_sink_st = ansicolor_stderr_sink<details::console_nullmutex>;
+
+using ansicolor_dual_sink_mt = ansicolor_dual_sink<details::console_mutex>;
+using ansicolor_dual_sink_st = ansicolor_dual_sink<details::console_nullmutex>;
 
 }  // namespace sinks
 
