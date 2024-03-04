@@ -50,22 +50,41 @@ struct styling_info
 };
 #endif
 
-class context_data;
+struct context_data;
 
 struct SPDLOG_API log_msg
 {
     log_msg() = default;
+#ifndef SPDLOG_NO_STRUCTURED_SPDLOG
     log_msg(log_clock::time_point log_time,
             source_loc loc,
 			process_info pinfo, 
             string_view_t logger_name,
             level::level_enum lvl,
             string_view_t msg,
-			const Field * fields, size_t field_count);
+			const Field * fields, 
+			size_t field_count);
+#endif // SPDLOG_NO_STRUCTURED_SPDLOG
+    log_msg(log_clock::time_point log_time, source_loc loc, process_info pinfo, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
+#ifndef SPDLOG_NO_STRUCTURED_SPDLOG
+    log_msg(log_clock::time_point log_time, source_loc loc, string_view_t logger_name, level::level_enum lvl, string_view_t msg, const Field * fields, size_t field_count);
+#endif // SPDLOG_NO_STRUCTURED_SPDLOG
     log_msg(log_clock::time_point log_time, source_loc loc, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
+#ifndef SPDLOG_NO_STRUCTURED_SPDLOG
     log_msg(source_loc loc, process_info pinfo, string_view_t logger_name, level::level_enum lvl, string_view_t msg, const Field * fields, size_t field_count);
+#endif // SPDLOG_NO_STRUCTURED_SPDLOG
+    log_msg(source_loc loc, process_info pinfo, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
+#ifndef SPDLOG_NO_STRUCTURED_SPDLOG
+    log_msg(source_loc loc, string_view_t logger_name, level::level_enum lvl, string_view_t msg, const Field * fields, size_t field_count);
+#endif // SPDLOG_NO_STRUCTURED_SPDLOG
     log_msg(source_loc loc, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
+#ifndef SPDLOG_NO_STRUCTURED_SPDLOG
+    log_msg(process_info pinfo, string_view_t logger_name, level::level_enum lvl, string_view_t msg, const Field * fields, size_t field_count);
+#endif // SPDLOG_NO_STRUCTURED_SPDLOG
     log_msg(process_info pinfo, string_view_t logger_name, level::level_enum lvl, string_view_t msg);
+#ifndef SPDLOG_NO_STRUCTURED_SPDLOG
+    log_msg(string_view_t logger_name, level::level_enum lvl, string_view_t msg, const Field * fields, size_t field_count);
+#endif // SPDLOG_NO_STRUCTURED_SPDLOG
     log_msg(string_view_t logger_name, level::level_enum lvl, string_view_t msg);
     log_msg(const log_msg &other) = default;
     log_msg &operator=(const log_msg &other) = default;

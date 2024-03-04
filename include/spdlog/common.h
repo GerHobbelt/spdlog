@@ -479,7 +479,7 @@ struct Field {
 using F=Field;
 
 namespace details {
-    class context_data;
+    struct context_data;
     SPDLOG_API std::shared_ptr<context_data>& threadlocal_context_head();
 }
 

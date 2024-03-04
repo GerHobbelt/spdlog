@@ -50,8 +50,11 @@ SPDLOG_INLINE log_msg_buffer::log_msg_buffer(const log_msg_buffer &other)
 
 SPDLOG_INLINE log_msg_buffer::log_msg_buffer(log_msg_buffer &&other) SPDLOG_NOEXCEPT
     : log_msg{other},
-      buffer{std::move(other.buffer),
-	  field_buffer{std::move(other.field_buffer)}} {
+      buffer{std::move(other.buffer)}
+#ifndef SPDLOG_NO_STRUCTURED_SPDLOG
+	  , field_buffer{std::move(other.field_buffer)} 
+#endif
+{
     update_string_views();
 }
 
