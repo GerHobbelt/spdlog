@@ -200,7 +200,7 @@ void binary_example()
 
 // Log a vector of numbers
 #ifndef SPDLOG_USE_STD_FORMAT
-#    include "spdlog/fmt/bundled/ranges.h"
+#    include "spdlog/fmt/ranges.h"
 void vector_example()
 {
     std::vector<int> vec = {1, 2, 3};
@@ -266,7 +266,8 @@ void multi_sink_example()
 struct my_type
 {
     int i = 0;
-    explicit my_type(int i): i(i){};
+    explicit my_type(int i)
+        : i(i){};
 };
 
 namespace fmt_lib = spdlog::fmt_lib;

@@ -145,7 +145,7 @@ SPDLOG_INLINE bool fopen_s(FILE **fp, const filename_t &filename, const filename
     const int fd = ::open((filename.c_str()), O_CREAT | O_WRONLY | O_CLOEXEC | mode_flag, mode_t(0644));
     if (fd == -1)
     {
-        return false;
+        return true;
     }
     *fp = ::fdopen(fd, mode.c_str());
     if (*fp == nullptr)
@@ -405,9 +405,9 @@ SPDLOG_INLINE int pid() SPDLOG_NOEXCEPT
 {
 
 #ifdef _WIN32
-    return static_cast<int>(::GetCurrentProcessId());
+    return conditional_static_cast<int>(::GetCurrentProcessId());
 #else
-    return static_cast<int>(::getpid());
+    return conditional_static_cast<int>(::getpid());
 #endif
 }
 
