@@ -4,15 +4,14 @@
 #pragma once
 
 #ifndef SPDLOG_HEADER_ONLY
-#    include <spdlog/details/log_msg_buffer.h>
+    #include <spdlog/details/log_msg_buffer.h>
 #endif
 
 namespace spdlog {
 namespace details {
 
 SPDLOG_INLINE log_msg_buffer::log_msg_buffer(const log_msg &orig_msg)
-    : log_msg{orig_msg}
-{
+    : log_msg{orig_msg} {
 #ifndef SPDLOG_NO_STRUCTURED_SPDLOG
     field_buffer = std::vector<Field>(field_data, field_data + field_data_count);
     field_data = field_buffer.data();
@@ -31,8 +30,7 @@ SPDLOG_INLINE log_msg_buffer::log_msg_buffer(const log_msg &orig_msg)
 }
 
 SPDLOG_INLINE log_msg_buffer::log_msg_buffer(const log_msg_buffer &other)
-    : log_msg{other}
-{
+    : log_msg{other} {
 #ifndef SPDLOG_NO_STRUCTURED_SPDLOG
     field_buffer = std::vector<Field>(field_data, field_data + field_data_count);
     field_data = field_buffer.data();
@@ -50,13 +48,14 @@ SPDLOG_INLINE log_msg_buffer::log_msg_buffer(const log_msg_buffer &other)
     update_string_views();
 }
 
-SPDLOG_INLINE log_msg_buffer::log_msg_buffer(log_msg_buffer &&other) SPDLOG_NOEXCEPT : log_msg{other}, buffer{std::move(other.buffer)}, field_buffer{std::move(other.field_buffer)}
-{
+SPDLOG_INLINE log_msg_buffer::log_msg_buffer(log_msg_buffer &&other) SPDLOG_NOEXCEPT
+    : log_msg{other},
+      buffer{std::move(other.buffer),
+	  field_buffer{std::move(other.field_buffer)}} {
     update_string_views();
 }
 
-SPDLOG_INLINE log_msg_buffer &log_msg_buffer::operator=(const log_msg_buffer &other)
-{
+SPDLOG_INLINE log_msg_buffer &log_msg_buffer::operator=(const log_msg_buffer &other) {
     log_msg::operator=(other);
     buffer.clear();
     buffer.append(other.buffer.data(), other.buffer.data() + other.buffer.size());
@@ -65,8 +64,7 @@ SPDLOG_INLINE log_msg_buffer &log_msg_buffer::operator=(const log_msg_buffer &ot
     return *this;
 }
 
-SPDLOG_INLINE log_msg_buffer &log_msg_buffer::operator=(log_msg_buffer &&other) SPDLOG_NOEXCEPT
-{
+SPDLOG_INLINE log_msg_buffer &log_msg_buffer::operator=(log_msg_buffer &&other) SPDLOG_NOEXCEPT {
     log_msg::operator=(other);
     buffer = std::move(other.buffer);
     field_buffer = std::move(other.field_buffer);
@@ -74,8 +72,7 @@ SPDLOG_INLINE log_msg_buffer &log_msg_buffer::operator=(log_msg_buffer &&other) 
     return *this;
 }
 
-SPDLOG_INLINE void log_msg_buffer::update_string_views()
-{
+SPDLOG_INLINE void log_msg_buffer::update_string_views() {
     size_t offset = 0;
 #ifndef SPDLOG_NO_STRUCTURED_SPDLOG
     for (size_t i=0; i < field_data_count; i++) {
@@ -94,5 +91,5 @@ SPDLOG_INLINE void log_msg_buffer::update_string_views()
     offset += payload.size();
 }
 
-} // namespace details
-} // namespace spdlog
+}  // namespace details
+}  // namespace spdlog

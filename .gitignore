@@ -43,17 +43,6 @@ build/*
 *.orig
 
 # example  files
-example/*
-!example/example.cpp
-!example/bench.cpp
-!example/utils.h
-!example/Makefile*
-!example/example.sln
-!example/example.vcxproj
-!example/CMakeLists.txt
-!example/meson.build
-!example/multisink.cpp
-!example/jni
 
 # generated files
 generated
@@ -75,6 +64,8 @@ spdlogConfigVersion.cmake
 
 # idea
 .idea/
+.cache/
+.vscode/
 cmake-build-*/
 *.db
 *.ipch
@@ -90,3 +81,8 @@ cmake-build-*/
 # macos
 *.DS_store
 *.xcodeproj/
+bin-int
+
+# visual studio
+/out/
+/.vs

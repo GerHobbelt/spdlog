@@ -8,11 +8,11 @@
 #include <spdlog/details/null_mutex.h>
 #include <spdlog/sinks/sink.h>
 
+#include <array>
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <string>
-#include <array>
-#include <cstdint>
 
 namespace spdlog {
 namespace sinks {
@@ -20,9 +20,8 @@ namespace sinks {
  * Windows color console sink. Uses WriteConsoleA to write to the console with
  * colors
  */
-template<typename ConsoleMutex>
-class wincolor_sink : public sink
-{
+template <typename ConsoleMutex>
+class wincolor_sink : public sink {
 public:
     wincolor_sink(void *out_handle, color_mode mode);
     ~wincolor_sink() override;
@@ -32,15 +31,18 @@ public:
 
     // change the color for the given level
     void set_color(level::level_enum level, std::uint16_t color);
-    void log(const details::log_msg &msg) final override;
+    void log(const details::log_msg &msg) override;
+    void set_output(FILE *override_output);
     void flush() final override;
-    void set_pattern(const std::string &pattern) override final;
+    virtual void set_pattern(const std::string &pattern) override final;
     void set_formatter(std::unique_ptr<spdlog::formatter> sink_formatter) override final;
     void set_color_mode(color_mode mode);
 
 protected:
-    using mutex_t = typename ConsoleMutex::mutex_t;
     void *out_handle_;
+
+protected:
+    using mutex_t = typename ConsoleMutex::mutex_t;
     mutex_t &mutex_;
     bool should_do_colors_;
     std::unique_ptr<spdlog::formatter> formatter_;
@@ -58,18 +60,25 @@ protected:
     void set_color_mode_impl(color_mode mode);
 };
 
-template<typename ConsoleMutex>
-class wincolor_stdout_sink : public wincolor_sink<ConsoleMutex>
-{
+template <typename ConsoleMutex>
+class wincolor_stdout_sink : public wincolor_sink<ConsoleMutex> {
 public:
     explicit wincolor_stdout_sink(color_mode mode = color_mode::automatic);
 };
 
-template<typename ConsoleMutex>
-class wincolor_stderr_sink : public wincolor_sink<ConsoleMutex>
-{
+template <typename ConsoleMutex>
+class wincolor_stderr_sink : public wincolor_sink<ConsoleMutex> {
 public:
     explicit wincolor_stderr_sink(color_mode mode = color_mode::automatic);
+};
+
+template<typename ConsoleMutex>
+class wincolor_dual_sink : public wincolor_sink<ConsoleMutex>
+{
+public:
+    explicit wincolor_dual_sink(color_mode mode = color_mode::automatic);
+
+    void log(const details::log_msg &msg) final;
 };
 
 using wincolor_stdout_sink_mt = wincolor_stdout_sink<details::console_mutex>;
@@ -77,9 +86,12 @@ using wincolor_stdout_sink_st = wincolor_stdout_sink<details::console_nullmutex>
 
 using wincolor_stderr_sink_mt = wincolor_stderr_sink<details::console_mutex>;
 using wincolor_stderr_sink_st = wincolor_stderr_sink<details::console_nullmutex>;
-} // namespace sinks
-} // namespace spdlog
+
+using wincolor_dual_sink_mt = wincolor_dual_sink<details::console_mutex>;
+using wincolor_dual_sink_st = wincolor_dual_sink<details::console_nullmutex>;
+}  // namespace sinks
+}  // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY
-#    include "wincolor_sink-inl.h"
+    #include "wincolor_sink-inl.h"
 #endif
