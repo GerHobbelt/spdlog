@@ -426,11 +426,7 @@ protected:
 #else
             fmt::vformat_to(fmt::appender(buf), fmt, fmt::make_format_args(args...));
 #endif
-            details::log_msg log_msg(loc, name_, lvl, string_view_t(buf.data(), buf.size())
-#ifndef SPDLOG_NO_STRUCTURED_SPDLOG
-                    , fields, num_fields
-#endif
-			);
+            details::log_msg log_msg(loc, name_, lvl, string_view_t(buf.data(), buf.size()), fields, num_fields);
 			log_it_(log_msg, log_enabled, traceback_enabled);
         }
         SPDLOG_LOGGER_CATCH(loc)
