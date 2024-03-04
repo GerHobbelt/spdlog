@@ -7,6 +7,8 @@
 #include <spdlog/details/synchronous_factory.h>
 #include <spdlog/sinks/base_sink.h>
 
+#if !defined(_WIN32)
+
 #include <array>
 #include <string>
 #include <syslog.h>
@@ -101,3 +103,5 @@ inline std::shared_ptr<logger> syslog_logger_st(const std::string &logger_name,
                                                            syslog_facility, enable_formatting);
 }
 }  // namespace spdlog
+
+#endif
