@@ -128,7 +128,7 @@ int main(int argc, const char **argv) {
     tracing_null_logger_st->enable_backtrace(64);
     benchmark::RegisterBenchmark("null_sink_st/backtrace", bench_logger, tracing_null_logger_st);
 
-#ifdef __linux
+#ifdef __linux__
     bench_dev_null();
 #endif  // __linux__
 
