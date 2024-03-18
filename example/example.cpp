@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <chrono>
 
-static void load_levels_example();
+static void load_levels_example(int argc, const char **argv);
 static void stdout_logger_example();
 static void basic_example();
 static void rotating_example();
@@ -51,7 +51,7 @@ static void android_example();
 
 int main(int argc, const char **argv) {
     // Log levels can be loaded from argv/env using "SPDLOG_LEVEL"
-    load_levels_example();
+    load_levels_example(argc, argv);
     spdlog::set_pattern("[%H:%M:%S %z] [process %P] [thread %t] [%n] %v");
 
     spdlog::default_logger()->log(spdlog::process_info(6789, 44), spdlog::level::critical, "Spoofed pid and thread message");
@@ -184,14 +184,15 @@ static void callback_example() {
 }
 
 #include "spdlog/cfg/env.h"
-static void load_levels_example() {
+#include "spdlog/cfg/argv.h"
+static void load_levels_example(int argc, const char **argv) {
     // Set the log level to "info" and mylogger to "trace":
     // SPDLOG_LEVEL=info,mylogger=trace && ./example
     spdlog::cfg::load_env_levels();
     // or from command line:
     // ./example SPDLOG_LEVEL=info,mylogger=trace
     // #include "spdlog/cfg/argv.h" // for loading levels from argv
-    // spdlog::cfg::load_argv_levels(args, argv);
+    spdlog::cfg::load_argv_levels(argc, argv);
 }
 
 #include "spdlog/async.h"
