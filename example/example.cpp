@@ -115,10 +115,10 @@ int main(int argc, const char **argv) {
         hierarchical_logger_example();
         extended_stlying();
 #if !defined(_WIN32)
-		syslog_example();
+        syslog_example();
 #endif
 #if defined(__ANDROID__)
-		static void android_example();
+        android_example();
 #endif
 
         // Flush all *registered* loggers using a worker thread every 3 seconds.
