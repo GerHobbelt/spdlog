@@ -28,6 +28,7 @@
 #include "spdlog/details/fmt_helper.h"
 #include "spdlog/pattern_formatter.h"
 
+#include "spdlog/mdc.h"
 #include "spdlog/json_formatter.h"
 #include "spdlog/structured_spdlog.h"
 
