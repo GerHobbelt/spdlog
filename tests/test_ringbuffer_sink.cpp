@@ -1,8 +1,7 @@
 #include "includes.h"
 #include "spdlog/sinks/ringbuffer_sink.h"
 
-TEST_CASE("test_drain", "[ringbuffer_sink]")
-{
+TEST_CASE("test_drain", "[ringbuffer_sink]") {
     const size_t sink_size = 3;
     auto sink = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(sink_size);
     spdlog::logger l("logger", sink);
@@ -10,10 +9,8 @@ TEST_CASE("test_drain", "[ringbuffer_sink]")
 
     // log more than the sink size by one and test that the first message is dropped
     // test 3 times to make sure the ringbuffer is working correctly multiple times
-    for (int i = 0; i < 3; i++)
-    {
-        for (size_t i = 0; i < sink_size + 1; ++i)
-        {
+    for (int i = 0; i < 3; i++) {
+        for (size_t i = 0; i < sink_size + 1; ++i) {
             l.info("{}", i);
         }
 
@@ -27,18 +24,15 @@ TEST_CASE("test_drain", "[ringbuffer_sink]")
     }
 }
 
-TEST_CASE("test_drain_raw", "[ringbuffer_sink]")
-{
+TEST_CASE("test_drain_raw", "[ringbuffer_sink]") {
     const size_t sink_size = 3;
     auto sink = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(sink_size);
     spdlog::logger l("logger", sink);
 
     // log more than the sink size by one and test that the first message is dropped
     // test 3 times to make sure the ringbuffer is working correctly multiple times
-    for (int i = 0; i < 3; i++)
-    {
-        for (size_t i = 0; i < sink_size + 1; ++i)
-        {
+    for (int i = 0; i < 3; i++) {
+        for (size_t i = 0; i < sink_size + 1; ++i) {
             l.info("{}", i);
         }
 
@@ -52,29 +46,26 @@ TEST_CASE("test_drain_raw", "[ringbuffer_sink]")
     }
 }
 
-TEST_CASE("test_empty", "[ringbuffer_sink]")
-{
+TEST_CASE("test_empty", "[ringbuffer_sink]") {
     const size_t sink_size = 3;
     auto sink = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(sink_size);
     spdlog::logger l("logger", sink);
 
     sink->drain([&](std::string_view) {
-        REQUIRE_FALSE(true); // should not be called since the sink is empty
+        REQUIRE_FALSE(true);  // should not be called since the sink is empty
     });
 }
 
-TEST_CASE("test_empty_size", "[ringbuffer_sink]")
-{
+TEST_CASE("test_empty_size", "[ringbuffer_sink]") {
     const size_t sink_size = 0;
     auto sink = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(sink_size);
     spdlog::logger l("logger", sink);
 
-    for (size_t i = 0; i < sink_size + 1; ++i)
-    {
+    for (size_t i = 0; i < sink_size + 1; ++i) {
         l.info("{}", i);
     }
 
     sink->drain([&](std::string_view) {
-        REQUIRE_FALSE(true); // should not be called since the sink size is 0
+        REQUIRE_FALSE(true);  // should not be called since the sink size is 0
     });
 }

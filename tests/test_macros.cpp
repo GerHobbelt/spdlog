@@ -1,18 +1,18 @@
 /*
- * This content is released under the MIT License as specified in https://raw.githubusercontent.com/gabime/spdlog/master/LICENSE
+ * This content is released under the MIT License as specified in
+ * https://raw.githubusercontent.com/gabime/spdlog/v2.x/LICENSE
  */
 
 #include "includes.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #if SPDLOG_ACTIVE_LEVEL != SPDLOG_LEVEL_DEBUG
-#    error "Invalid SPDLOG_ACTIVE_LEVEL in test. Should be SPDLOG_LEVEL_DEBUG"
+    #error "Invalid SPDLOG_ACTIVE_LEVEL in test. Should be SPDLOG_LEVEL_DEBUG"
 #endif
 
 #define TEST_FILENAME "test_logs/simple_log"
 
-TEST_CASE("debug and trace w/o format string", "[macros]")
-{
-
+TEST_CASE("debug and trace w/o format string", "[macros]") {
     prepare_logdir();
     spdlog::filename_t filename = SPDLOG_FILENAME_T(TEST_FILENAME);
 
@@ -40,13 +40,11 @@ TEST_CASE("debug and trace w/o format string", "[macros]")
     spdlog::set_default_logger(std::move(orig_default_logger));
 }
 
-TEST_CASE("disable param evaluation", "[macros]")
-{
+TEST_CASE("disable param evaluation", "[macros]") {
     SPDLOG_TRACE("Test message {}", throw std::runtime_error("Should not be evaluated"));
 }
 
-TEST_CASE("pass logger pointer", "[macros]")
-{
+TEST_CASE("pass logger pointer", "[macros]") {
     auto logger = spdlog::create<spdlog::sinks::null_sink_mt>("refmacro");
     auto &ref = *logger;
     SPDLOG_LOGGER_TRACE(&ref, "Test message 1");

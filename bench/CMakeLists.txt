@@ -1,6 +1,6 @@
 # Copyright(c) 2019 spdlog authors Distributed under the MIT License (http://opensource.org/licenses/MIT)
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 project(spdlog_bench CXX)
 
 if(NOT TARGET spdlog)
@@ -10,6 +10,7 @@ endif()
 
 find_package(Threads REQUIRED)
 find_package(benchmark CONFIG)
+
 if(NOT benchmark_FOUND)
     message(STATUS "Using CMake Version ${CMAKE_VERSION}")
     # User can fetch googlebenchmark
@@ -21,6 +22,7 @@ if(NOT benchmark_FOUND)
     # Do not build and run googlebenchmark tests
     FetchContent_Declare(googlebenchmark GIT_REPOSITORY https://github.com/google/benchmark.git GIT_TAG v1.6.0)
     FetchContent_MakeAvailable(googlebenchmark)
+	set_target_properties(benchmark PROPERTIES FOLDER "third-party")
 endif()
 
 add_executable(bench bench.cpp)

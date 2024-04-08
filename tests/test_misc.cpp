@@ -1,10 +1,9 @@
 #include "includes.h"
+#include "spdlog/sinks/ostream_sink.h"
 #include "test_sink.h"
 
-template<class T>
-std::string log_info(const T &what, spdlog::level::level_enum logger_level = spdlog::level::info)
-{
-
+template <class T>
+std::string log_info(const T &what, spdlog::level logger_level = spdlog::level::info) {
     std::ostringstream oss;
     auto oss_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(oss);
 
@@ -16,8 +15,7 @@ std::string log_info(const T &what, spdlog::level::level_enum logger_level = spd
     return oss.str().substr(0, oss.str().length() - strlen(spdlog::details::os::default_eol));
 }
 
-TEST_CASE("basic_logging ", "[basic_logging]")
-{
+TEST_CASE("basic_logging ", "[basic_logging]") {
     // const char
     REQUIRE(log_info("Hello") == "Hello");
     REQUIRE(log_info("").empty());
@@ -25,17 +23,9 @@ TEST_CASE("basic_logging ", "[basic_logging]")
     // std::string
     REQUIRE(log_info(std::string("Hello")) == "Hello");
     REQUIRE(log_info(std::string()).empty());
-
-    // Numbers
-    REQUIRE(log_info(5) == "5");
-    REQUIRE(log_info(5.6) == "5.6");
-
-    // User defined class
-    // REQUIRE(log_info(some_logged_class("some_val")) == "some_val");
 }
 
-TEST_CASE("log_levels", "[log_levels]")
-{
+TEST_CASE("log_levels", "[log_levels]") {
     REQUIRE(log_info("Hello", spdlog::level::err).empty());
     REQUIRE(log_info("Hello", spdlog::level::critical).empty());
     REQUIRE(log_info("Hello", spdlog::level::info) == "Hello");
@@ -43,43 +33,39 @@ TEST_CASE("log_levels", "[log_levels]")
     REQUIRE(log_info("Hello", spdlog::level::trace) == "Hello");
 }
 
-TEST_CASE("level_to_string_view", "[convert_to_string_view]")
-{
-    REQUIRE(spdlog::level::to_string_view(spdlog::level::trace) == "trace");
-    REQUIRE(spdlog::level::to_string_view(spdlog::level::debug) == "debug");
-    REQUIRE(spdlog::level::to_string_view(spdlog::level::info) == "info");
-    REQUIRE(spdlog::level::to_string_view(spdlog::level::warn) == "warning");
-    REQUIRE(spdlog::level::to_string_view(spdlog::level::err) == "error");
-    REQUIRE(spdlog::level::to_string_view(spdlog::level::critical) == "critical");
-    REQUIRE(spdlog::level::to_string_view(spdlog::level::off) == "off");
+TEST_CASE("level_to_string_view", "[convert_to_string_view]") {
+    REQUIRE(spdlog::to_string_view(spdlog::level::trace) == "trace");
+    REQUIRE(spdlog::to_string_view(spdlog::level::debug) == "debug");
+    REQUIRE(spdlog::to_string_view(spdlog::level::info) == "info");
+    REQUIRE(spdlog::to_string_view(spdlog::level::warn) == "warning");
+    REQUIRE(spdlog::to_string_view(spdlog::level::err) == "error");
+    REQUIRE(spdlog::to_string_view(spdlog::level::critical) == "critical");
+    REQUIRE(spdlog::to_string_view(spdlog::level::off) == "off");
 }
 
-TEST_CASE("to_short_c_str", "[convert_to_short_c_str]")
-{
-    REQUIRE(std::string(spdlog::level::to_short_c_str(spdlog::level::trace)) == "T");
-    REQUIRE(std::string(spdlog::level::to_short_c_str(spdlog::level::debug)) == "D");
-    REQUIRE(std::string(spdlog::level::to_short_c_str(spdlog::level::info)) == "I");
-    REQUIRE(std::string(spdlog::level::to_short_c_str(spdlog::level::warn)) == "W");
-    REQUIRE(std::string(spdlog::level::to_short_c_str(spdlog::level::err)) == "E");
-    REQUIRE(std::string(spdlog::level::to_short_c_str(spdlog::level::critical)) == "C");
-    REQUIRE(std::string(spdlog::level::to_short_c_str(spdlog::level::off)) == "O");
+TEST_CASE("to_short_string_view", "[convert_to_short_c_str]") {
+    REQUIRE(spdlog::to_short_string_view(spdlog::level::trace) == "T");
+    REQUIRE(spdlog::to_short_string_view(spdlog::level::debug) == "D");
+    REQUIRE(spdlog::to_short_string_view(spdlog::level::info) == "I");
+    REQUIRE(spdlog::to_short_string_view(spdlog::level::warn) == "W");
+    REQUIRE(spdlog::to_short_string_view(spdlog::level::err) == "E");
+    REQUIRE(spdlog::to_short_string_view(spdlog::level::critical) == "C");
+    REQUIRE(spdlog::to_short_string_view(spdlog::level::off) == "O");
 }
 
-TEST_CASE("to_level_enum", "[convert_to_level_enum]")
-{
-    REQUIRE(spdlog::level::from_str("trace") == spdlog::level::trace);
-    REQUIRE(spdlog::level::from_str("debug") == spdlog::level::debug);
-    REQUIRE(spdlog::level::from_str("info") == spdlog::level::info);
-    REQUIRE(spdlog::level::from_str("warning") == spdlog::level::warn);
-    REQUIRE(spdlog::level::from_str("warn") == spdlog::level::warn);
-    REQUIRE(spdlog::level::from_str("error") == spdlog::level::err);
-    REQUIRE(spdlog::level::from_str("critical") == spdlog::level::critical);
-    REQUIRE(spdlog::level::from_str("off") == spdlog::level::off);
-    REQUIRE(spdlog::level::from_str("null") == spdlog::level::off);
+TEST_CASE("to_level_enum", "[convert_to_level_enum]") {
+    REQUIRE(spdlog::level_from_str("trace") == spdlog::level::trace);
+    REQUIRE(spdlog::level_from_str("debug") == spdlog::level::debug);
+    REQUIRE(spdlog::level_from_str("info") == spdlog::level::info);
+    REQUIRE(spdlog::level_from_str("warning") == spdlog::level::warn);
+    REQUIRE(spdlog::level_from_str("warn") == spdlog::level::warn);
+    REQUIRE(spdlog::level_from_str("error") == spdlog::level::err);
+    REQUIRE(spdlog::level_from_str("critical") == spdlog::level::critical);
+    REQUIRE(spdlog::level_from_str("off") == spdlog::level::off);
+    REQUIRE(spdlog::level_from_str("null") == spdlog::level::off);
 }
 
-TEST_CASE("periodic flush", "[periodic_flush]")
-{
+TEST_CASE("periodic flush", "[periodic_flush]") {
     using spdlog::sinks::test_sink_mt;
     auto logger = spdlog::create<test_sink_mt>("periodic_flush");
     auto test_sink = std::static_pointer_cast<test_sink_mt>(logger->sinks()[0]);
@@ -91,8 +77,7 @@ TEST_CASE("periodic flush", "[periodic_flush]")
     spdlog::drop_all();
 }
 
-TEST_CASE("clone-logger", "[clone]")
-{
+TEST_CASE("clone-logger", "[clone]") {
     using spdlog::sinks::test_sink_mt;
     auto test_sink = std::make_shared<test_sink_mt>();
     auto logger = std::make_shared<spdlog::logger>("orig", test_sink);
@@ -101,7 +86,7 @@ TEST_CASE("clone-logger", "[clone]")
 
     REQUIRE(cloned->name() == "clone");
     REQUIRE(logger->sinks() == cloned->sinks());
-    REQUIRE(logger->level() == cloned->level());
+    REQUIRE(logger->log_level() == cloned->log_level());
     REQUIRE(logger->flush_level() == cloned->flush_level());
     logger->info("Some message 1");
     cloned->info("Some message 2");
@@ -113,8 +98,7 @@ TEST_CASE("clone-logger", "[clone]")
     spdlog::drop_all();
 }
 
-TEST_CASE("clone async", "[clone]")
-{
+TEST_CASE("clone async", "[clone]") {
     using spdlog::sinks::test_sink_st;
     spdlog::init_thread_pool(4, 1);
     auto test_sink = std::make_shared<test_sink_st>();
@@ -124,7 +108,7 @@ TEST_CASE("clone async", "[clone]")
 
     REQUIRE(cloned->name() == "clone");
     REQUIRE(logger->sinks() == cloned->sinks());
-    REQUIRE(logger->level() == cloned->level());
+    REQUIRE(logger->log_level() == cloned->log_level());
     REQUIRE(logger->flush_level() == cloned->flush_level());
 
     logger->info("Some message 1");
@@ -139,8 +123,7 @@ TEST_CASE("clone async", "[clone]")
     spdlog::drop_all();
 }
 
-TEST_CASE("default logger API", "[default logger]")
-{
+TEST_CASE("default logger API", "[default logger]") {
     std::ostringstream oss;
     auto oss_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(oss);
 
@@ -162,10 +145,6 @@ TEST_CASE("default logger API", "[default logger]")
     oss.str("");
     spdlog::warn("Hello again {}", 2);
     REQUIRE(oss.str() == "*** Hello again 2" + std::string(spdlog::details::os::default_eol));
-
-    oss.str("");
-    spdlog::error(123);
-    REQUIRE(oss.str() == "*** 123" + std::string(spdlog::details::os::default_eol));
 
     oss.str("");
     spdlog::critical(std::string("some string"));

@@ -3,15 +3,13 @@
 
 using q_type = spdlog::details::circular_q<size_t>;
 
-TEST_CASE("test_size", "[circular_q]")
-{
+TEST_CASE("test_size", "[circular_q]") {
     const size_t q_size = 4;
     q_type q(q_size);
     REQUIRE(q.size() == 0);
     REQUIRE(q.empty() == true);
     REQUIRE(q.full() == false);
-    for (size_t i = 0; i < q_size; i++)
-    {
+    for (size_t i = 0; i < q_size; i++) {
         q.push_back(10);
     }
     REQUIRE(q.size() == q_size);
@@ -19,14 +17,13 @@ TEST_CASE("test_size", "[circular_q]")
     REQUIRE(q.size() == q_size);
 }
 
-TEST_CASE("test_rolling", "[circular_q]")
-{
+TEST_CASE("test_rolling", "[circular_q]") {
     const size_t q_size = 4;
     q_type q(q_size);
 
-    for (size_t i = 0; i < q_size + 2; i++)
-    {
-        q.push_back(size_t{i}); // arg to push_back must be r value
+    for (size_t i = 0; i < q_size + 2; i++) {
+        auto val = i;
+        q.push_back(std::move(val));  // arg to push_back must be r value
     }
 
     REQUIRE(q.size() == q_size);
@@ -49,11 +46,10 @@ TEST_CASE("test_rolling", "[circular_q]")
     REQUIRE(q.front() == 6);
 }
 
-TEST_CASE("test_empty", "[circular_q]")
-{
+TEST_CASE("test_empty", "[circular_q]") {
     q_type q1(0);
     REQUIRE(q1.empty());
-    REQUIRE(q1.full()); // q with capacity 0 is considered full
+    REQUIRE(q1.full());  // q with capacity 0 is considered full
     q1.push_back(1);
     REQUIRE(q1.empty());
 
@@ -65,8 +61,7 @@ TEST_CASE("test_empty", "[circular_q]")
     REQUIRE(q2.empty());
 }
 
-TEST_CASE("test_full", "[circular_q]")
-{
+TEST_CASE("test_full", "[circular_q]") {
     q_type q1(0);
     REQUIRE(q1.full());
 
@@ -80,9 +75,7 @@ TEST_CASE("test_full", "[circular_q]")
     REQUIRE(q2.full());
 }
 
-
-TEST_CASE("test_operator[]", "[circular_q]")
-{
+TEST_CASE("test_operator[]", "[circular_q]") {
     q_type q(2);
     q.push_back(100);
     q.push_back(200);
@@ -90,32 +83,27 @@ TEST_CASE("test_operator[]", "[circular_q]")
     REQUIRE(q[1] == 200);
 }
 
-
-TEST_CASE("test_operator=", "[circular_q]")
-{
+TEST_CASE("test_operator=", "[circular_q]") {
     q_type q1(2);
     q1.push_back(100);
     q1.push_back(200);
-    q_type  q2 = q1;
+    q_type q2 = q1;
     REQUIRE(q2.size() == 2);
     REQUIRE(q2[0] == 100);
     REQUIRE(q2[1] == 200);
 }
 
-TEST_CASE("test_front", "[circular_q]")
-{
+TEST_CASE("test_front", "[circular_q]") {
     q_type q(2);
     q.push_back(100);
     q.push_back(200);
     REQUIRE(q.front() == 100);
 }
 
-TEST_CASE("test_overrun_counter", "[circular_q]")
-{
+TEST_CASE("test_overrun_counter", "[circular_q]") {
     q_type q(2);
     REQUIRE(q.overrun_counter() == 0);
-    for(size_t i=0; i<10; i++)
-    {
+    for (size_t i = 0; i < 10; i++) {
         q.push_back(100);
     }
     REQUIRE(q.overrun_counter() == 8);
@@ -124,8 +112,7 @@ TEST_CASE("test_overrun_counter", "[circular_q]")
     REQUIRE(q.overrun_counter() == 0);
 }
 
-TEST_CASE("test_move", "[circular_q]")
-{
+TEST_CASE("test_move", "[circular_q]") {
     q_type q1(2);
     q1.push_back(100);
     q1.push_back(200);
@@ -140,7 +127,3 @@ TEST_CASE("test_move", "[circular_q]")
     REQUIRE(q1.empty());
     REQUIRE(q1.overrun_counter() == 0);
 }
-
-
-
-

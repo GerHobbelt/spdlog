@@ -1,24 +1,20 @@
 # spdlog
 
-Very fast, header-only/compiled, C++ logging library. [![ci](https://github.com/gabime/spdlog/actions/workflows/ci.yml/badge.svg)](https://github.com/gabime/spdlog/actions/workflows/ci.yml)&nbsp; [![Build status](https://ci.appveyor.com/api/projects/status/d2jnxclg20vd0o50?svg=true&branch=v1.x)](https://ci.appveyor.com/project/gabime/spdlog) [![Release](https://img.shields.io/github/release/gabime/spdlog.svg)](https://github.com/gabime/spdlog/releases/latest)
+Very fast, header-only/compiled, C++ logging library. [![ci](https://github.com/gabime/spdlog/actions/workflows/ci.yml/badge.svg)](https://github.com/gabime/spdlog/actions/workflows/ci.yml)&nbsp; [![Build status](https://ci.appveyor.com/api/projects/status/d2jnxclg20vd0o50?svg=true&branch=v2.x)](https://ci.appveyor.com/project/gabime/spdlog) [![Release](https://img.shields.io/github/release/gabime/spdlog.svg)](https://github.com/gabime/spdlog/releases/latest)
 
 ## Install
-#### Header-only version
-Copy the include [folder](https://github.com/gabime/spdlog/tree/v1.x/include/spdlog) to your build tree and use a C++11 compiler.
-
-#### Compiled version (recommended - much faster compile times)
 ```console
 $ git clone https://github.com/gabime/spdlog.git
 $ cd spdlog && mkdir build && cd build
 $ cmake .. && make -j
 ```
 
-see example [CMakeLists.txt](https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt) on how to use.
+see example [CMakeLists.txt](https://github.com/gabime/spdlog/blob/v2.x/example/CMakeLists.txt) on how to use.
 
 ## Platforms
 * Linux, FreeBSD, OpenBSD, Solaris, AIX
-* Windows (msvc 2013+, cygwin)
-* macOS (clang 3.5+)
+* Windows (msvc, cygwin)
+* macOS 
 * Android
 
 ## Package managers:
@@ -142,23 +138,6 @@ void daily_example()
 
 ```
 
----
-#### Backtrace support
-```c++
-// Debug messages can be stored in a ring buffer instead of being logged immediately.
-// This is useful to display debug logs only when needed (e.g. when an error happens).
-// When needed, call dump_backtrace() to dump them to your log.
-
-spdlog::enable_backtrace(32); // Store the latest 32 messages in a buffer. 
-// or my_logger->enable_backtrace(32)..
-for(int i = 0; i < 100; i++)
-{
-  spdlog::debug("Backtrace message {}", i); // not logged yet..
-}
-// e.g. if some error happened:
-spdlog::dump_backtrace(); // log them now! show the last 32 messages
-// or my_logger->dump_backtrace(32)..
-```
 
 ---
 #### Periodic flush
@@ -209,6 +188,18 @@ void binary_example()
     // logger->info("uppercase, no delimiters, no position info: {:Xsp}", spdlog::to_hex(buf));
 }
 
+```
+
+---
+#### Mapped diagnostic context (MDC)
+MDC is a map of contextual information that can be used to enrich log messages.
+It is a map of key-value pairs that can be set on a per-thread basis since it is stored in thread-local storage.
+```c++
+#include "spdlog/spdlog.h"
+#include "spdlog/mdc"
+...
+spdlog::mdc::put("key1", "value1");
+spdlog::mdc::put("key2", "value2");
 ```
 
 ---
@@ -440,7 +431,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 ---
 ## Benchmarks
 
-Below are some [benchmarks](https://github.com/gabime/spdlog/blob/v1.x/bench/bench.cpp) done in Ubuntu 64 bit, Intel i7-4770 CPU @ 3.40GHz
+Below are some [benchmarks](https://github.com/gabime/spdlog/blob/v2.x/bench/bench.cpp) done in Ubuntu 64 bit, Intel i7-4770 CPU @ 3.40GHz
 
 #### Synchronous mode
 ```

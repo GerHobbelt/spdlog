@@ -8,72 +8,67 @@
 //
 
 #include "benchmark/benchmark.h"
-
-#include "spdlog/spdlog.h"
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/spdlog.h"
 
-void bench_c_string(benchmark::State &state, std::shared_ptr<spdlog::logger> logger)
-{
-    const char *msg = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum pharetra metus cursus "
-                      "lacus placerat congue. Nulla egestas, mauris a tincidunt tempus, enim lectus volutpat mi, eu consequat sem "
-                      "libero nec massa. In dapibus ipsum a diam rhoncus gravida. Etiam non dapibus eros. Donec fringilla dui sed "
-                      "augue pretium, nec scelerisque est maximus. Nullam convallis, sem nec blandit maximus, nisi turpis ornare "
-                      "nisl, sit amet volutpat neque massa eu odio. Maecenas malesuada quam ex, posuere congue nibh turpis duis.";
+void bench_c_string(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
+    const char *msg =
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum pharetra metus cursus "
+            "lacus placerat congue. Nulla egestas, mauris a tincidunt tempus, enim lectus volutpat mi, "
+            "eu consequat sem "
+            "libero nec massa. In dapibus ipsum a diam rhoncus gravida. Etiam non dapibus eros. Donec "
+            "fringilla dui sed "
+            "augue pretium, nec scelerisque est maximus. Nullam convallis, sem nec blandit maximus, "
+            "nisi turpis ornare "
+            "nisl, sit amet volutpat neque massa eu odio. Maecenas malesuada quam ex, posuere congue "
+            "nibh turpis duis.";
 
-    for (auto _ : state)
-    {
+    for (auto _: state) {
         logger->info(msg);
     }
 }
 
-void bench_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger)
-{
+void bench_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
     int i = 0;
-    for (auto _ : state)
-    {
+    for (auto _: state) {
         logger->info("Hello logger: msg number {}...............", ++i);
     }
 }
-void bench_global_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger)
-{
+
+void bench_global_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
     spdlog::set_default_logger(std::move(logger));
     int i = 0;
-    for (auto _ : state)
-    {
+    for (auto _: state) {
         spdlog::info("Hello logger: msg number {}...............", ++i);
     }
 }
 
-void bench_disabled_macro(benchmark::State &state, std::shared_ptr<spdlog::logger> logger)
-{
+void bench_disabled_macro(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
     int i = 0;
-    benchmark::DoNotOptimize(i);      // prevent unused warnings
-    benchmark::DoNotOptimize(logger); // prevent unused warnings
-    for (auto _ : state)
-    {
+    benchmark::DoNotOptimize(i);       // prevent unused warnings
+    benchmark::DoNotOptimize(logger);  // prevent unused warnings
+    for (auto _: state) {
         SPDLOG_LOGGER_DEBUG(logger, "Hello logger: msg number {}...............", i++);
     }
 }
 
-void bench_disabled_macro_global_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger)
-{
+void bench_disabled_macro_global_logger(benchmark::State &state, std::shared_ptr<spdlog::logger> logger) {
     spdlog::set_default_logger(std::move(logger));
     int i = 0;
-    benchmark::DoNotOptimize(i);      // prevent unused warnings
-    benchmark::DoNotOptimize(logger); // prevent unused warnings
-    for (auto _ : state)
-    {
+    benchmark::DoNotOptimize(i);       // prevent unused warnings
+    benchmark::DoNotOptimize(logger);  // prevent unused warnings
+    for (auto _: state) {
         SPDLOG_DEBUG("Hello logger: msg number {}...............", i++);
     }
 }
 
 #ifdef __linux__
-void bench_dev_null()
-{
+
+void bench_dev_null() {
     auto dev_null_st = spdlog::basic_logger_st("/dev/null_st", "/dev/null");
     benchmark::RegisterBenchmark("/dev/null_st", bench_logger, std::move(dev_null_st))->UseRealTime();
     spdlog::drop("/dev/null_st");
@@ -82,10 +77,59 @@ void bench_dev_null()
     benchmark::RegisterBenchmark("/dev/null_mt", bench_logger, std::move(dev_null_mt))->UseRealTime();
     spdlog::drop("/dev/null_mt");
 }
-#endif // __linux__
 
-int main(int argc, char *argv[])
-{
+#endif  // __linux__
+
+
+// test spdlog::get() performance
+// for this test we create multiple null loggers and then call spdlog::get() on one of them multiple times
+// create multiple null loggers and return name of the one to test
+static std::string prepare_null_loggers() {
+    spdlog::drop_all();
+    const std::string some_logger_name = "Some logger name";
+    const int null_logger_count = 9;
+    for (int i = 0; i < null_logger_count; i++) {
+        spdlog::create<spdlog::sinks::null_sink_mt>(some_logger_name + std::to_string(i));
+    }
+    return some_logger_name + std::to_string(null_logger_count / 2);
+}
+
+// benchmark spdlog::get() with const char*
+void bench_get_logger_const_char(benchmark::State &state) {
+    std::string str_name = prepare_null_loggers();
+    const char* name = str_name.c_str();
+    for (auto _: state) {
+        auto rv = spdlog::get(name);
+        if (rv == nullptr) {
+            state.SkipWithError("get() returned nullptr");
+        }
+    }
+}
+
+// benchmark spdlog::get() with std::string_view
+void bench_get_logger_sv(benchmark::State &state) {
+    auto str_name = prepare_null_loggers();
+    auto sv_name = std::string_view{str_name};
+    for (auto _: state) {
+        auto rv = spdlog::get(sv_name);
+        if (rv == nullptr) {
+            state.SkipWithError("get() returned nullptr");
+        }
+    }
+}
+
+// benchmark spdlog::get() with std::string
+void bench_get_logger_string(benchmark::State &state) {
+    auto str_name = prepare_null_loggers();
+    for (auto _: state) {
+        auto rv = spdlog::get(str_name);
+        if (rv == nullptr) {
+            state.SkipWithError("get() returned nullptr");
+        }
+    }
+}
+
+int main(int argc, char *argv[]) {
     using spdlog::sinks::null_sink_mt;
     using spdlog::sinks::null_sink_st;
 
@@ -108,12 +152,11 @@ int main(int argc, char *argv[])
     benchmark::RegisterBenchmark("null_sink_st", bench_logger, null_logger_st);
     benchmark::RegisterBenchmark("null_sink_st (global logger)", bench_global_logger, null_logger_st);
 
-#ifdef __linux
+#ifdef __linux__
     bench_dev_null();
-#endif // __linux__
+#endif  // __linux__
 
-    if (full_bench)
-    {
+    if (full_bench) {
         // basic_st
         auto basic_st = spdlog::basic_logger_st("basic_st", "latency_logs/basic_st.log", true);
         benchmark::RegisterBenchmark("basic_st", bench_logger, std::move(basic_st))->UseRealTime();
@@ -154,9 +197,15 @@ int main(int argc, char *argv[])
     // async
     auto queue_size = 1024 * 1024 * 3;
     auto tp = std::make_shared<spdlog::details::thread_pool>(queue_size, 1);
-    auto async_logger = std::make_shared<spdlog::async_logger>(
-        "async_logger", std::make_shared<null_sink_mt>(), std::move(tp), spdlog::async_overflow_policy::overrun_oldest);
+    auto async_logger = std::make_shared<spdlog::async_logger>("async_logger", std::make_shared<null_sink_mt>(), std::move(tp),
+                                                               spdlog::async_overflow_policy::overrun_oldest);
     benchmark::RegisterBenchmark("async_logger", bench_logger, async_logger)->Threads(n_threads)->UseRealTime();
+
+
+    benchmark::RegisterBenchmark("spdlog::get(const char* name)", bench_get_logger_const_char);
+    benchmark::RegisterBenchmark("spdlog::get(std::string_view name)", bench_get_logger_sv);
+    benchmark::RegisterBenchmark("spdlog::get(const std::string &name)", bench_get_logger_string);
+
     benchmark::Initialize(&argc, argv);
     benchmark::RunSpecifiedBenchmarks();
 }

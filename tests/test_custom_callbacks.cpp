@@ -1,14 +1,14 @@
 /*
- * This content is released under the MIT License as specified in https://raw.githubusercontent.com/gabime/spdlog/master/LICENSE
+ * This content is released under the MIT License as specified in
+ * https://raw.githubusercontent.com/gabime/spdlog/v2.x/LICENSE
  */
 #include "includes.h"
-#include "test_sink.h"
-#include "spdlog/sinks/callback_sink.h"
 #include "spdlog/async.h"
 #include "spdlog/common.h"
+#include "spdlog/sinks/callback_sink.h"
+#include "test_sink.h"
 
-TEST_CASE("custom_callback_logger", "[custom_callback_logger]")
-{
+TEST_CASE("custom_callback_logger", "[custom_callback_logger]") {
     std::vector<std::string> lines;
     spdlog::pattern_formatter formatter;
     auto callback_logger = std::make_shared<spdlog::sinks::callback_sink_st>([&](const spdlog::details::log_msg &msg) {

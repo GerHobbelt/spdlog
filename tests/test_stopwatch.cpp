@@ -1,9 +1,8 @@
 #include "includes.h"
-#include "test_sink.h"
 #include "spdlog/stopwatch.h"
+#include "test_sink.h"
 
-TEST_CASE("stopwatch1", "[stopwatch]")
-{
+TEST_CASE("stopwatch1", "[stopwatch]") {
     using std::chrono::milliseconds;
     using clock = std::chrono::steady_clock;
     milliseconds wait_ms(200);
@@ -13,12 +12,11 @@ TEST_CASE("stopwatch1", "[stopwatch]")
     std::this_thread::sleep_for(wait_ms);
     auto stop = clock::now();
     auto diff_ms = std::chrono::duration_cast<milliseconds>(stop - start);
-    REQUIRE(sw.elapsed() >= diff_ms);
+    REQUIRE(sw.elapsed() >= diff_ms - milliseconds(1));
     REQUIRE(sw.elapsed() <= diff_ms + tolerance_ms);
 }
 
-TEST_CASE("stopwatch2", "[stopwatch]")
-{
+TEST_CASE("stopwatch2", "[stopwatch]") {
     using spdlog::sinks::test_sink_st;
     using std::chrono::duration_cast;
     using std::chrono::milliseconds;

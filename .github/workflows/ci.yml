@@ -12,10 +12,13 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          - { compiler: gcc, version: 11, build_type: Debug, cppstd: 17 }
           - { compiler: gcc, version: 11, build_type: Debug, cppstd: 20 }
+          - { compiler: gcc, version: 13, build_type: Release, cppstd: 17 }
           - { compiler: gcc, version: 13, build_type: Release, cppstd: 20 }
           - { compiler: gcc, version: 13, build_type: Release, cppstd: 20, std_format: OFF }
           - { compiler: gcc, version: 13, build_type: Release, cppstd: 20, std_format: ON }
+          - { compiler: clang, version: 15, build_type: Release, cppstd: 17}
           - { compiler: clang, version: 15, build_type: Debug, cppstd: 20, asan: ON }
           - { compiler: clang, version: 15, build_type: Release, cppstd: 20, asan: OFF }
     container:
@@ -46,11 +49,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} \
             -DCMAKE_CXX_STANDARD=${{ matrix.config.cppstd }} \
             -DSPDLOG_BUILD_EXAMPLE=${{ matrix.config.examples || 'ON' }} \
-            -DSPDLOG_BUILD_EXAMPLE_HO=${{ matrix.config.examples || 'ON' }} \
             -DSPDLOG_BUILD_WARNINGS=ON \
             -DSPDLOG_BUILD_BENCH=OFF \
             -DSPDLOG_BUILD_TESTS=ON \
-            -DSPDLOG_BUILD_TESTS_HO=OFF \
             -DSPDLOG_SANITIZE_ADDRESS=${{ matrix.config.asan || 'OFF' }} \
             -DSPDLOG_USE_STD_FORMAT=${{ matrix.config.std_format || 'OFF' }} 
           make -j2
@@ -69,12 +70,10 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_STANDARD=20 \
             -DSPDLOG_BUILD_EXAMPLE=ON \
-            -DSPDLOG_BUILD_EXAMPLE_HO=ON \
             -DSPDLOG_BUILD_WARNINGS=ON \
             -DSPDLOG_BUILD_BENCH=OFF \
             -DSPDLOG_BUILD_TESTS=ON \
-            -DSPDLOG_BUILD_TESTS_HO=OFF \
             -DSPDLOG_SANITIZE_ADDRESS=OFF
-          make -j2
+          make -j
           ctest -j2 --output-on-failure
 
