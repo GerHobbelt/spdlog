@@ -112,7 +112,7 @@ SPDLOG_TRY
 				// This might throw exception if the flush message gets dropped because of overflow.
 				future.get();
 
-        /// this is to provide blocking functionality through logger(not async_logger) interface 
+        // this is to provide blocking functionality through logger(not async_logger) interface 
         if (block_on_flush_)
         {
             wait();

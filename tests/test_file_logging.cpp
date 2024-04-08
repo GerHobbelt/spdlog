@@ -102,7 +102,7 @@ TEST_CASE("rotating_file_logger3", "[rotating_logger]") {
                       spdlog::spdlog_ex);
 }
 
-TEST_CASE("rotating_file_logger_compress_callback", "[rotating_logger]]")
+TEST_CASE("rotating_file_logger_compress_callback", "[rotating_logger]")
 {
     prepare_logdir();
     size_t max_size = 1024 * 10;
