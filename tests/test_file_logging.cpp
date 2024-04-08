@@ -111,6 +111,19 @@ TEST_CASE("rotating_file_logger_compress_callback", "[rotating_logger]")
     std::string logfilename = basename + ext;
     std::string compress_ext = ".gz";
 
+		// TODO:
+		// 
+		// test fails.
+		// 
+		// Cause: the rotated-to file is compressed to *another* filename/path and that one is NOT checked,
+		// hence the rotation scheme fails as it doesn't notice the first rotated-out logfile having been
+		// renamed.
+		// The solution, of course, is to check for the renamed/moved-to file path as well, but we want to solve
+		// this rather more generically, so an event handler for this rotating-out + postprocessing side-effect
+		// is in order. Various ways to do this and I'm not settled on which direction to take there...
+		//
+		// TODO
+
     auto callback = [=](spdlog::filename_t filename){
         // Example usage on *nix OS:
         // std::system(std::string("gzip " + filename).c_str());
