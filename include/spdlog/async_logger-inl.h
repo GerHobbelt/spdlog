@@ -82,7 +82,7 @@ SPDLOG_INLINE void spdlog::async_logger::block_on_flush(bool value) noexcept
 }
 
 // send the log message to the thread pool
-SPDLOG_INLINE void spdlog::async_logger::sink_it_(const details::log_msg &msg){
+SPDLOG_INLINE void spdlog::async_logger::sink_it_(const details::log_msg &msg) {
 SPDLOG_TRY
 {
     if (auto pool_ptr = thread_pool_.lock())
