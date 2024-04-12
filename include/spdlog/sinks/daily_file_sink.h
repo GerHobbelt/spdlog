@@ -56,9 +56,22 @@ struct daily_filename_format_calculator {
 #if __GNUC__ >= 5
         stream << std::put_time(&now_tm, file_path.c_str());
 #else
-        char time_buf[64];
+	#if defined(SPDLOG_WCHAR_FILENAMES)
+		#if !defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT)
+			#error SPDLOG_WCHAR_TO_UTF8_SUPPORT required when SPDLOG_WCHAR_FILENAMES is set
+		#endif
+        
+		memory_buf_t utf8formatted;
+        details::os::wstr_to_utf8buf(file_path, utf8formatted);
+        //utf8formatted.append('\0');
+        char time_buf[260];
+        std::strftime(time_buf, sizeof(time_buf), utf8formatted.c_str(), &now_tm);
+        stream << time_buf;
+    #else
+        char time_buf[260];
         std::strftime(time_buf, sizeof(time_buf), file_path.c_str(), &now_tm);
         stream << time_buf;
+    #endif
 #endif
         return stream.str();
     }
