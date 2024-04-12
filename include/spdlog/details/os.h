@@ -4,7 +4,6 @@
 #pragma once
 
 #include <ctime>  // std::time_t
-#include <sys/prctl.h>
 #include <spdlog/common.h>
 
 namespace spdlog {
@@ -74,62 +73,10 @@ SPDLOG_API size_t _thread_id() SPDLOG_NOEXCEPT;
 // Return current thread id as size_t (from thread local storage)
 SPDLOG_API size_t thread_id() SPDLOG_NOEXCEPT;
 
-inline void _thread_name(char * name, size_t length)
-{    
-#ifdef _WIN32
-    HANDLE threadHandle = ::OpenThread(THREAD_QUERY_INFORMATION, false, static_cast<DWORD>(thread_id()));
-    if (threadHandle)
-    {
-	wchar_t* data;
-	HRESULT hr = ::GetThreadDescription(threadHandle, &data);
-	if (SUCCEEDED(hr))
-	{ 
-	    std::wcstombs(name, data, length);
-	    ::LocalFree(data);
-	}
-    }
-
-    ::CloseHandle(threadHandle);
-#else
-    static const size_t    THREAD_NAME_LENGTH = 16;  // Length is restricted by the OS. Includes null-termination.
-    
-    if (THREAD_NAME_LENGTH <= length)
-    {
-        int retval = 0;
-        
-        retval = prctl(PR_GET_NAME, name);
-        if (-1 == retval)
-        {
-	    throw spdlog_ex("Warning! Thread name get failed.", errno);
-        }
-    }
-    else
-    {
-        throw spdlog_ex("Error! Insufficient buffer length.");
-    }
-#endif
-}
+SPDLOG_INLINE void _thread_name(char *name, size_t length);
 
 // Return current thread name(from thread local storage)
-inline std::string thread_name()
-{
-    static const size_t    RECOMMENDED_BUFFER_SIZE = 20;
-    char buffer[RECOMMENDED_BUFFER_SIZE];
-    
-#if defined(SPDLOG_DISABLE_TID_CACHING) || (defined(_MSC_VER) && (_MSC_VER < 1900)) || defined(__cplusplus_winrt) ||                       \
-    (defined(__clang__) && !__has_feature(cxx_thread_local))
-    _thread_name(buffer, sizeof(buffer));
-    return std::string(buffer);
-#else // cache thread name in thread local storage
-    static thread_local std::string theThreadName; 
-    if (theThreadName.empty())
-    {
-	_thread_name(buffer, sizeof(buffer));
-	theThreadName = std::string(buffer);
-    }
-    return theThreadName;
-#endif
-}
+SPDLOG_INLINE std::string thread_name();
 
 // This is avoid msvc issue in sleep_for that happens if the clock changes.
 // See https://github.com/gabime/spdlog/issues/609

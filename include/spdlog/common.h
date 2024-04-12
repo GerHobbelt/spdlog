@@ -415,11 +415,17 @@ struct process_info
     {}
     SPDLOG_CONSTEXPR process_info(int process_id, size_t thread_id)
         : process_id(process_id)
+			  , thread_id(thread_id)
+		{}
+    SPDLOG_CONSTEXPR process_info(int process_id, size_t thread_id, const std::string &thread_name)
+        : process_id(process_id)
         , thread_id(thread_id)
+        , thread_name(thread_name)
     {}
 
     int process_id{0};
     size_t thread_id{0};
+    std::string thread_name{};
 };
 
 struct file_event_handlers {

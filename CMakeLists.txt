@@ -128,6 +128,7 @@ endif()
 
 option(SPDLOG_PREVENT_CHILD_FD "Prevent from child processes to inherit log file descriptors" OFF)
 option(SPDLOG_NO_THREAD_ID "prevent spdlog from querying the thread id on each log call if thread id is not needed" OFF)
+option(SPDLOG_NO_THREAD_NAME "prevent spdlog from querying the thread name on each log call if thread name is not needed" OFF)
 option(SPDLOG_NO_TLS "prevent spdlog from using thread local storage" OFF)
 option(
     SPDLOG_NO_ATOMIC_LEVELS
@@ -254,6 +255,7 @@ foreach(
     SPDLOG_EXTENDED_STLYING
     SPDLOG_PREVENT_CHILD_FD
     SPDLOG_NO_THREAD_ID
+    SPDLOG_NO_THREAD_NAME
     SPDLOG_NO_TLS
     SPDLOG_NO_ATOMIC_LEVELS
     SPDLOG_NO_STRUCTURED_SPDLOG

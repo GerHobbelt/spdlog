@@ -12,8 +12,9 @@ int spdlog_bench_main(int argc, const char **argv);
 int spdlog_formatter_bench_main(int argc, const char **argv);
 int spdlog_latency_bench_main(int argc, const char **argv);
 int spdlog_example_main(int argc, const char **argv);
+int spdlog_example2_main(int argc, const char **argv);
 
-#ifdef __cplusplus
+    #ifdef __cplusplus
 }
 #endif
 

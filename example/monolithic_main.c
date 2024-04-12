@@ -12,6 +12,7 @@ MONOLITHIC_CMD_TABLE_START()
 { "formatter_bench", { .fpp = spdlog_formatter_bench_main } },
 { "latency_bench", { .fpp = spdlog_latency_bench_main } },
 { "example", { .fpp = spdlog_example_main } },
+{ "ex2", { .fpp = spdlog_example2_main } },
 MONOLITHIC_CMD_TABLE_END();
 
 #include "monolithic_main_tpl.h"

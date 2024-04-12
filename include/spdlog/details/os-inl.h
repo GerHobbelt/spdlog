@@ -42,6 +42,7 @@
 
     #include <fcntl.h>
     #include <unistd.h>
+    #include <sys/prctl.h>
 
     #ifdef __linux__
         #include <sys/syscall.h>  //Use gettid() syscall under linux to get thread id
@@ -305,7 +306,7 @@ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm) {
 }
 
 // Return current thread id as size_t
-// It exists because the std::this_thread::get_id() is much slower(especially
+// It exists because the std::this_thread::get_id() is much slower (especially
 // under VS 2013)
 SPDLOG_INLINE size_t _thread_id() SPDLOG_NOEXCEPT {
 #ifdef _WIN32
@@ -367,6 +368,60 @@ SPDLOG_INLINE size_t thread_id() SPDLOG_NOEXCEPT {
 #endif
 }
 
+SPDLOG_INLINE void _thread_name(char *name, size_t length) {
+#ifdef _WIN32
+    HANDLE threadHandle = ::OpenThread(THREAD_QUERY_INFORMATION, false, static_cast<DWORD>(thread_id()));
+    if (threadHandle) {
+        wchar_t *data;
+        HRESULT hr = ::GetThreadDescription(threadHandle, &data);
+        if (SUCCEEDED(hr)) {
+            std::wcstombs(name, data, length);
+            ::LocalFree(data);
+        }
+    }
+
+    ::CloseHandle(threadHandle);
+#else
+    static const size_t THREAD_NAME_LENGTH = 16;  // Length is restricted by the OS. Includes null-termination.
+
+    if (THREAD_NAME_LENGTH <= length) {
+        int retval = 0;
+
+        retval = prctl(PR_GET_NAME, name);
+        if (-1 == retval) {
+            throw spdlog_ex("Warning! Thread name get failed.", errno);
+        }
+    } else {
+        throw spdlog_ex("Error! Insufficient buffer length.");
+    }
+#endif
+}
+
+// Return current thread name(from thread local storage)
+SPDLOG_INLINE std::string thread_name() {
+    static const size_t RECOMMENDED_BUFFER_SIZE = 20;
+    char buffer[RECOMMENDED_BUFFER_SIZE];
+
+#if defined(SPDLOG_DISABLE_TID_CACHING) || (defined(_MSC_VER) && (_MSC_VER < 1900)) || \
+    defined(__cplusplus_winrt) || (defined(__clang__) && !__has_feature(cxx_thread_local)) || \
+    defined(SPDLOG_NO_TLS)
+    _thread_name(buffer, sizeof(buffer));
+    return std::string(buffer);
+#else  // cache thread name in thread local storage
+    static thread_local struct {
+        std::string name;
+				bool is_set{false};
+		} theThreadName;
+
+    if (!theThreadName.is_set) {
+        _thread_name(buffer, sizeof(buffer));
+        theThreadName.name = std::string(buffer);
+        theThreadName.is_set = true;
+    }
+    return theThreadName.name;
+#endif
+}
+
 // This is avoid msvc issue in sleep_for that happens if the clock changes.
 // See https://github.com/gabime/spdlog/issues/609
 SPDLOG_INLINE void sleep_for_millis(unsigned int milliseconds) SPDLOG_NOEXCEPT {
@@ -399,12 +454,14 @@ SPDLOG_INLINE int pid() SPDLOG_NOEXCEPT {
 SPDLOG_INLINE process_info pinfo() SPDLOG_NOEXCEPT
 {
     const auto pid_ = pid();
-#ifndef SPDLOG_NO_THREAD_ID
-    const size_t thread_id_ = thread_id();
+#if !defined(SPDLOG_NO_THREAD_ID) && !defined(SPDLOG_NO_THREAD_NAME)
+    return process_info(pid_, thread_id(), thread_name());
+#elif !defined(SPDLOG_NO_THREAD_ID)
+    return process_info(pid_, thread_id());
 #else
     const size_t thread_id_ = 0;
-#endif
     return process_info(pid_, thread_id_);
+#endif
 }
 
 // Determine if the terminal supports colors
