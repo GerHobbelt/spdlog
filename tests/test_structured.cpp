@@ -54,6 +54,9 @@ TEST_CASE("fields", "[structured]")
 
 TEST_CASE("field_logging", "[structured]")
 {
+    spdlog::set_default_logger(spdlog::null_logger_st("test"));
+    REQUIRE(spdlog::default_logger() != nullptr);
+
     // No fields
     REQUIRE(log_info({}, "Hello") == "Hello");
 
@@ -63,6 +66,8 @@ TEST_CASE("field_logging", "[structured]")
     // Test level calls
     spdlog::info({{"field", 1}}, "Hello");
     spdlog::default_logger()->info({{"field", 2}}, "Hello");
+
+    spdlog::drop_all();
 }
 
 template<typename T>
