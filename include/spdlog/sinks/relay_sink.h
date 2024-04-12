@@ -4,7 +4,7 @@
 #pragma once
 
 //
-// Sink to wrap another logger. This is usefull when consolidating multiple application components
+// Sink to wrap another logger. This is useful when consolidating multiple application components
 // with built-in loggers into one app wide logger.
 //
 
