@@ -125,7 +125,7 @@ int main(int argc, const char **argv) {
         spdlog::info("*********************************");
         spdlog::info("Queue Overflow Policy: overrun");
         spdlog::info("*********************************");
-        // do same test but discard oldest if queue is full instead of blocking
+        // do same test but discard the oldest if queue is full instead of blocking
         filename = "logs/basic_async-overrun.log";
         for (int i = 0; i < iters; i++) {
             auto tp = std::make_shared<details::thread_pool>(queue_size, 1);

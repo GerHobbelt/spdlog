@@ -12,7 +12,7 @@
 
 namespace spdlog {
 
-SPDLOG_INLINE void initialize_logger(std::shared_ptr<logger> logger) SPDLOG_COND_NOEXCEPT {
+SPDLOG_INLINE void initialize_logger(std::shared_ptr<logger> logger) {
     details::registry::instance().initialize_logger(std::move(logger));
 }
 
@@ -80,21 +80,21 @@ SPDLOG_INLINE void register_logger(std::shared_ptr<logger> logger) SPDLOG_COND_N
     details::registry::instance().register_logger(std::move(logger));
 }
 
-SPDLOG_INLINE void apply_all(const std::function<void(std::shared_ptr<logger>)> &fun) SPDLOG_COND_NOEXCEPT {
+SPDLOG_INLINE void apply_all(const std::function<void(std::shared_ptr<logger>)> &fun) {
     details::registry::instance().apply_all(fun);
 }
 
-SPDLOG_INLINE void drop(const std::string &name) SPDLOG_COND_NOEXCEPT
+SPDLOG_INLINE void drop(const std::string &name)
 {
 	  details::registry::instance().drop(name);
 }
 
-SPDLOG_INLINE void drop_all() SPDLOG_COND_NOEXCEPT
+SPDLOG_INLINE void drop_all()
 {
     details::registry::instance().drop_all();
 }
 
-SPDLOG_INLINE void shutdown() SPDLOG_COND_NOEXCEPT {
+SPDLOG_INLINE void shutdown() {
     details::registry::instance().shutdown();
     details::registry::destroy();
 }

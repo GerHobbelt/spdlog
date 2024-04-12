@@ -78,7 +78,9 @@ TEST_CASE("default_error_handler2", "[errors]") {
 TEST_CASE("flush_error_handler", "[errors]") {
     spdlog::drop_all();
     auto logger = spdlog::create<failing_sink>("failed_logger");
-    logger->set_error_handler([=](const std::string &) { throw custom_ex(); });
+    logger->set_error_handler([=](const std::string &) {
+			throw custom_ex();
+		});
     REQUIRE_THROWS_AS(logger->flush(), custom_ex);
 }
 
@@ -91,7 +93,7 @@ TEST_CASE("custom_throw_error_handler", "[errors]") {
 }
 #endif
 
-#if !defined(SPDLOG_USE_STD_FORMAT)
+#if !defined(SPDLOG_USE_STD_FORMAT)  // std format doesn't fully support runtime format strings
 TEST_CASE("async_error_handler", "[errors]") {
     prepare_logdir();
     std::string err_msg("log failed with some msg");

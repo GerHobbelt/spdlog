@@ -82,7 +82,7 @@ SPDLOG_INLINE void load_levels(const std::string &input) {
     bool global_level_found = false;
 
     for (auto &name_level : key_vals) {
-        auto &logger_name = name_level.first;
+        const auto &logger_name = name_level.first;
         auto level_name = to_lower_(name_level.second);
         auto level = level::from_str(level_name);
         // ignore unrecognized level names

@@ -401,7 +401,7 @@ public:
     void dump_backtrace(bool with_message = true) SPDLOG_COND_NOEXCEPT;
 
     // flush functions
-    void flush() SPDLOG_COND_NOEXCEPT;
+    void flush();
     void flush_on(level::level_enum log_level) SPDLOG_COND_NOEXCEPT;
     level::level_enum flush_level() const SPDLOG_COND_NOEXCEPT;
 
@@ -483,7 +483,7 @@ protected:
 
     // handle errors during logging.
     // default handler prints the error to stderr at max rate of 1 message/sec.
-    void err_handler_(const std::string &msg) SPDLOG_COND_NOEXCEPT;
+    void err_handler_(const std::string &msg);
 
     void set_parent(std::shared_ptr<spdlog::logger> parent_logger) SPDLOG_COND_NOEXCEPT {
         parent_ = parent_logger;

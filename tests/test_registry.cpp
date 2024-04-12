@@ -112,3 +112,24 @@ TEST_CASE("disable automatic registration", "[registry]") {
     spdlog::set_level(spdlog::level::info);
     spdlog::set_automatic_registration(true);
 }
+
+TEST_CASE("get(const char* name)", "[registry]") {
+    spdlog::drop_all();
+    spdlog::create<spdlog::sinks::null_sink_mt>(tested_logger_name);
+    REQUIRE(spdlog::get(tested_logger_name) != nullptr);
+    spdlog::drop_all();
+}
+
+TEST_CASE("get(std::string_view name)", "[registry]") {
+    spdlog::drop_all();
+    spdlog::create<spdlog::sinks::null_sink_mt>(tested_logger_name);
+    REQUIRE(spdlog::get(std::string_view(tested_logger_name)) != nullptr);
+    spdlog::drop_all();
+}
+
+TEST_CASE("get(std::string name)", "[registry]") {
+    spdlog::drop_all();
+    spdlog::create<spdlog::sinks::null_sink_mt>(tested_logger_name);
+    REQUIRE(spdlog::get(std::string(tested_logger_name)) != nullptr);
+    spdlog::drop_all();
+}

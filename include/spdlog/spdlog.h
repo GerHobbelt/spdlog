@@ -36,7 +36,7 @@ using default_factory = synchronous_factory;
 // Example:
 //   spdlog::create<daily_file_sink_st>("logger_name", "dailylog_filename", 11, 59);
 template <typename Sink, typename... SinkArgs>
-inline std::shared_ptr<spdlog::logger> create(std::string logger_name, SinkArgs &&...sink_args) SPDLOG_COND_NOEXCEPT
+inline std::shared_ptr<spdlog::logger> create(std::string logger_name, SinkArgs &&...sink_args)
 {
     return default_factory::create<Sink>(std::move(logger_name),
                                          std::forward<SinkArgs>(sink_args)...);
@@ -50,7 +50,7 @@ inline std::shared_ptr<spdlog::logger> create(std::string logger_name, SinkArgs 
 // Example:
 //   auto mylogger = std::make_shared<spdlog::logger>("mylogger", ...);
 //   spdlog::initialize_logger(mylogger);
-SPDLOG_API void initialize_logger(std::shared_ptr<logger> logger) SPDLOG_COND_NOEXCEPT;
+SPDLOG_API void initialize_logger(std::shared_ptr<logger> logger);
 
 // Return an existing logger or nullptr if a logger with such name doesn't
 // exist.
@@ -107,16 +107,16 @@ SPDLOG_API void register_logger(std::shared_ptr<logger> logger) SPDLOG_COND_NOEX
 // Apply a user defined function on all registered loggers
 // Example:
 // spdlog::apply_all([&](std::shared_ptr<spdlog::logger> l) {l->flush();});
-SPDLOG_API void apply_all(const std::function<void(std::shared_ptr<logger>)> &fun) SPDLOG_COND_NOEXCEPT;
+SPDLOG_API void apply_all(const std::function<void(std::shared_ptr<logger>)> &fun);
 
 // Drop the reference to the given logger
-SPDLOG_API void drop(const std::string &name) SPDLOG_COND_NOEXCEPT;
+SPDLOG_API void drop(const std::string &name);
 
 // Drop all references from the registry
-SPDLOG_API void drop_all() SPDLOG_COND_NOEXCEPT;
+SPDLOG_API void drop_all();
 
 // stop any running threads started by spdlog and clean registry loggers
-SPDLOG_API void shutdown() SPDLOG_COND_NOEXCEPT;
+SPDLOG_API void shutdown();
 
 // Automatic registration of loggers when using spdlog::create() or spdlog::create_async
 SPDLOG_API void set_automatic_registration(bool automatic_registration) SPDLOG_COND_NOEXCEPT;
@@ -204,6 +204,8 @@ inline void log(level::level_enum lvl, const T &msg) SPDLOG_COND_NOEXCEPT {
     default_logger_raw()->log(lvl, msg);
 }
 
+
+
 #ifndef SPDLOG_NO_STRUCTURED_SPDLOG
 inline void trace(std::initializer_list<Field> fields, string_view_t msg) SPDLOG_COND_NOEXCEPT
 {
@@ -283,6 +285,7 @@ inline void critical(wformat_string_t<Args...> fmt, Args &&...args) SPDLOG_COND_
 }
 #endif
 
+// log functions with no format string, just string
 template <typename T>
 inline void trace(const T &msg) SPDLOG_COND_NOEXCEPT {
     default_logger_raw()->trace(msg);
@@ -312,6 +315,38 @@ template <typename T>
 inline void critical(const T &msg) SPDLOG_COND_NOEXCEPT {
     default_logger_raw()->critical(msg);
 }
+
+#ifndef SPDLOG_NO_SOURCE_LOC
+
+// log functions with no format string, just string
+inline void trace(string_view_t msg, source_loc loc = source_loc::current()) { log(loc, level::trace, msg); }
+
+inline void debug(string_view_t msg, source_loc loc = source_loc::current()) { log(loc, level::debug, msg); }
+
+inline void info(string_view_t msg, source_loc loc = source_loc::current()) { log(loc, level::info, msg); }
+
+inline void warn(string_view_t msg, source_loc loc = source_loc::current()) { log(loc, spdlog::level::warn, msg); }
+
+inline void error(string_view_t msg, source_loc loc = source_loc::current()) { log(loc, level::err, msg); }
+
+inline void critical(string_view_t msg, source_loc loc = source_loc::current()) { log(loc, level::critical, msg); }
+
+#else
+
+// log functions with no format string, just string
+inline void trace(string_view_t msg) { log(level::trace, msg); }
+
+inline void debug(string_view_t msg) { log(level::debug, msg); }
+
+inline void info(string_view_t msg) { log(level::info, msg); }
+
+inline void warn(string_view_t msg) { log(level::warn, msg); }
+
+inline void error(string_view_t msg) { log(level::err, msg); }
+
+inline void critical(string_view_t msg) { log(level::critical, msg); }
+
+#endif
 
 }  // namespace spdlog
 

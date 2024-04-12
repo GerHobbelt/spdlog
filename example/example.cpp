@@ -4,6 +4,10 @@
 
 // spdlog usage example
 
+// Uncomment to enable source location support.
+// This will add filename/line/column info to the log (and in to the resulting binary so take care).
+//#define SPDLOG_SOURCE_LOCATION
+
 #include <spdlog/common.h>
 
 #include <cstdio>
@@ -36,6 +40,7 @@ static void syslog_example();
 #if defined(__ANDROID__)
 static void android_example();
 #endif
+static void mdc_example();
 
 #include "spdlog/spdlog.h"
 #include "spdlog/json_formatter.h"
@@ -56,8 +61,7 @@ int main(int argc, const char **argv) {
 
     spdlog::default_logger()->log(spdlog::process_info(6789, 44), spdlog::level::critical, "Spoofed pid and thread message");
 
-    spdlog::info("Welcome to spdlog version {}.{}.{}  !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR,
-                 SPDLOG_VER_PATCH);
+    spdlog::info("Welcome to spdlog version {}.{}.{}  !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR, SPDLOG_VER_PATCH);
 
     spdlog::warn("Easy padding in numbers like {:08d}", 12);
     spdlog::critical("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
@@ -120,6 +124,7 @@ int main(int argc, const char **argv) {
 #if defined(__ANDROID__)
         android_example();
 #endif
+        mdc_example();
 
         // Flush all *registered* loggers using a worker thread every 3 seconds.
         // note: registered loggers *must* be thread safe for this to work correctly!
@@ -133,7 +138,6 @@ int main(int argc, const char **argv) {
         spdlog::shutdown();
 		return 0;
     }
-
     // Exceptions will only be thrown upon failed logger or sink construction (not during logging).
     catch (const spdlog::spdlog_ex &ex) {
         std::printf("Log initialization failed: %s\n", ex.what());
@@ -515,3 +519,14 @@ static void extended_stlying()
     spdlog::set_pattern("%+"); // back to default format
 #endif
 }
+
+#include "spdlog/mdc.h"
+static void mdc_example()
+{
+    spdlog::mdc::put("key1", "value1");
+    spdlog::mdc::put("key2", "value2");
+    // use the %& formatter flag to print all MDC values
+    spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%&] %v");
+    spdlog::info("Some log message with context");
+}
+

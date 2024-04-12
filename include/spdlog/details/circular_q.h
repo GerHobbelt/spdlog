@@ -65,10 +65,12 @@ public:
         }
     }
 
-    // Return reference to the front item.
+    // Return const reference to the front item.
     // If there are no elements in the container, the behavior is undefined.
     const T &front() const { return v_[head_]; }
 
+    // Return reference to the front item.
+    // If there are no elements in the container, the behavior is undefined.
     T &front() { return v_[head_]; }
 
     // Return number of elements actually stored
@@ -86,10 +88,17 @@ public:
         assert(i < size());
         return v_[(head_ + i) % max_items_];
     }
+    const T &operator[](size_t i) const {
+        assert(i < size());
+        return v_[(head_ + i) % max_items_];
+    }
 
-    // Pop item from front.
-    // If there are no elements in the container, the behavior is undefined.
-    void pop_front() { head_ = (head_ + 1) % max_items_; }
+    // Pop item from front if not empty.
+    void pop_front() {
+        if (!empty()) {
+            head_ = (head_ + 1) % max_items_;
+        }
+    }
 
     bool empty() const { return tail_ == head_; }
 
@@ -98,7 +107,7 @@ public:
         if (max_items_ > 0) {
             return ((tail_ + 1) % max_items_) == head_;
         }
-        return false;
+        return true;
     }
 
     size_t overrun_counter() const { return overrun_counter_; }

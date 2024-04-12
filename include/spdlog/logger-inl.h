@@ -140,7 +140,7 @@ SPDLOG_INLINE void logger::dump_backtrace(bool with_message) SPDLOG_COND_NOEXCEP
 }
 
 // flush functions
-SPDLOG_INLINE void logger::flush() SPDLOG_COND_NOEXCEPT
+SPDLOG_INLINE void logger::flush()
 {
 	  flush_();
 }
@@ -239,7 +239,7 @@ SPDLOG_INLINE bool logger::should_flush_(const details::log_msg &msg) SPDLOG_CON
     return (msg.level >= flush_level) && (msg.level != level::off);
 }
 
-SPDLOG_INLINE void logger::err_handler_(const std::string &msg) SPDLOG_COND_NOEXCEPT {
+SPDLOG_INLINE void logger::err_handler_(const std::string &msg) {
     if (custom_err_handler_) {
         custom_err_handler_(msg);
     } else {
