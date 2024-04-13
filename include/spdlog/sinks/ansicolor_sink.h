@@ -34,7 +34,7 @@ public:
     ansicolor_sink &operator=(const ansicolor_sink &other) = delete;
     ansicolor_sink &operator=(ansicolor_sink &&other) = delete;
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     void set_color(level::level_enum color_level, details::styles_array color);
 #else
     void set_color(level::level_enum color_level, string_view_t color);
@@ -92,7 +92,7 @@ private:
     bool should_do_colors_;
     std::unique_ptr<spdlog::formatter> formatter_;
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     std::array<details::styles_array, level::n_levels> colors_;
 #else
     std::array<std::string, level::n_levels> colors_;
@@ -135,7 +135,7 @@ using ansicolor_dual_sink_st = ansicolor_dual_sink<details::console_nullmutex>;
 
 }  // namespace sinks
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
 namespace details {
     static details::style_codes styling_table
     {

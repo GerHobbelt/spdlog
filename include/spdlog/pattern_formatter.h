@@ -37,7 +37,7 @@ struct padding_info {
     bool enabled_ = false;
 };
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
 
 class SPDLOG_API flag_formatter
 {
@@ -133,7 +133,7 @@ private:
     custom_flags custom_handlers_;
 
     std::tm get_time_(const details::log_msg &msg);
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     template<typename Padder>
     void handle_flag_(char flag, details::padding_info padding, details::styling_info styling);
 

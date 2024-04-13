@@ -74,10 +74,10 @@ SPDLOG_INLINE void escape_to_end(spdlog::memory_buf_t &dest, size_t start_offset
    //   and 5 means that it needs to be unicode-escaped (\u0000).
 
    // TODO: widechar support
-   static_assert(sizeof(dest[0]) ==1, "Wide chars are not supported by escape_to_end yet");
+   static_assert(sizeof(dest[0]) == 1, "Wide chars are not supported by escape_to_end yet");
 
    size_t extra_chars_required = 0;
-   for (auto i=start_offset; i < dest.size(); i++) {
+   for (auto i = start_offset; i < dest.size(); i++) {
        uint8_t c = dest[i]; // need to make it unsigned
        extra_chars_required += extra_chars_lookup[c];
    }

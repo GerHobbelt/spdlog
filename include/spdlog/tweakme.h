@@ -162,5 +162,7 @@
 // throws. It might also interact badly with mechanisms that inject exceptions into running
 // code (such as the pthread_cancel implementation of NPTL).
 //
-#define SPDLOG_LOGGER_NOEXCEPT
+//#define SPDLOG_LOGGER_NOEXCEPT
 ///////////////////////////////////////////////////////////////////////////////
+
+//#define SPDLOG_EXTENDED_STYLING

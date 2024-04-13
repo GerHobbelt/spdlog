@@ -466,8 +466,8 @@ static void hierarchical_logger_example()
 
 static void extended_stlying()
 {
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
-    // with extended styling you may use the mutliple color
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+    // with extended styling you may use the multiple color
     // area formatter "%^" in more than one spot in your pattern.
     // in addition there are syntax extensions to the color formatter
     // they are defined by squirley braces { } after the '%' but before
@@ -476,7 +476,7 @@ static void extended_stlying()
     // mutliple stylings can apply to a single area by delimiting the key
     // words with a ';'. (example: "%{bold;fg_blue}^")
     //
-    // styling key words come in three flavors font style, font foreground
+    // styling key words come in three flavors: font style, font foreground
     // color, and font background color
     //
     // font styles:

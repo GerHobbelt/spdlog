@@ -6,7 +6,7 @@
 #include <spdlog/common.h>
 #include <string>
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
 #   include <vector>
 #   include <array>
 #endif
@@ -15,7 +15,7 @@
 namespace spdlog {
 namespace details {
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
 enum class style_type
 {
     // reservation for data structures
@@ -86,7 +86,7 @@ struct SPDLOG_API log_msg
     mutable size_t color_range_start{0};
     mutable size_t color_range_end{0};
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     // for ansi console styling
     mutable std::vector<styling_info> styling_ranges;
 #endif

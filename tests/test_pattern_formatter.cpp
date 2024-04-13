@@ -69,7 +69,7 @@ TEST_CASE("color range test1", "[pattern_formatter]") {
     spdlog::details::log_msg msg(logger_name, spdlog::level::info,
                                  spdlog::string_view_t(buf.data(), buf.size()));
     formatter->format(msg, formatted);
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     REQUIRE(msg.styling_ranges.at(0).position == 0);
     REQUIRE(msg.styling_ranges.at(1).position == 5);
 #else
@@ -86,7 +86,7 @@ TEST_CASE("color range test2", "[pattern_formatter]") {
     spdlog::details::log_msg msg(logger_name, spdlog::level::info, "");
     memory_buf_t formatted;
     formatter->format(msg, formatted);
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     REQUIRE(msg.styling_ranges.at(0).position == 0);
     REQUIRE(msg.styling_ranges.at(1).position == 0);
 #else
@@ -102,7 +102,7 @@ TEST_CASE("color range test3", "[pattern_formatter]") {
     spdlog::details::log_msg msg(logger_name, spdlog::level::info, "ignored");
     memory_buf_t formatted;
     formatter->format(msg, formatted);
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     REQUIRE(msg.styling_ranges.at(0).position == 0);
     REQUIRE(msg.styling_ranges.at(1).position == 3);
 #else
@@ -119,7 +119,7 @@ TEST_CASE("color range test4", "[pattern_formatter]") {
 
     memory_buf_t formatted;
     formatter->format(msg, formatted);
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     REQUIRE(msg.styling_ranges.at(0).position == 2);
     REQUIRE(msg.styling_ranges.at(1).position == 5);
 #else
@@ -136,7 +136,7 @@ TEST_CASE("color range test5", "[pattern_formatter]") {
     spdlog::details::log_msg msg(logger_name, spdlog::level::info, "ignored");
     memory_buf_t formatted;
     formatter->format(msg, formatted);
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     REQUIRE(msg.styling_ranges.at(0).position == 2);
     REQUIRE(msg.styling_ranges.at(0).is_start == true);
     REQUIRE(msg.styling_ranges.size() == 1);
@@ -152,7 +152,7 @@ TEST_CASE("color range test6", "[pattern_formatter]") {
     spdlog::details::log_msg msg(logger_name, spdlog::level::info, "ignored");
     memory_buf_t formatted;
     formatter->format(msg, formatted);
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
     REQUIRE(msg.styling_ranges.at(0).position == 2);
     REQUIRE(msg.styling_ranges.at(0).is_start == false);
     REQUIRE(msg.styling_ranges.size() == 1);
@@ -162,7 +162,7 @@ TEST_CASE("color range test6", "[pattern_formatter]") {
 #endif
 }
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
 
 TEST_CASE("color range test7", "[pattern_formatter]")
 {
