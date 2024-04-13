@@ -27,7 +27,8 @@ static void load_levels_example(int argc, const char **argv);
 int main(int argc, const char **argv) {
     // Log levels can be loaded from argv/env using "SPDLOG_LEVEL"
     load_levels_example(argc, argv);
-    spdlog::set_pattern("[%H:%M:%S %z] [process %P] [thread %t(%q)] [%n] %v");
+    spdlog::set_automatic_registration(true);
+		spdlog::set_pattern("[%H:%M:%S %z] [process %P] [thread %t(%q)] [%n] %v");
 
     spdlog::default_logger()->log(spdlog::process_info(6789, 44, "TH_foobar"), spdlog::level::critical, "Spoofed pid and thread message");
 
@@ -108,6 +109,19 @@ int main(int argc, const char **argv) {
         spdlog::debug("This message should be displayed..");
 
         spdlog::set_default_logger(old_logger);
+    }
+
+		{
+        // Create color multi threaded logger.
+        auto console = spdlog::stdout_color_mt("console");
+        // or for stderr:
+        // auto console = spdlog::stderr_color_mt("error-logger");
+        auto dual_sink = spdlog::dual_color_mt("dual-sink");
+        dual_sink->set_level(spdlog::level::debug);
+        dual_sink->info("dual-sink");
+        dual_sink->error("error");
+        dual_sink->critical("critical");
+        dual_sink->debug("debug");
     }
 
     try {
@@ -450,8 +464,8 @@ static void hierarchical_logger_example()
 
 static void extended_stlying()
 {
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STLYING)
-    // with extended styling you may use the mutliple color
+#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+    // with extended styling you may use the multiple color
     // area formatter "%^" in more than one spot in your pattern.
     // in addition there are syntax extensions to the color formatter
     // they are defined by squirley braces { } after the '%' but before
@@ -460,7 +474,7 @@ static void extended_stlying()
     // mutliple stylings can apply to a single area by delimiting the key
     // words with a ';'. (example: "%{bold;fg_blue}^")
     //
-    // styling key words come in three flavors font style, font foreground
+    // styling key words come in three flavors: font style, font foreground
     // color, and font background color
     //
     // font styles:
