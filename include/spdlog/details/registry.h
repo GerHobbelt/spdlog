@@ -41,47 +41,47 @@ public:
     std::shared_ptr<logger> get(std::string_view logger_name);
     std::shared_ptr<logger> get(const char *logger_name);
 #endif
-    std::shared_ptr<logger> default_logger();
+    std::shared_ptr<logger> default_logger() SPDLOG_COND_NOEXCEPT;
 
     // Return raw ptr to the default logger.
     // To be used directly by the spdlog default api (e.g. spdlog::info)
     // This make the default API faster, but cannot be used concurrently with set_default_logger().
     // e.g do not call set_default_logger() from one thread while calling spdlog::info() from
     // another.
-    logger *get_default_raw();
+    logger *get_default_raw() SPDLOG_COND_NOEXCEPT;
 
     // set default logger.
     // default logger is stored in default_logger_ (for faster retrieval) and in the loggers_ map.
     void set_default_logger(std::shared_ptr<logger> new_default_logger);
 
-    void set_tp(std::shared_ptr<thread_pool> tp);
+    void set_tp(std::shared_ptr<thread_pool> tp) SPDLOG_COND_NOEXCEPT;
 
-    std::shared_ptr<thread_pool> get_tp();
+    std::shared_ptr<thread_pool> get_tp() SPDLOG_COND_NOEXCEPT;
 
     // Set global formatter. Each sink in each logger will get a clone of this object
-    void set_formatter(std::unique_ptr<formatter> formatter);
+    void set_formatter(std::unique_ptr<formatter> formatter) SPDLOG_COND_NOEXCEPT;
 
-    void enable_backtrace(size_t n_messages);
+    void enable_backtrace(size_t n_messages) SPDLOG_COND_NOEXCEPT;
 
-    void disable_backtrace();
+    void disable_backtrace() SPDLOG_COND_NOEXCEPT;
 
-    void set_level(level::level_enum log_level);
+    void set_level(level::level_enum log_level) SPDLOG_COND_NOEXCEPT;
 
-    void flush_on(level::level_enum log_level);
+    void flush_on(level::level_enum log_level) SPDLOG_COND_NOEXCEPT;
 
     template <typename Rep, typename Period>
-    void flush_every(std::chrono::duration<Rep, Period> interval) {
+    void flush_every(std::chrono::duration<Rep, Period> interval) SPDLOG_COND_NOEXCEPT {
         std::lock_guard<std::mutex> lock(flusher_mutex_);
         auto clbk = [this]() { this->flush_all(); };
         periodic_flusher_ = details::make_unique<periodic_worker>(clbk, interval);
     }
 
-    std::unique_ptr<periodic_worker> &get_flusher() {
+    std::unique_ptr<periodic_worker> &get_flusher() SPDLOG_COND_NOEXCEPT {
         std::lock_guard<std::mutex> lock(flusher_mutex_); 
         return periodic_flusher_; 
     }
 
-    void set_error_handler(err_handler handler);
+    void set_error_handler(err_handler handler) SPDLOG_COND_NOEXCEPT;
 
     void apply_all(const std::function<void(const std::shared_ptr<logger>)> &fun);
 
@@ -96,17 +96,17 @@ public:
 
     std::recursive_mutex &tp_mutex();
 
-    void set_automatic_registration(bool automatic_registration);
+    void set_automatic_registration(bool automatic_registration) SPDLOG_COND_NOEXCEPT;
 
     // set levels for all existing/future loggers. global_level can be null if should not set.
-    void set_levels(log_levels levels, level::level_enum *global_level);
+    void set_levels(log_levels levels, level::level_enum *global_level) SPDLOG_COND_NOEXCEPT;
 
     static registry &instance();
 
     // explicitely free the singleton instance.
     static void destroy();
 
-    void apply_logger_env_levels(std::shared_ptr<logger> new_logger);   
+    void apply_logger_env_levels(std::shared_ptr<logger> new_logger) SPDLOG_COND_NOEXCEPT;
 
 private:
     registry();

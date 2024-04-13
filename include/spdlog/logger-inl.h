@@ -134,7 +134,7 @@ SPDLOG_INLINE void logger::disable_backtrace() SPDLOG_COND_NOEXCEPT
     tracer_.disable();
 }
 
-SPDLOG_INLINE void logger::dump_backtrace(bool with_message) SPDLOG_COND_NOEXCEPT
+SPDLOG_INLINE void logger::dump_backtrace(bool with_message)
 {
     dump_backtrace_(with_message);
 }
@@ -175,7 +175,8 @@ SPDLOG_INLINE std::shared_ptr<logger> logger::clone(std::string logger_name) {
 // protected methods
 SPDLOG_INLINE void logger::log_it_(const spdlog::details::log_msg &log_msg,
                                    bool log_enabled,
-                                   bool traceback_enabled) SPDLOG_COND_NOEXCEPT {
+                                   bool traceback_enabled)
+{
     if (log_enabled) {
         sink_it_(log_msg);
     }
@@ -219,7 +220,7 @@ SPDLOG_INLINE void logger::flush_() {
     }
 }
 
-SPDLOG_INLINE void logger::dump_backtrace_(bool with_message) SPDLOG_COND_NOEXCEPT
+SPDLOG_INLINE void logger::dump_backtrace_(bool with_message)
 {
     using details::log_msg;
     if (tracer_.enabled() && !tracer_.empty())

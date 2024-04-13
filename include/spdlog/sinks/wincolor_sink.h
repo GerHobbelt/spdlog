@@ -4,6 +4,9 @@
 #pragma once
 
 #include <spdlog/common.h>
+
+#if defined(_WIN32)
+
 #include <spdlog/details/console_globals.h>
 #include <spdlog/details/null_mutex.h>
 #include <spdlog/sinks/sink.h>
@@ -94,4 +97,6 @@ using wincolor_dual_sink_st = wincolor_dual_sink<details::console_nullmutex>;
 
 #ifdef SPDLOG_HEADER_ONLY
     #include "wincolor_sink-inl.h"
+#endif
+
 #endif

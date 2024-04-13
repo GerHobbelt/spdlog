@@ -76,7 +76,7 @@ SPDLOG_API void enable_backtrace(size_t n_messages) SPDLOG_COND_NOEXCEPT;
 SPDLOG_API void disable_backtrace() SPDLOG_COND_NOEXCEPT;
 
 // call dump backtrace on default logger
-SPDLOG_API void dump_backtrace(bool with_message = true) SPDLOG_COND_NOEXCEPT;
+SPDLOG_API void dump_backtrace(bool with_message = true);
 
 // Get global logging level
 SPDLOG_API level::level_enum get_level() SPDLOG_COND_NOEXCEPT;
@@ -140,7 +140,7 @@ SPDLOG_API std::shared_ptr<spdlog::logger> default_logger() SPDLOG_COND_NOEXCEPT
 
 SPDLOG_API spdlog::logger *default_logger_raw() SPDLOG_COND_NOEXCEPT;
 
-SPDLOG_API void set_default_logger(std::shared_ptr<spdlog::logger> default_logger) SPDLOG_COND_NOEXCEPT;
+SPDLOG_API void set_default_logger(std::shared_ptr<spdlog::logger> default_logger);
 
 // Initialize logger level based on environment configs.
 //

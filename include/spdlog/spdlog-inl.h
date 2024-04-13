@@ -48,7 +48,7 @@ SPDLOG_INLINE void disable_backtrace() SPDLOG_COND_NOEXCEPT
 	  details::registry::instance().disable_backtrace();
 }
 
-SPDLOG_INLINE void dump_backtrace(bool with_message) SPDLOG_COND_NOEXCEPT
+SPDLOG_INLINE void dump_backtrace(bool with_message)
 {
 	  default_logger_raw()->dump_backtrace(with_message);
 }
@@ -111,7 +111,7 @@ SPDLOG_INLINE spdlog::logger *default_logger_raw() SPDLOG_COND_NOEXCEPT {
     return details::registry::instance().get_default_raw();
 }
 
-SPDLOG_INLINE void set_default_logger(std::shared_ptr<spdlog::logger> default_logger) SPDLOG_COND_NOEXCEPT {
+SPDLOG_INLINE void set_default_logger(std::shared_ptr<spdlog::logger> default_logger) {
     details::registry::instance().set_default_logger(std::move(default_logger));
 }
 

@@ -112,7 +112,7 @@ SPDLOG_INLINE std::shared_ptr<logger> registry::get(const char *logger_name) {
 }
 #endif
 
-SPDLOG_INLINE std::shared_ptr<logger> registry::default_logger() {
+SPDLOG_INLINE std::shared_ptr<logger> registry::default_logger() SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     return default_logger_;
 }
@@ -121,7 +121,7 @@ SPDLOG_INLINE std::shared_ptr<logger> registry::default_logger() {
 // To be used directly by the spdlog default api (e.g. spdlog::info)
 // This make the default API faster, but cannot be used concurrently with set_default_logger().
 // e.g do not call set_default_logger() from one thread while calling spdlog::info() from another.
-SPDLOG_INLINE logger *registry::get_default_raw() { return default_logger_.get(); }
+SPDLOG_INLINE logger *registry::get_default_raw() SPDLOG_COND_NOEXCEPT { return default_logger_.get(); }
 
 // set default logger.
 // default logger is stored in default_logger_ (for faster retrieval) and in the loggers_ map.
@@ -137,18 +137,18 @@ SPDLOG_INLINE void registry::set_default_logger(std::shared_ptr<logger> new_defa
     default_logger_ = std::move(new_default_logger);
 }
 
-SPDLOG_INLINE void registry::set_tp(std::shared_ptr<thread_pool> tp) {
+SPDLOG_INLINE void registry::set_tp(std::shared_ptr<thread_pool> tp) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::recursive_mutex> lock(tp_mutex_);
     tp_ = std::move(tp);
 }
 
-SPDLOG_INLINE std::shared_ptr<thread_pool> registry::get_tp() {
+SPDLOG_INLINE std::shared_ptr<thread_pool> registry::get_tp() SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::recursive_mutex> lock(tp_mutex_);
     return tp_;
 }
 
 // Set global formatter. Each sink in each logger will get a clone of this object
-SPDLOG_INLINE void registry::set_formatter(std::unique_ptr<formatter> formatter) {
+SPDLOG_INLINE void registry::set_formatter(std::unique_ptr<formatter> formatter) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     formatter_ = std::move(formatter);
     for (auto &l : loggers_) {
@@ -156,7 +156,7 @@ SPDLOG_INLINE void registry::set_formatter(std::unique_ptr<formatter> formatter)
     }
 }
 
-SPDLOG_INLINE void registry::enable_backtrace(size_t n_messages) {
+SPDLOG_INLINE void registry::enable_backtrace(size_t n_messages) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     backtrace_n_messages_ = n_messages;
 
@@ -165,7 +165,7 @@ SPDLOG_INLINE void registry::enable_backtrace(size_t n_messages) {
     }
 }
 
-SPDLOG_INLINE void registry::disable_backtrace() {
+SPDLOG_INLINE void registry::disable_backtrace() SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     backtrace_n_messages_ = 0;
     for (auto &l : loggers_) {
@@ -173,7 +173,7 @@ SPDLOG_INLINE void registry::disable_backtrace() {
     }
 }
 
-SPDLOG_INLINE void registry::set_level(level::level_enum log_level) {
+SPDLOG_INLINE void registry::set_level(level::level_enum log_level) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     for (auto &l : loggers_) {
         l.second->set_level(log_level);
@@ -181,7 +181,7 @@ SPDLOG_INLINE void registry::set_level(level::level_enum log_level) {
     global_log_level_ = log_level;
 }
 
-SPDLOG_INLINE void registry::flush_on(level::level_enum log_level) {
+SPDLOG_INLINE void registry::flush_on(level::level_enum log_level) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     for (auto &l : loggers_) {
         l.second->flush_on(log_level);
@@ -189,7 +189,7 @@ SPDLOG_INLINE void registry::flush_on(level::level_enum log_level) {
     flush_level_ = log_level;
 }
 
-SPDLOG_INLINE void registry::set_error_handler(err_handler handler) {
+SPDLOG_INLINE void registry::set_error_handler(err_handler handler) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     for (auto &l : loggers_) {
         l.second->set_error_handler(handler);
@@ -256,12 +256,12 @@ SPDLOG_INLINE void registry::shutdown() {
 
 SPDLOG_INLINE std::recursive_mutex &registry::tp_mutex() { return tp_mutex_; }
 
-SPDLOG_INLINE void registry::set_automatic_registration(bool automatic_registration) {
+SPDLOG_INLINE void registry::set_automatic_registration(bool automatic_registration) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     automatic_registration_ = automatic_registration;
 }
 
-SPDLOG_INLINE void registry::set_levels(log_levels levels, level::level_enum *global_level) {
+SPDLOG_INLINE void registry::set_levels(log_levels levels, level::level_enum *global_level) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     log_levels_ = std::move(levels);
     auto global_level_requested = global_level != nullptr;
@@ -286,7 +286,7 @@ SPDLOG_INLINE void registry::destroy() {
 
 // Double checked locking to avoid expensive locks when not required.
 // 1) First we atomically check if the instance is valid; in this case it can safely be returned directly without locking.
-// 2) If the instance is actually null, then we can no longer perform the operation atomically, so need to lock the mutex. This will happen only once in the program's lifetime. One the mutex is locked, check if the instance is still null
+// 2) If the instance is actually null, then we can no longer perform the operation atomically, so need to lock the mutex. This will happen only once in the program's lifetime. Once the mutex is locked, check if the instance is still null
 //    (as another thread might have changed it by this point). If it's still null, allocate and update the atomic instance pointer, unlock mutex and return the reference.
 // https://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/
 SPDLOG_INLINE registry &registry::instance() {
@@ -302,7 +302,7 @@ SPDLOG_INLINE registry &registry::instance() {
     return *instance;
 }
 
-SPDLOG_INLINE void registry::apply_logger_env_levels(std::shared_ptr<logger> new_logger) {
+SPDLOG_INLINE void registry::apply_logger_env_levels(std::shared_ptr<logger> new_logger) SPDLOG_COND_NOEXCEPT {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
     auto it = log_levels_.find(new_logger->name());
     auto new_level = it != log_levels_.end() ? it->second : global_log_level_;
