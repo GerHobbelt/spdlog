@@ -15,6 +15,7 @@ static void load_levels_example(int argc, const char **argv);
 #include "spdlog/json_formatter.h"
 #include "spdlog/cfg/env.h"   // support for loading levels from the environment variable
 #include "spdlog/fmt/ostr.h"  // support for user defined types
+#include "spdlog/sinks/all-sinks.h"
 
 #include "monolithic_examples.h"
 
@@ -50,6 +51,64 @@ int main(int argc, const char **argv) {
     //spdlog::set_formatter(spdlog::details::make_unique<spdlog::json_formatter>());
     //SPDLOG_INFO({{"field1","value2"}, {"field2",4.0}}, "JSON logging is good for fields");
 #endif
+
+		{
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console_sink->set_level(spdlog::level::trace);
+        console_sink->set_pattern("[multi_sink_example] [%^%l%$] %v");
+
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/multisink.txt", true);
+        file_sink->set_level(spdlog::level::trace);
+
+        spdlog::logger logger("multi_sink", {console_sink, file_sink});
+        logger.set_level(spdlog::level::debug);
+        logger.warn("this should appear in both console and file");
+        logger.info("this message should appear in the console and in the file");
+    }
+
+    {
+        spdlog::default_logger()->set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>("root [%n] [%^%l%$] %v"));
+
+        auto lvl1 = spdlog::stdout_color_mt("propagate_lvl1");
+
+        lvl1->set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>("lvl1 [%n] [%^%l%$] %v"));
+        lvl1->set_level(spdlog::level::debug);
+        auto lvl2 = std::make_shared<spdlog::logger>("propagate_lvl1.lvl2");
+        spdlog::register_logger(lvl2);
+        // skip level 3
+        auto lvl4 = std::make_shared<spdlog::logger>("propagate_lvl1.lvl2.lvl3.lvl4");
+        spdlog::register_logger(lvl4);
+
+        lvl4->debug("I am a debug message at Level 4 but will be printed by Level 1 logger");
+        lvl2->debug("I am a debug message at Level 2 but will be printed by Level 1 logger");
+
+        auto multi_lvl1 = spdlog::stdout_color_mt("multi_lvl1");
+        multi_lvl1->set_level(spdlog::level::debug);
+        multi_lvl1->set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>("lvl1 [%n] [%^%l%$] %v"));
+        auto multi_lvl2 = spdlog::stdout_color_mt("multi_lvl1.lvl2");
+        multi_lvl2->set_level(spdlog::level::info);
+        multi_lvl2->set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>("lvl2 [%n] [%^%l%$] %v"));
+        // skip level 3
+        auto multi_lvl4 = std::make_shared<spdlog::logger>("multi_lvl1.lvl2.lvl3.lvl4");
+        spdlog::register_logger(multi_lvl4);
+
+        multi_lvl4->debug("I am a debug message at Level 4 but will be printed by Level 1 logger");
+        multi_lvl4->info("I am an info message at Level 4 but will be printed by Level 2, Level 1 and root logger");
+    }
+
+		{
+        // store the old logger so we don't break other examples.
+        auto old_logger = spdlog::default_logger();
+
+        auto new_logger = spdlog::basic_logger_mt("new_default_logger", "logs/new-default-log.txt", true);
+        spdlog::set_default_logger(new_logger);
+        spdlog::set_level(spdlog::level::info);
+        spdlog::debug("This message should not be displayed!");
+        spdlog::set_level(spdlog::level::trace);
+        spdlog::debug("This message should be displayed..");
+
+        spdlog::set_default_logger(old_logger);
+    }
 
     try {
 
