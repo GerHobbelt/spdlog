@@ -23,7 +23,7 @@ SPDLOG_INLINE ansicolor_sink<ConsoleMutex>::ansicolor_sink(FILE *target_file, co
 
 {
     set_color_mode(mode);
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
     colors_.at(level::trace)    = details::styles_array{details::style_type::fg_white};
     colors_.at(level::debug)    = details::styles_array{details::style_type::fg_cyan};
     colors_.at(level::info)     = details::styles_array{details::style_type::fg_green};
@@ -42,7 +42,7 @@ SPDLOG_INLINE ansicolor_sink<ConsoleMutex>::ansicolor_sink(FILE *target_file, co
 #endif
 }
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
 template<typename ConsoleMutex>
 SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::set_color(level::level_enum color_level, details::styles_array color)
 {
@@ -66,14 +66,14 @@ SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::log(const details::log_msg &msg
     msg.color_range_start = 0;
     msg.color_range_end   = 0;
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
     msg.styling_ranges.clear();
 #endif
 
     memory_buf_t formatted;
     formatter_->format(msg, formatted);
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
     if (should_do_colors_ && msg.styling_ranges.size() > 0)
     {
         string_view_t reset = details::styling_table[(int)details::style_type::reset];
@@ -85,7 +85,7 @@ SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::log(const details::log_msg &msg
         {
             if (info->is_start)
             {
-                // this stlying formatter is the first occurrance past the previous closing formatter
+                // this styling formatter is the first occurrance past the previous closing formatter
                 // all of the preceding characters if any are outside color the range
                 if (msg.color_range_end <= info->position && open_styles_count == 0)
                 {

@@ -672,7 +672,7 @@ private:
     std::string str_;
 };
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
 // mark the style range. expect it to be in the form of "%^colored text%$" or "%{style_spec}^styled text%$"
 class color_start_formatter final : public flag_formatter
 {
@@ -974,7 +974,7 @@ public:
         }
 
         dest.push_back('[');
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
         // wrap the level name with color
         styleinfo_.is_start = true;
         styleinfo_.position = dest.size();
@@ -1115,7 +1115,7 @@ SPDLOG_INLINE std::tm pattern_formatter::get_time_(const details::log_msg &msg) 
 }
 
 template <typename Padder>
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
 SPDLOG_INLINE void pattern_formatter::handle_flag_(char flag, details::padding_info padding, details::styling_info styling)
 #else
 SPDLOG_INLINE void pattern_formatter::handle_flag_(char flag, details::padding_info padding)
@@ -1285,7 +1285,7 @@ SPDLOG_INLINE void pattern_formatter::handle_flag_(char flag, details::padding_i
             break;
 
         case ('^'):  // %^: color range start
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
         formatters_.push_back(details::make_unique<details::color_start_formatter>(padding, styling));
 #else
             formatters_.push_back(details::make_unique<details::color_start_formatter>(padding));
@@ -1424,7 +1424,7 @@ SPDLOG_INLINE details::padding_info pattern_formatter::handle_padspec_(
     return details::padding_info{std::min<size_t>(width, max_width), side, truncate};
 }
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
 // Extract given style spec (e.g. %{style}^X, %{style;style}^X, ...)
 // Advance the given `it` past the end of the style spec found (if any).
 // Return style.
@@ -1442,7 +1442,7 @@ SPDLOG_INLINE details::styling_info pattern_formatter::handle_stylespec_(std::st
     size_t end_of_spec = input.find('}');
 
     if (end_of_spec == std::string::npos)
-    {   // the style spec closing delimtier is not present
+    {   // the style spec closing delimiter is not present
         return styling_info{};
     }
     std::string full_spec_(input, 0, end_of_spec);
@@ -1450,10 +1450,10 @@ SPDLOG_INLINE details::styling_info pattern_formatter::handle_stylespec_(std::st
     // need to advance the iterator the number of characters in the spec
     // plus the closing delimiter '}'
     size_t consumed_characters = full_spec_.length() + 1;
-    it  += consumed_characters;
+    it += consumed_characters;
 
     // the style spec can be delimited by semi-colons to declare
-    // mutliple types of styling (i.e. {fg_green;bold})
+    // multiple types of styling (i.e. {fg_green;bold})
     size_t insert_position = 0;
     details::styles_array styles{};
 
@@ -1466,7 +1466,7 @@ SPDLOG_INLINE details::styling_info pattern_formatter::handle_stylespec_(std::st
 
             if (delimiter == std::string::npos)
             {   // this is the last style in the spec
-                for (int i = 0; i < SPDLOG_ANSI_STLYE_COUNT; i++)
+                for (int i = 0; i < SPDLOG_ANSI_STYLE_COUNT; i++)
                 {
                     if (t_spec_.compare(details::style_type_table[i]) == 0)
                     {   // verify this style spec is valid
@@ -1484,7 +1484,7 @@ SPDLOG_INLINE details::styling_info pattern_formatter::handle_stylespec_(std::st
             }
 
             std::string s_spec_(t_spec_, 0, delimiter);
-            for (int i = 0; i < SPDLOG_ANSI_STLYE_COUNT; i++)
+            for (int i = 0; i < SPDLOG_ANSI_STYLE_COUNT; i++)
             {
                 if (s_spec_.compare(details::style_type_table[i]) == 0)
                 {   // verify this style spec is valid
@@ -1505,7 +1505,7 @@ SPDLOG_INLINE details::styling_info pattern_formatter::handle_stylespec_(std::st
     }
     else
     {   // style spec contains single style
-        for (int i = 0; i < SPDLOG_ANSI_STLYE_COUNT; i++)
+        for (int i = 0; i < SPDLOG_ANSI_STYLE_COUNT; i++)
         {   // verify this style spec is valid
             if (full_spec_.compare(details::style_type_table[i]) == 0)
             {
@@ -1531,7 +1531,7 @@ SPDLOG_INLINE void pattern_formatter::compile_pattern_(const std::string &patter
 
             auto padding = handle_padspec_(++it, end);
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
             auto styles  = handle_stylespec_(it, end);
 
             if (it != end)

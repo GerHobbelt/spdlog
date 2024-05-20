@@ -466,7 +466,7 @@ static void hierarchical_logger_example()
 
 static void extended_stlying()
 {
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
     // with extended styling you may use the multiple color
     // area formatter "%^" in more than one spot in your pattern.
     // in addition there are syntax extensions to the color formatter

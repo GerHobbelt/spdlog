@@ -6,7 +6,7 @@
 #include <spdlog/common.h>
 #include <string>
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
 #   include <vector>
 #   include <array>
 #endif
@@ -15,7 +15,7 @@
 namespace spdlog {
 namespace details {
 
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
 enum class style_type
 {
     // reservation for data structures
@@ -28,11 +28,12 @@ enum class style_type
     bg_black, bg_red, bg_green, bg_yellow, bg_blue, bg_magenta, bg_cyan, bg_white, bg_default,
 };
 
-#if !defined(SPDLOG_ANSI_STLYE_COUNT)
-#   define SPDLOG_ANSI_STLYE_COUNT 25
-    using styles_array  = std::array<details::style_type, SPDLOG_ANSI_STLYE_COUNT>;
-    using style_strings = std::array<std::string, SPDLOG_ANSI_STLYE_COUNT>;
-    using style_codes   = std::array<string_view_t, SPDLOG_ANSI_STLYE_COUNT>;
+#if !defined(SPDLOG_ANSI_STYLE_COUNT)
+#   define SPDLOG_ANSI_STYLE_COUNT 25
+    using styles_array  = std::array<details::style_type, SPDLOG_ANSI_STYLE_COUNT>;
+    using style_strings = std::array<std::string, SPDLOG_ANSI_STYLE_COUNT>;
+    using style_codes   = std::array<string_view_t, SPDLOG_ANSI_STYLE_COUNT>;
+    using winstyle_codes = std::array<int, SPDLOG_ANSI_STYLE_COUNT>;
 #endif
 
 // styling info.
@@ -83,10 +84,10 @@ struct SPDLOG_API log_msg
     process_info process_info;
 
     // wrapping the formatted text with color (updated by pattern_formatter).
+#if !defined(SPDLOG_EXTENDED_STYLING)
     mutable size_t color_range_start{0};
     mutable size_t color_range_end{0};
-
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#else
     // for ansi console styling
     mutable std::vector<styling_info> styling_ranges;
 #endif

@@ -124,6 +124,16 @@ int main(int argc, const char **argv) {
         dual_sink->debug("debug");
     }
 
+    spdlog::set_pattern("[%^%H:%M:%S %z%$] [%^%L%$] [%^thread %t%$] %{fg_green}^%v%$");
+    spdlog::set_level(spdlog::level::trace);
+    spdlog::trace("I work on other levels?");
+    spdlog::debug("I work on other levels?");
+    spdlog::info("I work on other levels?");
+    spdlog::warn("I work on other levels?");
+    spdlog::error("I work on other levels?");
+    spdlog::critical("I work on other levels?");
+    spdlog::set_pattern("%+");  // back to default format
+
     try {
 
 
@@ -464,7 +474,7 @@ static void hierarchical_logger_example()
 
 static void extended_stlying()
 {
-#if !defined(_WIN32) && defined(SPDLOG_EXTENDED_STYLING)
+#if defined(SPDLOG_EXTENDED_STYLING)
     // with extended styling you may use the multiple color
     // area formatter "%^" in more than one spot in your pattern.
     // in addition there are syntax extensions to the color formatter

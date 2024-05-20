@@ -51,6 +51,9 @@ protected:
     std::unique_ptr<spdlog::formatter> formatter_;
     std::array<std::uint16_t, level::n_levels> colors_;
 
+    // return the current console attributes (for resetting later)
+    std::uint16_t get_foreground_color_();
+
     // set foreground color and return the orig console attributes (for resetting later)
     std::uint16_t set_foreground_color_(std::uint16_t attribs);
 
