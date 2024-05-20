@@ -20,16 +20,6 @@ SPDLOG_INLINE std::shared_ptr<logger> get(const std::string &name) SPDLOG_COND_N
     return details::registry::instance().get(name);
 }
 
-#if __cplusplus >= 201703L  // C++17
-SPDLOG_INLINE std::shared_ptr<logger> get(std::string_view name) SPDLOG_COND_NOEXCEPT {
-    return details::registry::instance().get(name);
-}
-
-SPDLOG_INLINE std::shared_ptr<logger> get(const char *name) SPDLOG_COND_NOEXCEPT {
-    return details::registry::instance().get(name);
-}
-#endif
-
 SPDLOG_INLINE void set_formatter(std::unique_ptr<spdlog::formatter> formatter) SPDLOG_COND_NOEXCEPT {
     details::registry::instance().set_formatter(std::move(formatter));
 }

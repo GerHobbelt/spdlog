@@ -520,12 +520,16 @@ static void extended_stlying()
 #endif
 }
 
+// Mapped Diagnostic Context (MDC) is a map that stores key-value pairs (string values) in thread local storage.
+// Each thread maintains its own MDC, which loggers use to append diagnostic information to log outputs.
+// Note: it is not supported in asynchronous mode due to its reliance on thread-local storage.
+
 #include "spdlog/mdc.h"
 static void mdc_example()
 {
     spdlog::mdc::put("key1", "value1");
     spdlog::mdc::put("key2", "value2");
-    // use the %& formatter flag to print all MDC values
+    // if not using the default format, you can use the %& formatter to print mdc data as well
     spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%&] %v");
     spdlog::info("Some log message with context");
 }

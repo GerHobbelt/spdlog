@@ -120,12 +120,14 @@ TEST_CASE("get(const char* name)", "[registry]") {
     spdlog::drop_all();
 }
 
+#if 0
 TEST_CASE("get(std::string_view name)", "[registry]") {
     spdlog::drop_all();
     spdlog::create<spdlog::sinks::null_sink_mt>(tested_logger_name);
     REQUIRE(spdlog::get(std::string_view(tested_logger_name)) != nullptr);
     spdlog::drop_all();
 }
+#endif
 
 TEST_CASE("get(std::string name)", "[registry]") {
     spdlog::drop_all();

@@ -21,10 +21,6 @@
 #include <memory>
 #include <string>
 
-#if __cplusplus >= 201703L  // C++17
-    #include <string_view>
-#endif
-
 namespace spdlog {
 
 using default_factory = synchronous_factory;
@@ -56,10 +52,6 @@ SPDLOG_API void initialize_logger(std::shared_ptr<logger> logger);
 // exist.
 // example: spdlog::get("my_logger")->info("hello {}", "world");
 SPDLOG_API std::shared_ptr<logger> get(const std::string &name) SPDLOG_COND_NOEXCEPT;
-#if __cplusplus >= 201703L  // C++17
-SPDLOG_API std::shared_ptr<logger> get(std::string_view name) SPDLOG_COND_NOEXCEPT;
-SPDLOG_API std::shared_ptr<logger> get(const char *name) SPDLOG_COND_NOEXCEPT;
-#endif
 
 // Set global formatter. Each sink in each logger will get a clone of this object
 SPDLOG_API void set_formatter(std::unique_ptr<spdlog::formatter> formatter) SPDLOG_COND_NOEXCEPT;
