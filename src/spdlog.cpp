@@ -16,7 +16,7 @@ void initialize_logger(std::shared_ptr<logger> logger) { details::registry::inst
 
 std::shared_ptr<logger> get(const std::string &name) { return details::registry::instance().get(name); }
 
-std::shared_ptr<logger> get(std::string_view name) {return details::registry::instance().get(name); }
+std::shared_ptr<logger> get(std::string_view name) { return details::registry::instance().get(name); }
 
 std::shared_ptr<logger> get(const char *name) { return details::registry::instance().get(name); }
 

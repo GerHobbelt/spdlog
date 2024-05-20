@@ -5,8 +5,7 @@
 
 #include <functional>
 #include <mutex>
-#include <string>
-#include <vector>
+#include <string_view>
 
 #include "../details/circular_q.h"
 #include "../details/log_msg_buffer.h"

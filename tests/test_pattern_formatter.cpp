@@ -1,7 +1,7 @@
 #include "includes.h"
+#include "spdlog/mdc.h"
 #include "spdlog/sinks/ostream_sink.h"
 #include "test_sink.h"
-#include "spdlog/mdc.h"
 
 using spdlog::memory_buf_t;
 using spdlog::details::to_string_view;
@@ -467,13 +467,11 @@ TEST_CASE("mdc formatter test-1", "[pattern_formatter]") {
     formatter->set_pattern("[%n] [%l] [%&] %v");
 
     memory_buf_t formatted;
-    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info,
-                                 "some message");
+    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info, "some message");
     formatter->format(msg, formatted);
 
-    auto expected = spdlog::fmt_lib::format(
-            "[logger-name] [info] [mdc_key_1:mdc_value_1 mdc_key_2:mdc_value_2] some message{}",
-            spdlog::details::os::default_eol);
+    auto expected = spdlog::fmt_lib::format("[logger-name] [info] [mdc_key_1:mdc_value_1 mdc_key_2:mdc_value_2] some message{}",
+                                            spdlog::details::os::default_eol);
     REQUIRE(to_string_view(formatted) == expected);
 
     SECTION("Tear down") { spdlog::mdc::clear(); }
@@ -487,22 +485,19 @@ TEST_CASE("mdc formatter value update", "[pattern_formatter]") {
     formatter->set_pattern("[%n] [%l] [%&] %v");
 
     memory_buf_t formatted_1;
-    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info,
-                                 "some message");
+    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info, "some message");
     formatter->format(msg, formatted_1);
 
-    auto expected = spdlog::fmt_lib::format(
-            "[logger-name] [info] [mdc_key_1:mdc_value_1 mdc_key_2:mdc_value_2] some message{}",
-            spdlog::details::os::default_eol);
+    auto expected = spdlog::fmt_lib::format("[logger-name] [info] [mdc_key_1:mdc_value_1 mdc_key_2:mdc_value_2] some message{}",
+                                            spdlog::details::os::default_eol);
 
     REQUIRE(to_string_view(formatted_1) == expected);
 
     spdlog::mdc::put("mdc_key_1", "new_mdc_value_1");
     memory_buf_t formatted_2;
     formatter->format(msg, formatted_2);
-    expected = spdlog::fmt_lib::format(
-            "[logger-name] [info] [mdc_key_1:new_mdc_value_1 mdc_key_2:mdc_value_2] some message{}",
-            spdlog::details::os::default_eol);
+    expected = spdlog::fmt_lib::format("[logger-name] [info] [mdc_key_1:new_mdc_value_1 mdc_key_2:mdc_value_2] some message{}",
+                                       spdlog::details::os::default_eol);
 
     REQUIRE(to_string_view(formatted_2) == expected);
 
@@ -512,8 +507,7 @@ TEST_CASE("mdc formatter value update", "[pattern_formatter]") {
 TEST_CASE("mdc different threads", "[pattern_formatter]") {
     auto formatter = std::make_shared<spdlog::pattern_formatter>();
     formatter->set_pattern("[%n] [%l] [%&] %v");
-    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info,
-                                 "some message");
+    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info, "some message");
 
     memory_buf_t formatted_2;
 
@@ -522,9 +516,8 @@ TEST_CASE("mdc different threads", "[pattern_formatter]") {
         memory_buf_t formatted;
         formatter->format(msg, formatted);
 
-        auto expected =
-                spdlog::fmt_lib::format("[logger-name] [info] [mdc_key:thread_1_id] some message{}",
-                                        spdlog::details::os::default_eol);
+        auto expected = spdlog::fmt_lib::format("[logger-name] [info] [mdc_key:thread_1_id] some message{}",
+                                                spdlog::details::os::default_eol);
 
         REQUIRE(to_string_view(formatted) == expected);
     };
@@ -534,9 +527,8 @@ TEST_CASE("mdc different threads", "[pattern_formatter]") {
         memory_buf_t formatted;
         formatter->format(msg, formatted);
 
-        auto expected =
-                spdlog::fmt_lib::format("[logger-name] [info] [mdc_key:thread_2_id] some message{}",
-                                        spdlog::details::os::default_eol);
+        auto expected = spdlog::fmt_lib::format("[logger-name] [info] [mdc_key:thread_2_id] some message{}",
+                                                spdlog::details::os::default_eol);
 
         REQUIRE(to_string_view(formatted) == expected);
     };
@@ -559,13 +551,11 @@ TEST_CASE("mdc remove key", "[pattern_formatter]") {
     formatter->set_pattern("[%n] [%l] [%&] %v");
 
     memory_buf_t formatted;
-    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info,
-                                 "some message");
+    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info, "some message");
     formatter->format(msg, formatted);
 
     auto expected =
-            spdlog::fmt_lib::format("[logger-name] [info] [mdc_key_2:mdc_value_2] some message{}",
-                                    spdlog::details::os::default_eol);
+        spdlog::fmt_lib::format("[logger-name] [info] [mdc_key_2:mdc_value_2] some message{}", spdlog::details::os::default_eol);
     REQUIRE(to_string_view(formatted) == expected);
 
     SECTION("Tear down") { spdlog::mdc::clear(); }
@@ -576,12 +566,10 @@ TEST_CASE("mdc empty", "[pattern_formatter]") {
     formatter->set_pattern("[%n] [%l] [%&] %v");
 
     memory_buf_t formatted;
-    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info,
-                                 "some message");
+    spdlog::details::log_msg msg(spdlog::source_loc{}, "logger-name", spdlog::level::info, "some message");
     formatter->format(msg, formatted);
 
-    auto expected = spdlog::fmt_lib::format("[logger-name] [info] [] some message{}",
-                                            spdlog::details::os::default_eol);
+    auto expected = spdlog::fmt_lib::format("[logger-name] [info] [] some message{}", spdlog::details::os::default_eol);
     REQUIRE(to_string_view(formatted) == expected);
 
     SECTION("Tear down") { spdlog::mdc::clear(); }

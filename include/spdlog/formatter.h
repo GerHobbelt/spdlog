@@ -4,7 +4,6 @@
 #pragma once
 
 #include "./details/log_msg.h"
-#include "fmt/fmt.h"
 
 namespace spdlog {
 

@@ -9,7 +9,6 @@
 #include <utility>
 
 #include "spdlog/details/registry.h"
-#include "spdlog/spdlog.h"
 
 namespace spdlog {
 namespace cfg {

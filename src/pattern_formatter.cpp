@@ -3,6 +3,8 @@
 
 #include "spdlog/pattern_formatter.h"
 
+#include <spdlog/mdc.h>
+
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -16,7 +18,6 @@
 #include "spdlog/details/fmt_helper.h"
 #include "spdlog/details/log_msg.h"
 #include "spdlog/details/os.h"
-#include <spdlog/mdc.h>
 #include "spdlog/fmt/fmt.h"
 #include "spdlog/formatter.h"
 
@@ -147,7 +148,7 @@ public:
 static std::array<const char *, 7> full_days{{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}};
 
 template <typename ScopedPadder>
-class A_formatter : public flag_formatter {
+class A_formatter final : public flag_formatter {
 public:
     explicit A_formatter(padding_info padinfo)
         : flag_formatter(padinfo) {}
@@ -741,10 +742,10 @@ private:
 // Class for formatting Mapped Diagnostic Context (MDC) in log messages.
 // Example: [logger-name] [info] [mdc_key_1:mdc_value_1 mdc_key_2:mdc_value_2] some message
 template <typename ScopedPadder>
-class mdc_formatter : public flag_formatter {
+class mdc_formatter final : public flag_formatter {
 public:
     explicit mdc_formatter(padding_info padinfo)
-            : flag_formatter(padinfo) {}
+        : flag_formatter(padinfo) {}
 
     void format(const details::log_msg &, const std::tm &, memory_buf_t &dest) override {
         auto &mdc_map = mdc::get_context();
@@ -756,7 +757,7 @@ public:
         }
     }
 
-    void format_mdc(const mdc::mdc_map_t &mdc_map, memory_buf_t &dest){
+    void format_mdc(const mdc::mdc_map_t &mdc_map, memory_buf_t &dest) {
         auto last_element = --mdc_map.end();
         for (auto it = mdc_map.begin(); it != mdc_map.end(); ++it) {
             auto &pair = *it;
@@ -778,7 +779,6 @@ public:
         }
     }
 };
-
 
 // Full info formatter
 // pattern: [%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [%s:%#] %v

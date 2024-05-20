@@ -33,7 +33,7 @@ struct udp_sink_config {
 };
 
 template <typename Mutex>
-class udp_sink : public spdlog::sinks::base_sink<Mutex> {
+class udp_sink final : public spdlog::sinks::base_sink<Mutex> {
 public:
     // host can be hostname or ip address
     explicit udp_sink(udp_sink_config sink_config)

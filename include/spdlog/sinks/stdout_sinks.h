@@ -40,13 +40,13 @@ private:
 };
 
 template <typename Mutex>
-class stdout_sink : public stdout_sink_base<Mutex> {
+class stdout_sink final : public stdout_sink_base<Mutex> {
 public:
     stdout_sink();
 };
 
 template <typename Mutex>
-class stderr_sink : public stdout_sink_base<Mutex> {
+class stderr_sink final : public stdout_sink_base<Mutex> {
 public:
     stderr_sink();
 };

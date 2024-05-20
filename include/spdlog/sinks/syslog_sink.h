@@ -18,7 +18,7 @@ namespace sinks {
  * Sink that write to syslog using the `syscall()` library call.
  */
 template <typename Mutex>
-class syslog_sink : public base_sink<Mutex> {
+class syslog_sink final : public base_sink<Mutex> {
 public:
     syslog_sink(std::string ident, int syslog_option, int syslog_facility, bool enable_formatting)
         : enable_formatting_{enable_formatting},

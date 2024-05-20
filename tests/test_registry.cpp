@@ -1,5 +1,6 @@
-#include "includes.h"
 #include <string_view>
+
+#include "includes.h"
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <array>
-#include <memory>
 #include <mutex>
 #include <string>
 
@@ -82,13 +81,13 @@ private:
 };
 
 template <typename Mutex>
-class ansicolor_stdout_sink : public ansicolor_sink<Mutex> {
+class ansicolor_stdout_sink final : public ansicolor_sink<Mutex> {
 public:
     explicit ansicolor_stdout_sink(color_mode mode = color_mode::automatic);
 };
 
 template <typename Mutex>
-class ansicolor_stderr_sink : public ansicolor_sink<Mutex> {
+class ansicolor_stderr_sink final : public ansicolor_sink<Mutex> {
 public:
     explicit ansicolor_stderr_sink(color_mode mode = color_mode::automatic);
 };

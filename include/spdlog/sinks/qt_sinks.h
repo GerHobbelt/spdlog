@@ -170,8 +170,7 @@ protected:
                              color_range_start,          // color range start
                              color_range_end};           // color range end
 
-        QMetaObject::invokeMethod(
-            qt_text_edit_, [params]() { invoke_method_(params); }, Qt::AutoConnection);
+        QMetaObject::invokeMethod(qt_text_edit_, [params]() { invoke_method_(params); }, Qt::AutoConnection);
     }
 
     void flush_() override {}

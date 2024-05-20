@@ -353,8 +353,7 @@ void replace_default_logger_example() {
 }
 
 #include "spdlog/mdc.h"
-void mdc_example()
-{
+void mdc_example() {
     spdlog::mdc::put("key1", "value1");
     spdlog::mdc::put("key2", "value2");
     // use the %& formatter flag to print all MDC values

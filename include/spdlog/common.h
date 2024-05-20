@@ -6,7 +6,6 @@
 #include <array>
 #include <atomic>
 #include <chrono>
-#include <cstdint>
 #include <cstdio>
 #include <exception>
 #include <functional>

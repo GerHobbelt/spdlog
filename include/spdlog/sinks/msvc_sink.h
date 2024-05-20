@@ -4,7 +4,6 @@
 #pragma once
 
 #include <mutex>
-#include <string>
 
 #include "../details/null_mutex.h"
 #include "./base_sink.h"
@@ -19,7 +18,7 @@ namespace sinks {
  * MSVC sink (logging using OutputDebugStringA)
  */
 template <typename Mutex>
-class msvc_sink : public base_sink<Mutex> {
+class msvc_sink final : public base_sink<Mutex> {
 public:
     msvc_sink() = default;
     msvc_sink(bool check_debugger_present)

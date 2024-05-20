@@ -37,7 +37,9 @@ public:
         : start_tp_{clock::now()} {}
 
     [[nodiscard]]
-    std::chrono::duration<double> elapsed() const { return std::chrono::duration<double>(clock::now() - start_tp_); }
+    std::chrono::duration<double> elapsed() const {
+        return std::chrono::duration<double>(clock::now() - start_tp_);
+    }
 
     [[nodiscard]]
     std::chrono::milliseconds elapsed_ms() const {

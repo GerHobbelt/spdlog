@@ -33,8 +33,7 @@ thread_pool::thread_pool(size_t q_max_items, size_t threads_n, std::function<voi
     : thread_pool(q_max_items, threads_n, on_thread_start, [] {}) {}
 
 thread_pool::thread_pool(size_t q_max_items, size_t threads_n)
-    : thread_pool(
-          q_max_items, threads_n, [] {}, [] {}) {}
+    : thread_pool(q_max_items, threads_n, [] {}, [] {}) {}
 
 // message all threads to terminate gracefully join them
 thread_pool::~thread_pool() {
