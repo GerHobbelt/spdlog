@@ -168,7 +168,7 @@ struct source_loc
 
     SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT
     {
-        return line == 0;
+        return line <= 0;
     }
     const char *filename{nullptr};
     unsigned line{0};
