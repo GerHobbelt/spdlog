@@ -161,6 +161,8 @@ using fmt_runtime_string = fmt::basic_runtime<Char>;
 #    endif
 #endif
 
+#ifndef SPDLOG_NO_SOURCE_LOC
+
 struct source_loc
 {
     SPDLOG_CONSTEXPR source_loc() = default;
@@ -187,6 +189,24 @@ struct source_loc
     unsigned line{0};
     const char *funcname{nullptr};
 };
+
+#else
+
+struct source_loc
+{
+    SPDLOG_CONSTEXPR source_loc() = default;
+
+    SPDLOG_CONSTEXPR source_loc static current() {
+        return source_loc{};
+    }
+
+    SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT
+    {
+        return true;
+    }
+};
+
+#endif  // SPDLOG_NO_SOURCE_LOC
 
 template<typename T, typename Char>
 struct format_string_wrapper

@@ -3,12 +3,15 @@
 #pragma once
 
 #include <cstdint>
+#include <spdlog/tweakme.h>
 
 #ifdef _MSC_VER
 #    define SPDLOG_CPLUSPLUS _MSVC_LANG
 #else
 #    define SPDLOG_CPLUSPLUS __cplusplus
 #endif
+
+#ifndef SPDLOG_NO_SOURCE_LOC
 
 #ifdef __has_include
 #    if __has_include(<source_location>) && SPDLOG_CPLUSPLUS >= 202002L
@@ -84,3 +87,6 @@ private:
 } // namespace details
 } // namespace spdlog
 #endif
+
+#endif  // SPDLOG_NO_SOURCE_LOC
+

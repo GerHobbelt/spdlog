@@ -29,6 +29,7 @@
 #include <vector>
 
 #ifndef SPDLOG_NO_EXCEPTIONS
+  #ifndef SPDLOG_NO_SOURCE_LOC
     #define SPDLOG_LOGGER_CATCH(location)                                                 \
         catch (const std::exception &ex) {                                                \
             if (location.filename) {                                                      \
@@ -42,6 +43,16 @@
             err_handler_("Rethrowing unknown exception in logger");                       \
             throw;                                                                        \
         }
+  #else
+    #define SPDLOG_LOGGER_CATCH(location)                                                 \
+        catch (const std::exception &ex) {                                                \
+            err_handler_(ex.what());                                                      \
+        }                                                                                 \
+        catch (...) {                                                                     \
+            err_handler_("Rethrowing unknown exception in logger");                       \
+            throw;                                                                        \
+        }
+  #endif
 #else
     #define SPDLOG_LOGGER_CATCH(location)
 #endif

@@ -6,7 +6,7 @@
 
 // Uncomment to enable source location support.
 // This will add filename/line/column info to the log (and in to the resulting binary so take care).
-//#define SPDLOG_SOURCE_LOCATION
+#define SPDLOG_NO_SOURCE_LOC
 
 #include <spdlog/common.h>
 
