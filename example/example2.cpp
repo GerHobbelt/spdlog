@@ -15,6 +15,7 @@ static void load_levels_example(int argc, const char **argv);
 #include "spdlog/json_formatter.h"
 #include "spdlog/cfg/env.h"   // support for loading levels from the environment variable
 #include "spdlog/fmt/ostr.h"  // support for user defined types
+#include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/all-sinks.h"
 
 #include "monolithic_examples.h"

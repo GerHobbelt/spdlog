@@ -18,12 +18,12 @@
 #include <spdlog/details/backtracer.h>
 #include <spdlog/details/source_location.h>
 #include <spdlog/details/log_msg.h>
+#include <spdlog/details/os.h>
 
 #ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
     #ifndef _WIN32
         #error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
     #endif
-    #include <spdlog/details/os.h>
 #endif
 
 #include <vector>
@@ -216,7 +216,7 @@ public:
     template<typename... Args>
     void log(source_loc loc, level::level_enum lvl, wformat_string_t<Args...> fmt, Args &&...args)
     {
-        log_(loc, lvl, {}, details::to_string_view(fmt.format_string()), std::forward<Args>(args)...);
+        logw_(loc, lvl, {}, details::to_string_view(fmt.format_string()), std::forward<Args>(args)...);
     }
 
     template<typename... Args>
@@ -452,7 +452,7 @@ protected:
 
 #ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
     template <typename... Args>
-    void log_(source_loc loc, level::level_enum lvl, wstring_view_t fmt, Args &&...args)
+    void logw_(source_loc loc, level::level_enum lvl, wstring_view_t fmt, Args &&...args)
 		{
         bool log_enabled = should_log(lvl);
         bool traceback_enabled = tracer_.enabled();

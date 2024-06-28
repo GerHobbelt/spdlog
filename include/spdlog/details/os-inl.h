@@ -31,7 +31,7 @@
         #include <share.h>
     #endif
 
-    #if defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES)
+    #if defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
         #include <cassert>
         #include <limits>
     #endif
@@ -505,7 +505,7 @@ SPDLOG_INLINE bool in_terminal(FILE *file) SPDLOG_NOEXCEPT {
 #endif
 }
 
-#if (defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES)) && defined(_WIN32)
+#if (defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)) && defined(_WIN32)
 SPDLOG_INLINE void wstr_to_utf8buf(wstring_view_t wstr, memory_buf_t &target) {
     if (wstr.size() > static_cast<size_t>((std::numeric_limits<int>::max)()) / 4 - 1) {
         throw_spdlog_ex("UTF-16 string is too big to be converted to UTF-8");
@@ -566,7 +566,7 @@ SPDLOG_INLINE void utf8_to_wstrbuf(string_view_t str, wmemory_buf_t &target) {
     throw_spdlog_ex(
         fmt_lib::format("MultiByteToWideChar failed. Last error: {}", ::GetLastError()));
 }
-#endif  // (defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES)) &&
+#endif  // (defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)) &&
         // defined(_WIN32)
 
 // return true on success

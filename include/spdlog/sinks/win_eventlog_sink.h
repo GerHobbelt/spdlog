@@ -213,7 +213,7 @@ protected:
         base_sink<Mutex>::formatter_->format(msg, formatted);
         formatted.push_back('\0');
 
-#ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#if defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
         wmemory_buf_t buf;
         details::os::utf8_to_wstrbuf(string_view_t(formatted.data(), formatted.size()), buf);
 

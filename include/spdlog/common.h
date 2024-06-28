@@ -3,9 +3,22 @@
 
 #pragma once
 
+#include <spdlog/tweakme.h>
+
+#if !defined(SPDLOG_USE_STD_FORMAT) && defined(_WIN32) && defined(_UNICODE)
+//  #if !defined(SPDLOG_WCHAR_FILENAMES)
+//    #define SPDLOG_WCHAR_FILENAMES	1
+//	#endif
+	#if !defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT)
+    #define SPDLOG_WCHAR_TO_UTF8_SUPPORT  1
+	#endif
+	#if !defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
+		#define SPDLOG_UTF8_TO_WCHAR_CONSOLE  1
+	#endif
+#endif
+
 #include <spdlog/details/null_mutex.h>
 #include <spdlog/details/source_location.h>
-#include <spdlog/tweakme.h>
 
 #include <atomic>
 #include <chrono>
@@ -54,7 +67,7 @@
     FMT_VERSION >= 80000  // backward compatibility with fmt versions older than 8
     #define SPDLOG_FMT_RUNTIME(format_string) fmt::runtime(format_string)
     #define SPDLOG_FMT_STRING(format_string) FMT_STRING(format_string)
-    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT)
+    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
         #include <spdlog/fmt/xchar.h>
     #endif
 #else
@@ -244,7 +257,7 @@ template <class T, class Char = char>
 struct is_convertible_to_basic_format_string
     : std::integral_constant<bool, std::is_convertible<T, std::basic_string_view<Char>>::value> {};
 
-    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT)
+    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
 using wstring_view_t = std::wstring_view;
 using wmemory_buf_t = std::wstring;
 
@@ -285,7 +298,8 @@ struct is_convertible_to_basic_format_string
                                  std::is_same<remove_cvref_t<T>, fmt_runtime_string<Char>>::value> {
 };
 
-    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT)
+
+    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
 using wstring_view_t = fmt::basic_string_view<wchar_t>;
 using wmemory_buf_t = fmt::basic_memory_buffer<wchar_t, 250>;
 
@@ -509,7 +523,7 @@ SPDLOG_CONSTEXPR_FUNC spdlog::string_view_t to_string_view(spdlog::string_view_t
     return str;
 }
 
-#if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT)
+#if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
 SPDLOG_CONSTEXPR_FUNC spdlog::wstring_view_t to_string_view(const wmemory_buf_t &buf)
     SPDLOG_NOEXCEPT {
     return spdlog::wstring_view_t{buf.data(), buf.size()};

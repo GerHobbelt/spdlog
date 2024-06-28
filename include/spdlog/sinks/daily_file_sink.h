@@ -65,7 +65,7 @@ struct daily_filename_format_calculator {
         details::os::wstr_to_utf8buf(file_path, utf8formatted);
         //utf8formatted.append('\0');
         char time_buf[260];
-        std::strftime(time_buf, sizeof(time_buf), utf8formatted.c_str(), &now_tm);
+        std::strftime(time_buf, sizeof(time_buf), SPDLOG_BUF_TO_STRING(utf8formatted).c_str(), &now_tm);
         stream << time_buf;
     #else
         char time_buf[260];
