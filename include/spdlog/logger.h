@@ -105,8 +105,12 @@ public:
     template<typename... Args>
     void log(level::level_enum lvl, format_string_t<Args...> fmt, Args &&...args)
     {
+#ifndef SPDLOG_NO_SOURCE_LOC
         log(fmt.location(), lvl, fmt, std::forward<Args>(args)...);
-    }
+#else
+        log(source_loc(), lvl, fmt, std::forward<Args>(args)...);
+#endif
+		}
 
     template <typename T>
     void log(level::level_enum lvl, const T &msg) {

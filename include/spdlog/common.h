@@ -190,24 +190,6 @@ struct source_loc
     const char *funcname{nullptr};
 };
 
-#else
-
-struct source_loc
-{
-    SPDLOG_CONSTEXPR source_loc() = default;
-
-    SPDLOG_CONSTEXPR source_loc static current() {
-        return source_loc{};
-    }
-
-    SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT
-    {
-        return true;
-    }
-};
-
-#endif  // SPDLOG_NO_SOURCE_LOC
-
 template<typename T, typename Char>
 struct format_string_wrapper
 {
@@ -241,6 +223,35 @@ private:
     T fmt_;
     source_loc loc_;
 };
+
+#else
+
+struct source_loc {
+    SPDLOG_CONSTEXPR source_loc() = default;
+};
+
+template <typename T, typename Char>
+struct format_string_wrapper {
+    SPDLOG_CONSTEVAL format_string_wrapper(const Char *fmtstr)
+        : fmt_{fmtstr} {}
+    #if !defined(SPDLOG_USE_STD_FORMAT) && FMT_VERSION >= 80000
+    SPDLOG_CONSTEXPR format_string_wrapper(fmt_runtime_string<Char> fmtstr)
+        : fmt_{fmtstr} {}
+    #elif defined(SPDLOG_USE_STD_FORMAT) && SPDLOG_CPLUSPLUS >= 202002L
+    template <typename S>
+    requires std::is_convertible_v<S, T>
+        SPDLOG_CONSTEXPR format_string_wrapper(S fmtstr)
+        : fmt_{fmtstr} {}
+    #endif
+    T format_string() {
+        return fmt_;
+    }
+
+private:
+    T fmt_;
+};
+
+#endif  // SPDLOG_NO_SOURCE_LOC
 
 namespace sinks {
 class sink;
