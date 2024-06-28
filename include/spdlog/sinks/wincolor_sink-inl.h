@@ -252,7 +252,7 @@ void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::print_range_(const memory_buf_t 
                                                              size_t start,
                                                              size_t end) {
     if (end > start) {
-    #if defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT)
+    #if defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT)                        // SPDLOG_UTF8_TO_WCHAR_CONSOLE
         wmemory_buf_t wformatted;
         details::os::utf8_to_wstrbuf(string_view_t(formatted.data() + start, end - start),
                                      wformatted);
