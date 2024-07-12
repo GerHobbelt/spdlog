@@ -22,11 +22,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose Release or Debug" FORCE)
 endif()
 
+
 # ---------------------------------------------------------------------------------------
 # Compiler config
 # ---------------------------------------------------------------------------------------
+option(SPDLOG_USE_STD_FORMAT "Use std::format instead of fmt library." ON)
+
 if(SPDLOG_USE_STD_FORMAT)
-    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD 23)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 elseif(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 11)
@@ -87,7 +90,7 @@ option(SPDLOG_BUILD_WARNINGS "Enable compiler warnings" OFF)
 # install options
 option(SPDLOG_SYSTEM_INCLUDES "Include as system headers (skip for clang-tidy)." OFF)
 option(SPDLOG_INSTALL "Generate the install target" ${SPDLOG_MASTER_PROJECT})
-option(SPDLOG_USE_STD_FORMAT "Use std::format instead of fmt library." OFF)
+
 option(SPDLOG_FMT_EXTERNAL "Use external fmt library instead of bundled" OFF)
 option(SPDLOG_FMT_EXTERNAL_HO "Use external fmt header-only library instead of bundled" OFF)
 option(SPDLOG_NO_EXCEPTIONS "Compile with -fno-exceptions. Call abort() on any spdlog exceptions" OFF)

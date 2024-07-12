@@ -18,7 +18,7 @@
 
 #ifdef SPDLOG_USE_STD_FORMAT
     #include <version>
-    #if __cpp_lib_format >= 202207L
+    #if __cpp_lib_format >= 202110L
         #include <format>
     #else
         #include <string_view>
@@ -149,7 +149,7 @@ using string_view_t = std::string_view;
 using memory_buf_t = std::string;
 
 template <typename... Args>
-    #if __cpp_lib_format >= 202207L
+    #if __cpp_lib_format >= 202110L
 using format_string_t = std::format_string<Args...>;
     #else
 using format_string_t = std::string_view;
@@ -164,7 +164,7 @@ using wstring_view_t = std::wstring_view;
 using wmemory_buf_t = std::wstring;
 
 template <typename... Args>
-        #if __cpp_lib_format >= 202207L
+        #if __cpp_lib_format >= 202110L
 using wformat_string_t = std::wformat_string<Args...>;
         #else
 using wformat_string_t = std::wstring_view;
@@ -369,7 +369,7 @@ template <typename T, typename... Args>
 inline fmt::basic_string_view<T> to_string_view(fmt::basic_format_string<T, Args...> fmt) {
     return fmt;
 }
-#elif __cpp_lib_format >= 202207L
+#elif __cpp_lib_format >= 202110L
 template <typename T, typename... Args>
 SPDLOG_CONSTEXPR_FUNC std::basic_string_view<T> to_string_view(
     std::basic_format_string<T, Args...> fmt) SPDLOG_NOEXCEPT {
