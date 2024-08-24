@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cerrno>  // errno
 #include <climits>
+#include <csignal>
 #include <cmath>
 #include <exception>
 
@@ -33,7 +34,7 @@ FMT_FUNC void assert_fail(const char* file, int line, const char* message) {
   std::fprintf(stderr, "%s:%d: assertion failed: %s", file, line, message);
   // Chosen instead of std::abort to satisfy Clang in CUDA mode during device
   // code pass.
-  std::terminate();
+  std::raise(SIGUSR1);
 }
 
 FMT_FUNC void throw_format_error(const char* message) {
