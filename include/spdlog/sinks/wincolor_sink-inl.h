@@ -145,6 +145,7 @@ void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::log(const spdlog::details::log_m
                     }
                 }
 								catch (const std::out_of_range &ex) {  // full style spec output looks either amazing or trash
+                    (void)ex;
                 }
 
                 // it is possible to not provide a style spec with the formatter, in that
