@@ -206,7 +206,7 @@ SPDLOG_INLINE pattern_field::pattern_field(string_view_t name, string_view_t pat
 }
 
 SPDLOG_INLINE pattern_field::pattern_field(const std::string &value_prefix, formatter* formatter, json_field_type field_type, bool output_needs_escaping) :
-    value_prefix_(value_prefix), formatter_(std::move(formatter->clone())), field_type_(field_type), output_needs_escaping_(output_needs_escaping)
+    value_prefix_(value_prefix), formatter_(formatter->clone()), field_type_(field_type), output_needs_escaping_(output_needs_escaping)
 {
 }
 
