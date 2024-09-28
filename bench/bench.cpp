@@ -251,7 +251,7 @@ static void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, size_t th
 
     for (auto &t : threads) {
         t.join();
-    };
+    }
 
     auto delta = high_resolution_clock::now() - start;
     auto delta_d = duration_cast<duration<double>>(delta).count();
