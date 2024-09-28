@@ -524,7 +524,8 @@ static void extended_stlying()
 // Each thread maintains its own MDC, which loggers use to append diagnostic information to log outputs.
 // Note: it is not supported in asynchronous mode due to its reliance on thread-local storage.
 
-#include "spdlog/mdc.h"
+#ifndef SPDLOG_NO_TLS
+    #include "spdlog/mdc.h"
 static void mdc_example()
 {
     spdlog::mdc::put("key1", "value1");
@@ -533,4 +534,8 @@ static void mdc_example()
     spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%&] %v");
     spdlog::info("Some log message with context");
 }
-
+#else
+void mdc_example() {
+    // if TLS feature is disabled
+}
+#endif
