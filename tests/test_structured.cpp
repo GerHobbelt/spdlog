@@ -45,7 +45,7 @@ TEST_CASE("fields", "[structured]")
     //   literals (unless we can arrange some template magic that works for C++11 and
     //   above).  String literals will then have an O(n) cost, and that's no good
     // If we don't include a const char * constructor, the compiler erases const char *
-    //   to void *, which for historical resons binds to bool before anything else.
+    //   to void *, which for historical reasons binds to bool before anything else.
     //   So, for now, const char * maps to bool.  :-|
     const char * cstr = "str";
     auto cstr_f = spdlog::F(cstr, cstr);
