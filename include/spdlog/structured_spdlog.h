@@ -105,7 +105,7 @@ namespace details {
         bar();
     }
 
-    int main() {
+    int main(void) {
         // Text output
         spdlog::default_logger()->set_pattern("%v%V"); // or just use the default
         foo();
