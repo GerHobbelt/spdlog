@@ -33,7 +33,7 @@ static void bench_formatters() {
     std::vector<std::string> basic_patterns;
     for (auto &flag : all_flags) {
         auto pattern = std::string("%") + flag;
-        benchmark::RegisterBenchmark(pattern.c_str(), &bench_formatter, pattern);
+        benchmark::RegisterBenchmark("spdlog.formatter", pattern.c_str(), &bench_formatter, pattern);
 
         //        pattern = std::string("%16") + flag;
         //        benchmark::RegisterBenchmark(pattern.c_str(), &bench_formatter, pattern);
@@ -50,7 +50,7 @@ static void bench_formatters() {
         "[%Y-%m-%d %H:%M:%S.%e] [%l] [%n] [%t] %v",
     };
     for (auto &pattern : patterns) {
-        benchmark::RegisterBenchmark(pattern.c_str(), &bench_formatter, pattern)
+        benchmark::RegisterBenchmark("spdlog.formatter", pattern.c_str(), &bench_formatter, pattern)
             ->Iterations(2500000);
     }
 }
@@ -71,9 +71,9 @@ int main(int argc, const char **argv) {
     if (pattern == "all") {
         bench_formatters();
     } else {
-        benchmark::RegisterBenchmark(pattern.c_str(), &bench_formatter, pattern);
+        benchmark::RegisterBenchmark("spdlog.formatter", pattern.c_str(), &bench_formatter, pattern);
     }
     benchmark::Initialize(&argc, argv);
-    benchmark::RunSpecifiedBenchmarks();
+    benchmark::RunSpecifiedBenchmarks("spdlog.formatter", false);
 	return 0;
 }

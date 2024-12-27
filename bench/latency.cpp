@@ -72,12 +72,12 @@ static void bench_disabled_macro_global_logger(benchmark::State &state,
 #ifdef __linux__
 static void bench_dev_null() {
     auto dev_null_st = spdlog::basic_logger_st("/dev/null_st", "/dev/null");
-    benchmark::RegisterBenchmark("/dev/null_st", bench_logger, std::move(dev_null_st))
+    benchmark::RegisterBenchmark("spdlog.latency", "/dev/null_st", bench_logger, std::move(dev_null_st))
         ->UseRealTime();
     spdlog::drop("/dev/null_st");
 
     auto dev_null_mt = spdlog::basic_logger_mt("/dev/null_mt", "/dev/null");
-    benchmark::RegisterBenchmark("/dev/null_mt", bench_logger, std::move(dev_null_mt))
+    benchmark::RegisterBenchmark("spdlog.latency", "/dev/null_mt", bench_logger, std::move(dev_null_mt))
         ->UseRealTime();
     spdlog::drop("/dev/null_mt");
 }
@@ -102,31 +102,31 @@ int main(int argc, const char **argv) {
     auto disabled_logger =
         std::make_shared<spdlog::logger>("bench", std::make_shared<null_sink_mt>());
     disabled_logger->set_level(spdlog::level::off);
-    benchmark::RegisterBenchmark("disabled-at-compile-time", bench_disabled_macro, disabled_logger);
-    benchmark::RegisterBenchmark("disabled-at-compile-time (global logger)",
+    benchmark::RegisterBenchmark("spdlog.latency", "disabled-at-compile-time", bench_disabled_macro, disabled_logger);
+    benchmark::RegisterBenchmark("spdlog.latency", "disabled-at-compile-time (global logger)",
                                  bench_disabled_macro_global_logger, disabled_logger);
-    benchmark::RegisterBenchmark("disabled-at-runtime", bench_logger, disabled_logger);
-    benchmark::RegisterBenchmark("disabled-at-runtime (global logger)", bench_global_logger,
+    benchmark::RegisterBenchmark("spdlog.latency", "disabled-at-runtime", bench_logger, disabled_logger);
+    benchmark::RegisterBenchmark("spdlog.latency", "disabled-at-runtime (global logger)", bench_global_logger,
                                  disabled_logger);
     // with backtrace of 64
     auto tracing_disabled_logger =
         std::make_shared<spdlog::logger>("bench", std::make_shared<null_sink_mt>());
     tracing_disabled_logger->enable_backtrace(64);
-    benchmark::RegisterBenchmark("disabled-at-runtime/backtrace", bench_logger,
+    benchmark::RegisterBenchmark("spdlog.latency", "disabled-at-runtime/backtrace", bench_logger,
                                  tracing_disabled_logger);
 
     auto null_logger_st =
         std::make_shared<spdlog::logger>("bench", std::make_shared<null_sink_st>());
-    benchmark::RegisterBenchmark("null_sink_st (500_bytes c_str)", bench_c_string,
+    benchmark::RegisterBenchmark("spdlog.latency", "null_sink_st (500_bytes c_str)", bench_c_string,
                                  std::move(null_logger_st));
-    benchmark::RegisterBenchmark("null_sink_st", bench_logger, null_logger_st);
-    benchmark::RegisterBenchmark("null_sink_st (global logger)", bench_global_logger,
+    benchmark::RegisterBenchmark("spdlog.latency", "null_sink_st", bench_logger, null_logger_st);
+    benchmark::RegisterBenchmark("spdlog.latency", "null_sink_st (global logger)", bench_global_logger,
                                  null_logger_st);
     // with backtrace of 64
     auto tracing_null_logger_st =
         std::make_shared<spdlog::logger>("bench", std::make_shared<null_sink_st>());
     tracing_null_logger_st->enable_backtrace(64);
-    benchmark::RegisterBenchmark("null_sink_st/backtrace", bench_logger, tracing_null_logger_st);
+    benchmark::RegisterBenchmark("spdlog.latency", "null_sink_st/backtrace", bench_logger, tracing_null_logger_st);
 
 #ifdef __linux__
     bench_dev_null();
@@ -135,13 +135,13 @@ int main(int argc, const char **argv) {
     if (full_bench) {
         // basic_st
         auto basic_st = spdlog::basic_logger_st("basic_st", "latency_logs/basic_st.log", true);
-        benchmark::RegisterBenchmark("basic_st", bench_logger, std::move(basic_st))->UseRealTime();
+        benchmark::RegisterBenchmark("spdlog.latency", "basic_st", bench_logger, std::move(basic_st))->UseRealTime();
         spdlog::drop("basic_st");
         // with backtrace of 64
         auto tracing_basic_st =
             spdlog::basic_logger_st("tracing_basic_st", "latency_logs/tracing_basic_st.log", true);
         tracing_basic_st->enable_backtrace(64);
-        benchmark::RegisterBenchmark("basic_st/backtrace", bench_logger,
+        benchmark::RegisterBenchmark("spdlog.latency", "basic_st/backtrace", bench_logger,
                                      std::move(tracing_basic_st))
             ->UseRealTime();
         spdlog::drop("tracing_basic_st");
@@ -149,25 +149,25 @@ int main(int argc, const char **argv) {
         // rotating st
         auto rotating_st = spdlog::rotating_logger_st("rotating_st", "latency_logs/rotating_st.log",
                                                       file_size, rotating_files);
-        benchmark::RegisterBenchmark("rotating_st", bench_logger, std::move(rotating_st))
+        benchmark::RegisterBenchmark("spdlog.latency", "rotating_st", bench_logger, std::move(rotating_st))
             ->UseRealTime();
         spdlog::drop("rotating_st");
         // with backtrace of 64
         auto tracing_rotating_st = spdlog::rotating_logger_st(
             "tracing_rotating_st", "latency_logs/tracing_rotating_st.log", file_size,
             rotating_files);
-        benchmark::RegisterBenchmark("rotating_st/backtrace", bench_logger,
+        benchmark::RegisterBenchmark("spdlog.latency", "rotating_st/backtrace", bench_logger,
                                      std::move(tracing_rotating_st))
             ->UseRealTime();
         spdlog::drop("tracing_rotating_st");
 
         // daily st
         auto daily_st = spdlog::daily_logger_mt("daily_st", "latency_logs/daily_st.log");
-        benchmark::RegisterBenchmark("daily_st", bench_logger, std::move(daily_st))->UseRealTime();
+        benchmark::RegisterBenchmark("spdlog.latency", "daily_st", bench_logger, std::move(daily_st))->UseRealTime();
         spdlog::drop("daily_st");
         auto tracing_daily_st =
             spdlog::daily_logger_mt("tracing_daily_st", "latency_logs/daily_st.log");
-        benchmark::RegisterBenchmark("daily_st/backtrace", bench_logger,
+        benchmark::RegisterBenchmark("spdlog.latency", "daily_st/backtrace", bench_logger,
                                      std::move(tracing_daily_st))
             ->UseRealTime();
         spdlog::drop("tracing_daily_st");
@@ -177,13 +177,13 @@ int main(int argc, const char **argv) {
         //
         auto null_logger_mt =
             std::make_shared<spdlog::logger>("bench", std::make_shared<null_sink_mt>());
-        benchmark::RegisterBenchmark("null_sink_mt", bench_logger, null_logger_mt)
+        benchmark::RegisterBenchmark("spdlog.latency", "null_sink_mt", bench_logger, null_logger_mt)
             ->Threads(n_threads)
             ->UseRealTime();
 
         // basic_mt
         auto basic_mt = spdlog::basic_logger_mt("basic_mt", "latency_logs/basic_mt.log", true);
-        benchmark::RegisterBenchmark("basic_mt", bench_logger, std::move(basic_mt))
+        benchmark::RegisterBenchmark("spdlog.latency", "basic_mt", bench_logger, std::move(basic_mt))
             ->Threads(n_threads)
             ->UseRealTime();
         spdlog::drop("basic_mt");
@@ -191,14 +191,14 @@ int main(int argc, const char **argv) {
         // rotating mt
         auto rotating_mt = spdlog::rotating_logger_mt("rotating_mt", "latency_logs/rotating_mt.log",
                                                       file_size, rotating_files);
-        benchmark::RegisterBenchmark("rotating_mt", bench_logger, std::move(rotating_mt))
+        benchmark::RegisterBenchmark("spdlog.latency", "rotating_mt", bench_logger, std::move(rotating_mt))
             ->Threads(n_threads)
             ->UseRealTime();
         spdlog::drop("rotating_mt");
 
         // daily mt
         auto daily_mt = spdlog::daily_logger_mt("daily_mt", "latency_logs/daily_mt.log");
-        benchmark::RegisterBenchmark("daily_mt", bench_logger, std::move(daily_mt))
+        benchmark::RegisterBenchmark("spdlog.latency", "daily_mt", bench_logger, std::move(daily_mt))
             ->Threads(n_threads)
             ->UseRealTime();
         spdlog::drop("daily_mt");
@@ -210,7 +210,7 @@ int main(int argc, const char **argv) {
     auto async_logger = std::make_shared<spdlog::async_logger>(
         "async_logger", std::make_shared<null_sink_mt>(), std::move(tp),
         spdlog::async_overflow_policy::overrun_oldest);
-    benchmark::RegisterBenchmark("async_logger", bench_logger, async_logger)
+    benchmark::RegisterBenchmark("spdlog.latency", "async_logger", bench_logger, async_logger)
         ->Threads(n_threads)
         ->UseRealTime();
 
@@ -218,11 +218,11 @@ int main(int argc, const char **argv) {
         "async_logger_tracing", std::make_shared<null_sink_mt>(), std::move(tp),
         spdlog::async_overflow_policy::overrun_oldest);
     async_logger_tracing->enable_backtrace(32);
-    benchmark::RegisterBenchmark("async_logger/tracing", bench_logger, async_logger_tracing)
+    benchmark::RegisterBenchmark("spdlog.latency", "async_logger/tracing", bench_logger, async_logger_tracing)
         ->Threads(n_threads)
         ->UseRealTime();
 
     benchmark::Initialize(&argc, argv);
-    benchmark::RunSpecifiedBenchmarks();
+    benchmark::RunSpecifiedBenchmarks("spdlog.latency", false);
 	return 0;
 }
