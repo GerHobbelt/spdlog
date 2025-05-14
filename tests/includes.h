@@ -27,6 +27,7 @@
 #include "spdlog/async.h"
 #include "spdlog/details/fmt_helper.h"
 #include "spdlog/pattern_formatter.h"
+#include "spdlog/details/os.h"
 
 #ifndef SPDLOG_NO_TLS
     #include "spdlog/mdc.h"

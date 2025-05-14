@@ -8,7 +8,6 @@ permissions:
 jobs:
   build:
     runs-on: macOS-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'opened')
     name: "macOS Clang (C++11, Release)"
     steps:
       - uses: actions/checkout@v4
