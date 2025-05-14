@@ -1,4 +1,4 @@
-#ifdef _WIN32  // to prevent fopen warning on windows
+#ifndef _CRT_SECURE_NO_WARNINGS  // to prevent fopen warning on windows
     #define _CRT_SECURE_NO_WARNINGS
 #endif
 
