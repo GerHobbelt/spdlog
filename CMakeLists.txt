@@ -36,9 +36,9 @@ elseif(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-# under msvc make sure __cplusplus, parallel build
+# under msvc make sure __cplusplus, parallel build and utf-8 enabled
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    string(APPEND CMAKE_CXX_FLAGS " /Zc:__cplusplus /MP")
+    string(APPEND CMAKE_CXX_FLAGS " /Zc:__cplusplus /MP /utf-8")
 endif()
 
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -299,20 +299,7 @@ if(SPDLOG_NO_EXCEPTIONS)
         target_compile_options(spdlog PRIVATE /EHs-c-)
     endif()
 endif()
-
 # ---------------------------------------------------------------------------------------
-# {fmt} lib requires /utf-8 flag or FMT_UNICODE=0 under MSVC
-# ---------------------------------------------------------------------------------------
-if(NOT SPDLOG_USE_STD_FORMAT)
-	if(MSVC)
-		if(SPDLOG_WCHAR_SUPPORT OR SPDLOG_WCHAR_CONSOLE)
-			target_compile_options(spdlog PUBLIC /utf-8)
-		else() 
-            target_compile_definitions(spdlog PUBLIC FMT_UNICODE=0)
-       endif()
-    endif() 
- endif()
-
 # Build binaries
 # ---------------------------------------------------------------------------------------
 if(SPDLOG_BUILD_EXAMPLE OR SPDLOG_BUILD_EXAMPLE_HO OR SPDLOG_BUILD_ALL)
