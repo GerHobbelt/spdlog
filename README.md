@@ -113,7 +113,7 @@ Copy the include [folder](https://github.com/gabime/spdlog/tree/v1.x/include/spd
 ```console
 $ git clone https://github.com/gabime/spdlog.git
 $ cd spdlog && mkdir build && cd build
-$ cmake .. && make -j
+$ cmake .. && cmake --build .
 ```
 
 ##### or
