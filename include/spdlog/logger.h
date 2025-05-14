@@ -495,11 +495,11 @@ protected:
     virtual void sink_it_(const details::log_msg &msg);
     virtual void flush_();
     void dump_backtrace_(bool with_message = true);
-    bool should_flush_(const details::log_msg &msg) SPDLOG_COND_NOEXCEPT;
+    bool should_flush_(const details::log_msg &msg) const;
 
     // handle errors during logging.
     // default handler prints the error to stderr at max rate of 1 message/sec.
-    void err_handler_(const std::string &msg);
+    void err_handler_(const std::string &msg) const;
 
     void set_parent(std::shared_ptr<spdlog::logger> parent_logger) SPDLOG_COND_NOEXCEPT {
         parent_ = parent_logger;
@@ -509,7 +509,7 @@ protected:
     friend class spdlog::details::registry;
 };
 
-void swap(logger &a, logger &b) SPDLOG_COND_NOEXCEPT;
+void swap(logger &a, logger &b) noexcept;
 
 }  // namespace spdlog
 

@@ -65,7 +65,7 @@ SPDLOG_INLINE void logger::swap(spdlog::logger &other) SPDLOG_NOEXCEPT {
     std::swap(tracer_, other.tracer_);
 }
 
-SPDLOG_INLINE void swap(logger &a, logger &b) SPDLOG_COND_NOEXCEPT
+SPDLOG_INLINE void swap(logger &a, logger &b) noexcept
 {
     a.swap(b);
 }
@@ -235,12 +235,12 @@ SPDLOG_INLINE void logger::dump_backtrace_(bool with_message)
     }
 }
 
-SPDLOG_INLINE bool logger::should_flush_(const details::log_msg &msg) SPDLOG_COND_NOEXCEPT {
+SPDLOG_INLINE bool logger::should_flush_(const details::log_msg &msg) const {
     auto flush_level = flush_level_.load(std::memory_order_relaxed);
     return (msg.level >= flush_level) && (msg.level != level::off);
 }
 
-SPDLOG_INLINE void logger::err_handler_(const std::string &msg) {
+SPDLOG_INLINE void logger::err_handler_(const std::string &msg) const {
     if (custom_err_handler_) {
         custom_err_handler_(msg);
     } else {
