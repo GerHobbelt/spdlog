@@ -41,7 +41,7 @@ public:
 #endif
 
     void set_color_mode(color_mode mode);
-    bool should_color();
+    bool should_color() const;
 
     void log(const details::log_msg &msg) override;
     void set_output(FILE *override_output);
@@ -97,9 +97,10 @@ private:
 #else
     std::array<std::string, level::n_levels> colors_;
 #endif
+    void set_color_mode_(color_mode mode);
 
-    void print_ccode_(const string_view_t &color_code);
-    void print_range_(const memory_buf_t &formatted, size_t start, size_t end);
+    void print_ccode_(const string_view_t &color_code) const;
+    void print_range_(const memory_buf_t &formatted, size_t start, size_t end) const;
     static std::string to_string_(const string_view_t &sv);
 };
 
