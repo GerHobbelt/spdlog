@@ -8,7 +8,6 @@
 #include <spdlog/details/synchronous_factory.h>
 #include <spdlog/sinks/base_sink.h>
 
-#include <chrono>
 #include <mutex>
 #include <string>
 #include <functional>
@@ -22,6 +21,7 @@ namespace sinks {
 template <typename Mutex>
 class rotating_file_sink final : public base_sink<Mutex> {
 public:
+    static constexpr size_t MaxFiles = 200000;
     rotating_file_sink(filename_t base_filename,
                        std::size_t max_size,
                        std::size_t max_files,
@@ -33,6 +33,10 @@ public:
     static filename_t calc_filename(const filename_t &filename, std::size_t index);
     filename_t filename();
     void rotate_now();
+    void set_max_size(std::size_t max_size);
+    std::size_t get_max_size();
+    void set_max_files(std::size_t max_files);
+    std::size_t get_max_files();
 
 protected:
     void sink_it_(const details::log_msg &msg) override;
@@ -55,7 +59,7 @@ private:
     // log.3.txt -> delete
     void rotate_desc_();
 
-    // delete the target if exists, and rename the src file  to target
+    // delete the target if exists, and rename the src file to target
     // return true on success, false otherwise.
     bool rename_file_(const filename_t &src_filename, const filename_t &target_filename);
 

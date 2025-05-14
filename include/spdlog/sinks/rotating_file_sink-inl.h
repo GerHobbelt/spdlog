@@ -14,7 +14,6 @@
 #include <spdlog/fmt/fmt.h>
 
 #include <cerrno>
-#include <chrono>
 #include <ctime>
 #include <mutex>
 #include <string>
@@ -70,9 +69,8 @@ SPDLOG_INLINE void rotating_file_sink<Mutex>::init()
         throw_spdlog_ex("rotating sink constructor: max_size arg cannot be zero");
     }
 
-    if (max_files_ > 200000)
-    {
-        throw_spdlog_ex("rotating sink constructor: max_files arg cannot exceed 200000");
+    if (max_files > MaxFiles) {
+        throw_spdlog_ex("rotating sink constructor: max_files arg cannot exceed MaxFiles");
     }
     file_helper_.open(calc_filename(base_filename_, 0));
     current_size_ = file_helper_.size();  // expensive. called only once
@@ -83,11 +81,12 @@ SPDLOG_INLINE void rotating_file_sink<Mutex>::init()
 template <typename Mutex>
 SPDLOG_INLINE filename_t rotating_file_sink<Mutex>::calc_filename(const filename_t &filename,
                                                                   std::size_t index) {
-    if (index == 0u) {
+    if (index == 0U) {
         return filename;
     }
 
-    filename_t basename, ext;
+    filename_t basename;
+    filename_t ext;
     std::tie(basename, ext) = details::file_helper::split_by_extension(filename);
     return fmt_lib::format(SPDLOG_FMT_STRING(SPDLOG_FILENAME_T("{}.{}{}")), basename, index, ext);
 }
@@ -102,6 +101,35 @@ template <typename Mutex>
 SPDLOG_INLINE void rotating_file_sink<Mutex>::rotate_now() {
     std::lock_guard<Mutex> lock(base_sink<Mutex>::mutex_);
     rotate_();
+}
+template <typename Mutex>
+SPDLOG_INLINE void rotating_file_sink<Mutex>::set_max_size(std::size_t max_size) {
+    std::lock_guard<Mutex> lock(base_sink<Mutex>::mutex_);
+    if (max_size == 0) {
+        throw_spdlog_ex("rotating sink set_max_size: max_size arg cannot be zero");
+    }
+    max_size_ = max_size;
+}
+
+template <typename Mutex>
+SPDLOG_INLINE std::size_t rotating_file_sink<Mutex>::get_max_size() {
+    std::lock_guard<Mutex> lock(base_sink<Mutex>::mutex_);
+    return max_size_;
+}
+
+template <typename Mutex>
+SPDLOG_INLINE void rotating_file_sink<Mutex>::set_max_files(std::size_t max_files) {
+    std::lock_guard<Mutex> lock(base_sink<Mutex>::mutex_);
+    if (max_files > MaxFiles) {
+        throw_spdlog_ex("rotating sink set_max_files: max_files arg cannot exceed 200000");
+    }
+    max_files_ = max_files;
+}
+
+template <typename Mutex>
+std::size_t rotating_file_sink<Mutex>::get_max_files() {
+    std::lock_guard<Mutex> lock(base_sink<Mutex>::mutex_);
+    return max_files_;
 }
 
 template <typename Mutex>
