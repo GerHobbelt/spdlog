@@ -27,6 +27,9 @@
 
 #include "monolithic_examples.h"
 
+#undef min
+#undef max
+
 using namespace std;
 using namespace std::chrono;
 using namespace spdlog;
