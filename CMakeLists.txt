@@ -116,13 +116,15 @@ endif()
 if(WIN32)
     option(SPDLOG_WCHAR_SUPPORT "Support wchar api" OFF)
     option(SPDLOG_WCHAR_FILENAMES "Support wchar filenames" OFF)
-    option(SPDLOG_WCHAR_CONSOLE "Support wchar output to console" OFF)
-    # the "/utf-8" compiler flag required by fmt 11.x under msvc
-    option(SPDLOG_MSVC_UTF8 "Enable/disable msvc /utf-8 flag required by fmt lib" ON)
+    option(SPDLOG_WCHAR_CONSOLE "Support wchar output to console" OFF)    
 else()
     set(SPDLOG_WCHAR_SUPPORT OFF CACHE BOOL "non supported option" FORCE)
     set(SPDLOG_WCHAR_FILENAMES OFF CACHE BOOL "non supported option" FORCE)
     set(SPDLOG_WCHAR_CONSOLE OFF CACHE BOOL "non supported option" FORCE)
+endif()
+
+if(MSVC)    
+    option(SPDLOG_MSVC_UTF8 "Enable/disable msvc /utf-8 flag required by fmt lib" ON)   
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
