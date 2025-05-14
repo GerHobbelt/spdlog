@@ -69,7 +69,7 @@ SPDLOG_INLINE void rotating_file_sink<Mutex>::init()
         throw_spdlog_ex("rotating sink constructor: max_size arg cannot be zero");
     }
 
-    if (max_files > MaxFiles) {
+    if (max_files_ > MaxFiles) {
         throw_spdlog_ex("rotating sink constructor: max_files arg cannot exceed MaxFiles");
     }
     file_helper_.open(calc_filename(base_filename_, 0));
@@ -120,7 +120,7 @@ SPDLOG_INLINE std::size_t rotating_file_sink<Mutex>::get_max_size() {
 template <typename Mutex>
 SPDLOG_INLINE void rotating_file_sink<Mutex>::set_max_files(std::size_t max_files) {
     std::lock_guard<Mutex> lock(base_sink<Mutex>::mutex_);
-    if (max_files > MaxFiles) {
+    if (max_files_ > MaxFiles) {
         throw_spdlog_ex("rotating sink set_max_files: max_files arg cannot exceed 200000");
     }
     max_files_ = max_files;
