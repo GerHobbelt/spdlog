@@ -1,0 +1,34 @@
+name: Check Jira Ticket Format In Commits
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+jobs:
+  test:
+    uses: datafy-io/devops_tools/.github/workflows/test_jira_id_in_pr.yml@master
+    secrets: inherit
+  test_jira_ticket:
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: ignore-dependabot
+        if: ${{ startsWith(github.head_ref, 'dependabot-') }}
+        run: |
+
+      - name: check-jira-ticket
+        if: ${{ !startsWith(github.head_ref, 'dependabot-') }}
+        run: |
+          pr_name="${{ github.event.pull_request.title }}"
+          if ! [[ $pr_name == *"DT-"* ]]; then
+            echo "Pull request doesn't contain Jira ticket"
+            exit 1
+          fi
+          echo "JIRA_TICKET=$(echo $pr_name | grep -oP 'DT-\d+')" >> $GITHUB_ENV
+          echo "Jira ticket found: $JIRA_TICKET" 
