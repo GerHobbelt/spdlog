@@ -1,0 +1,11 @@
+name: Semgrep PR Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited] 
+   
+jobs:
+  semgrep-scan:
+    uses: datafy-io/devops_tools/.github/workflows/test_reusable_run_semgrep_on_pr.yml@master
+    secrets: inherit
+    
