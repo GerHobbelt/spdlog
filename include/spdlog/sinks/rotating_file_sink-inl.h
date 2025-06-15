@@ -29,10 +29,25 @@ SPDLOG_INLINE rotating_file_sink<Mutex>::rotating_file_sink(
     std::size_t max_files,
     bool rotate_on_open,
     const file_event_handlers &event_handlers)
+    : rotating_file_sink(std::move(base_filename), max_size, max_files, filename_t{},
+                         nullptr, rotate_on_open, event_handlers) {
+}
+
+template <typename Mutex>
+SPDLOG_INLINE rotating_file_sink<Mutex>::rotating_file_sink(
+    filename_t base_filename,
+    std::size_t max_size,
+    std::size_t max_files,
+    filename_t compress_extension,
+    std::function<void(filename_t)> compress_callback,
+    bool rotate_on_open,
+    const file_event_handlers &event_handlers)
     : base_filename_(std::move(base_filename)),
       max_size_(max_size),
       max_files_(max_files),
-      file_helper_{event_handlers} {
+      file_helper_{event_handlers},
+      compress_extension_(std::move(compress_extension)),
+      compress_callback_(std::move(compress_callback)) {
     if (max_size == 0) {
         throw_spdlog_ex("rotating sink constructor: max_size arg cannot be zero");
     }
@@ -45,6 +60,7 @@ SPDLOG_INLINE rotating_file_sink<Mutex>::rotating_file_sink(
     if (rotate_on_open && current_size_ > 0) {
         rotate_();
         current_size_ = 0;
+        call_compressor_callback();
     }
 }
 
@@ -109,11 +125,12 @@ SPDLOG_INLINE void rotating_file_sink<Mutex>::sink_it_(const details::log_msg &m
     memory_buf_t formatted;
     base_sink<Mutex>::formatter_->format(msg, formatted);
     auto new_size = current_size_ + formatted.size();
+    const bool needRotation = (new_size > max_size_);
 
     // rotate if the new estimated file size exceeds max size.
     // rotate only if the real size > 0 to better deal with full disk (see issue #2261).
     // we only check the real size when new_size > max_size_ because it is relatively expensive.
-    if (new_size > max_size_) {
+    if (needRotation) {
         file_helper_.flush();
         if (file_helper_.size() > 0) {
             rotate_();
@@ -122,6 +139,11 @@ SPDLOG_INLINE void rotating_file_sink<Mutex>::sink_it_(const details::log_msg &m
     }
     file_helper_.write(formatted);
     current_size_ = new_size;
+
+    if (needRotation)
+    {
+        call_compressor_callback();
+    }
 }
 
 template <typename Mutex>
@@ -142,10 +164,18 @@ SPDLOG_INLINE void rotating_file_sink<Mutex>::rotate_() {
     file_helper_.close();
     for (auto i = max_files_; i > 0; --i) {
         filename_t src = calc_filename(base_filename_, i - 1);
-        if (!path_exists(src)) {
-            continue;
-        }
         filename_t target = calc_filename(base_filename_, i);
+        if (!path_exists(src))
+        {
+            src.append(compress_extension_);
+            if (!path_exists(src)) {
+                continue;
+            }
+            else
+            {
+                target.append(compress_extension_);
+            }
+        }
 
         if (!rename_file_(src, target)) {
             // if failed try again after a small delay.
@@ -173,6 +203,25 @@ SPDLOG_INLINE bool rotating_file_sink<Mutex>::rename_file_(const filename_t &src
     // try to delete the target file in case it already exists.
     (void)details::os::remove(target_filename);
     return details::os::rename(src_filename, target_filename) == 0;
+}
+
+template<typename Mutex>
+SPDLOG_INLINE void rotating_file_sink<Mutex>::call_compressor_callback()
+{
+    if (!compress_callback_)
+        return;
+
+    using details::os::path_exists;
+    if (max_files_ > 0)
+    {
+        // target is log.1.txt
+        filename_t target = calc_filename(base_filename_, 1);
+        if (path_exists(target))
+        {
+            // this file has to be compressed
+            compress_callback_(target);
+        }
+    }
 }
 
 }  // namespace sinks
