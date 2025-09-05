@@ -40,7 +40,13 @@ if (_PLATFORM_MACOS) then
 end
 
 if (_PLATFORM_WINDOWS) then
+  defines {
+    "FMT_UNICODE=0",
+  }
 end
 
 if (_PLATFORM_WINUWP) then
+  defines {
+    "FMT_UNICODE=0",
+  }
 end
