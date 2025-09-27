@@ -30,8 +30,10 @@
 namespace spdlog {
 namespace details {
 
+#if 0
 std::atomic<registry *> registry::s_instance{nullptr};
 std::mutex registry::s_instanceMutex;
+#endif
 
 SPDLOG_INLINE registry::registry()
     : formatter_(new pattern_formatter()) {
