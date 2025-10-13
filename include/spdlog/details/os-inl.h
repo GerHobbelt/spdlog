@@ -41,6 +41,7 @@
 
     #include <fcntl.h>
     #include <unistd.h>
+    #include <pthread.h>  // for pthread_getname_np
 
     #ifdef __linux__
         #include <sys/syscall.h>  //Use gettid() syscall under linux to get thread id
@@ -364,6 +365,127 @@ SPDLOG_INLINE size_t thread_id() SPDLOG_NOEXCEPT {
 #else  // cache thread id in tls
     static thread_local const size_t tid = _thread_id();
     return tid;
+#endif
+}
+
+// Helper function to check if current thread is the main thread
+SPDLOG_INLINE bool is_main_thread() SPDLOG_NOEXCEPT {
+    // Cache the main thread ID for performance, but determine it more reliably
+    static std::thread::id cached_main_thread_id;
+    static bool main_thread_id_initialized = false;
+    
+    if (!main_thread_id_initialized) {
+        // Determine main thread ID using platform-specific reliable methods
+#ifdef __APPLE__
+        // On macOS, check if current thread is main using pthread_main_np()
+        if (pthread_main_np() != 0) {
+            cached_main_thread_id = std::this_thread::get_id();
+            main_thread_id_initialized = true;
+        }
+#elif defined(__linux__)
+        // On Linux, check if current thread is main (PID == TID)
+        if (getpid() == static_cast<pid_t>(syscall(SYS_gettid))) {
+            cached_main_thread_id = std::this_thread::get_id();
+            main_thread_id_initialized = true;
+        }
+#elif defined(_WIN32)
+        // On Windows, we can check if current thread is main thread
+        // Main thread ID is the same as process ID in Windows
+        DWORD current_tid = GetCurrentThreadId();
+        DWORD process_id = GetCurrentProcessId();
+        
+        // In Windows, the main thread ID is typically the same as the process ID
+        // or we can check if this is the first thread created
+        if (current_tid == process_id) {
+            cached_main_thread_id = std::this_thread::get_id();
+        } else {
+            // Alternative method: Check if we're in the main thread by examining
+            // thread creation order or using GetMainThreadId (Windows 10+)
+            // For compatibility, we'll use a heuristic approach
+            static bool first_call = true;
+            if (first_call) {
+                cached_main_thread_id = std::this_thread::get_id();
+                first_call = false;
+            }
+        }
+        main_thread_id_initialized = true;
+#else
+        // For other platforms, use the original approach
+        // Assume first caller is from main thread (works in most cases)
+        cached_main_thread_id = std::this_thread::get_id();
+        main_thread_id_initialized = true;
+#endif
+    }
+    
+    // Fast comparison using cached thread ID
+    if (main_thread_id_initialized) {
+        return std::this_thread::get_id() == cached_main_thread_id;
+    }
+    return false;
+}
+
+// Return current thread name as string
+SPDLOG_INLINE std::string thread_name() SPDLOG_NOEXCEPT {
+#ifdef _WIN32
+    // Windows implementation using GetThreadDescription (Windows 10 version 1607+)
+    HANDLE hThread = GetCurrentThread();
+    PWSTR threadName = nullptr;
+    
+    // GetThreadDescription is available from Windows 10 version 1607
+    typedef HRESULT(WINAPI* GetThreadDescriptionFunc)(HANDLE, PWSTR*);
+    static GetThreadDescriptionFunc getThreadDescFunc = nullptr;
+    static bool initialized = false;
+    
+    if (!initialized) {
+        HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+        if (kernel32) {
+            getThreadDescFunc = reinterpret_cast<GetThreadDescriptionFunc>(
+                GetProcAddress(kernel32, "GetThreadDescription"));
+        }
+        initialized = true;
+    }
+    
+    if (getThreadDescFunc && SUCCEEDED(getThreadDescFunc(hThread, &threadName)) && threadName) {
+        // Convert wide string to narrow string
+        int size = WideCharToMultiByte(CP_UTF8, 0, threadName, -1, nullptr, 0, nullptr, nullptr);
+        if (size > 0) {
+            std::string result(size - 1, '\0');
+            WideCharToMultiByte(CP_UTF8, 0, threadName, -1, &result[0], size, nullptr, nullptr);
+            LocalFree(threadName);
+            return result;
+        }
+        LocalFree(threadName);
+    }
+    
+    // Fallback: return "main" for main thread, thread ID as string for others
+    return is_main_thread() ? "main" : std::to_string(thread_id());
+    
+#elif defined(__linux__) || defined(__APPLE__)
+    // Linux and macOS implementation using pthread_getname_np
+    char thread_name_buf[16]; // Linux thread names are limited to 16 characters including null terminator
+    
+    #ifdef __APPLE__
+    // macOS version
+    if (pthread_getname_np(pthread_self(), thread_name_buf, sizeof(thread_name_buf)) == 0) {
+        if (thread_name_buf[0] != '\0') {
+            return std::string(thread_name_buf);
+        }
+    }
+    #else
+    // Linux version
+    if (pthread_getname_np(pthread_self(), thread_name_buf, sizeof(thread_name_buf)) == 0) {
+        if (thread_name_buf[0] != '\0') {
+            return std::string(thread_name_buf);
+        }
+    }
+    #endif
+    
+    // Fallback: return "main" for main thread, thread ID as string for others
+    return is_main_thread() ? "main" : std::to_string(thread_id());
+    
+#else
+    // Other Unix systems: return "main" for main thread, thread ID for others
+    return is_main_thread() ? "main" : std::to_string(thread_id());
 #endif
 }
 
