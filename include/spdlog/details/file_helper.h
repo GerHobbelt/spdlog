@@ -66,6 +66,7 @@ private:
     std::FILE *fd_{nullptr};
     filename_t filename_;
     file_event_handlers event_handlers_;
+    mutable bool in_event_handler_{false}; // Recursion protection flag
 
     // mmap related members
     bool mmap_enabled_{false};  // Disable mmap by default

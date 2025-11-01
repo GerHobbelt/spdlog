@@ -43,8 +43,10 @@ SPDLOG_INLINE void file_helper::open(const filename_t &fname, bool truncate) {
     auto *mode = SPDLOG_FILENAME_T("ab");
     auto *trunc_mode = SPDLOG_FILENAME_T("wb");
 
-    if (event_handlers_.before_open) {
+    if (event_handlers_.before_open && !in_event_handler_) {
+        in_event_handler_ = true;
         event_handlers_.before_open(filename_);
+        in_event_handler_ = false;
     }
     for (int tries = 0; tries < open_tries_; ++tries) {
         // create containing folder if not exists already.
@@ -61,8 +63,10 @@ SPDLOG_INLINE void file_helper::open(const filename_t &fname, bool truncate) {
             std::fclose(tmp);
         }
         if (!os::fopen_s(&fd_, fname, mode)) {
-            if (event_handlers_.after_open) {
+            if (event_handlers_.after_open && !in_event_handler_) {
+                in_event_handler_ = true;
                 event_handlers_.after_open(filename_, fd_);
+                in_event_handler_ = false;
             }
             
             // Try to initialize mmap if enabled
@@ -130,8 +134,10 @@ SPDLOG_INLINE void file_helper::sync() {
 
 SPDLOG_INLINE void file_helper::close() {
     if (fd_ != nullptr) {
-        if (event_handlers_.before_close) {
+        if (event_handlers_.before_close && !in_event_handler_) {
+            in_event_handler_ = true;
             event_handlers_.before_close(filename_, fd_);
+            in_event_handler_ = false;
         }
 
         // Clean up mmap resources before closing file
@@ -140,8 +146,10 @@ SPDLOG_INLINE void file_helper::close() {
         std::fclose(fd_);
         fd_ = nullptr;
 
-        if (event_handlers_.after_close) {
+        if (event_handlers_.after_close && !in_event_handler_) {
+            in_event_handler_ = true;
             event_handlers_.after_close(filename_);
+            in_event_handler_ = false;
         }
     }
 }
