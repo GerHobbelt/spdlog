@@ -175,7 +175,7 @@ using wformat_string_t = std::wstring_view;
 namespace fmt_lib = fmt;
 
 using string_view_t = fmt::basic_string_view<char>;
-using memory_buf_t = fmt::basic_memory_buffer<char, 250>;
+using memory_buf_t = fmt::basic_memory_buffer<char, 1024>;
 
 template <typename... Args>
 using format_string_t = fmt::format_string<Args...>;
