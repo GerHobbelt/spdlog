@@ -304,7 +304,7 @@ using wformat_string_t = format_string_wrapper<std::wstring_view, wchar_t>;
 namespace fmt_lib = fmt;
 
 using string_view_t = fmt::basic_string_view<char>;
-using memory_buf_t = fmt::basic_memory_buffer<char, 250>;
+using memory_buf_t = fmt::basic_memory_buffer<char, 1024>;
 
 template <typename... Args>
 using format_string_t = format_string_wrapper<fmt::format_string<Args...>, char>;
