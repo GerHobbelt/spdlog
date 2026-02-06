@@ -132,7 +132,7 @@ private:
     std::vector<std::unique_ptr<details::flag_formatter>> formatters_;
     custom_flags custom_handlers_;
 
-    std::tm get_time_(const details::log_msg &msg);
+    std::tm get_time_(const details::log_msg &msg) const;
 #if defined(SPDLOG_EXTENDED_STYLING)
     template<typename Padder>
     void handle_flag_(char flag, details::padding_info padding, details::styling_info styling);

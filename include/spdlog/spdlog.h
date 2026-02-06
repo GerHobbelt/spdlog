@@ -77,7 +77,7 @@ SPDLOG_API level::level_enum get_level() SPDLOG_COND_NOEXCEPT;
 SPDLOG_API void set_level(level::level_enum log_level) SPDLOG_COND_NOEXCEPT;
 
 // Determine whether the default logger should log messages with a certain level
-SPDLOG_API bool should_log(level::level_enum lvl) SPDLOG_COND_NOEXCEPT;
+SPDLOG_API bool should_log(level::level_enum log_level) SPDLOG_COND_NOEXCEPT;
 
 // Set a global flush level
 SPDLOG_API void flush_on(level::level_enum log_level) SPDLOG_COND_NOEXCEPT;
