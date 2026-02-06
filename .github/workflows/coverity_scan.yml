@@ -17,14 +17,38 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl build-essential cmake pkg-config libsystemd-dev
 
-      - name: Download Coverity Tool
+      - name: Check Coverity Token
+        id: check-token
+        env:
+          COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
         run: |
+          if [ -z "${COVERITY_TOKEN}" ]; then
+            echo "COVERITY_TOKEN secret is not set. Skipping Coverity scan."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download Coverity Tool
+        if: steps.check-token.outputs.skip == 'false'
+        run: |
+          echo "Downloading Coverity tool..."
           curl -s -L --output coverity_tool.tgz "https://scan.coverity.com/download/linux64?token=${{ secrets.COVERITY_TOKEN }}&project=gabime%2Fspdlog"
+          
+          # Verify the downloaded file is a valid tar archive
+          if ! file coverity_tool.tgz | grep -q "gzip compressed"; then
+            echo "Error: Downloaded file is not a valid gzip archive"
+            echo "File content (first 200 bytes):"
+            head -c 200 coverity_tool.tgz
+            exit 1
+          fi
+          
           mkdir coverity_tool
           tar -C coverity_tool --strip-components=1 -xf coverity_tool.tgz
           echo "$PWD/coverity_tool/bin" >> $GITHUB_PATH
 
       - name: Build with Coverity
+        if: steps.check-token.outputs.skip == 'false'
         run: |
           mkdir build && cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17
@@ -32,6 +56,7 @@ jobs:
           cov-build --dir cov-int make -C build -j4
 
       - name: Submit results to Coverity
+        if: steps.check-token.outputs.skip == 'false'
         run: |
           tar czf cov-int.tgz cov-int
           response=$(curl --silent --show-error --fail \

@@ -28,6 +28,8 @@ endif()
 
 set(SPDLOG_UTESTS_SOURCES
     test_file_helper.cpp
+    test_event_handlers.cpp
+    test_mmap_file_helper.cpp
     test_file_logging.cpp
     test_daily_logger.cpp
     test_misc.cpp
