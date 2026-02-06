@@ -9,6 +9,7 @@
 
 #include <spdlog/common.h>
 #include <spdlog/pattern_formatter.h>
+#include <spdlog/details/log_msg.h>
 
 #include <memory>
 #include <mutex>
@@ -23,7 +24,7 @@ SPDLOG_INLINE spdlog::sinks::base_sink<Mutex>::base_sink(
     : formatter_{std::move(formatter)} {}
 
 template <typename Mutex>
-void SPDLOG_INLINE spdlog::sinks::base_sink<Mutex>::log(const details::log_msg &msg) {
+void SPDLOG_INLINE spdlog::sinks::base_sink<Mutex>::log(const spdlog::details::log_msg &msg) {
     std::lock_guard<Mutex> lock(mutex_);
     sink_it_(msg);
 }
