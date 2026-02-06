@@ -73,10 +73,8 @@ SPDLOG_API size_t _thread_id() SPDLOG_NOEXCEPT;
 // Return current thread id as size_t (from thread local storage)
 SPDLOG_API size_t thread_id() SPDLOG_NOEXCEPT;
 
-SPDLOG_INLINE void _thread_name(char *name, size_t length);
-
-// Return current thread name(from thread local storage)
-SPDLOG_INLINE std::string thread_name();
+// Return current thread name as string
+SPDLOG_API std::string thread_name() SPDLOG_NOEXCEPT;
 
 // This is avoid msvc issue in sleep_for that happens if the clock changes.
 // See https://github.com/gabime/spdlog/issues/609

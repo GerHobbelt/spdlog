@@ -33,6 +33,7 @@ set(SPDLOG_UTESTS_SOURCES
     test_file_logging.cpp
     test_daily_logger.cpp
     test_misc.cpp
+    test_thread_name.cpp
     test_eventlog.cpp
     test_json_formatter.cpp
     test_pattern_formatter.cpp
