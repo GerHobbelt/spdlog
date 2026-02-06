@@ -758,6 +758,7 @@ public:
             return;
         }
 
+#if !defined(SPDLOG_NO_SOURCE_LOC)
         size_t text_size;
         if (padinfo_.enabled()) {
             // calc text size for padding based on "filename:line"
@@ -771,7 +772,8 @@ public:
         fmt_helper::append_string_view(msg.source.filename, dest);
         dest.push_back(':');
         fmt_helper::append_int(msg.source.line, dest);
-    }
+#endif
+	}
 };
 
 // print source filename
@@ -786,11 +788,13 @@ public:
             ScopedPadder p(0, padinfo_, dest);
             return;
         }
+#if !defined(SPDLOG_NO_SOURCE_LOC)
         size_t text_size =
             padinfo_.enabled() ? std::char_traits<char>::length(msg.source.filename) : 0;
         ScopedPadder p(text_size, padinfo_, dest);
         fmt_helper::append_string_view(msg.source.filename, dest);
-    }
+#endif
+	}
 };
 
 template <typename ScopedPadder>
@@ -827,11 +831,13 @@ public:
             ScopedPadder p(0, padinfo_, dest);
             return;
         }
+#if !defined(SPDLOG_NO_SOURCE_LOC)
         auto filename = basename(msg.source.filename);
         size_t text_size = padinfo_.enabled() ? std::char_traits<char>::length(filename) : 0;
         ScopedPadder p(text_size, padinfo_, dest);
         fmt_helper::append_string_view(filename, dest);
-    }
+#endif
+	}
 };
 
 template <typename ScopedPadder>
@@ -846,10 +852,12 @@ public:
             return;
         }
 
+#if !defined(SPDLOG_NO_SOURCE_LOC)
         auto field_size = ScopedPadder::count_digits(msg.source.line);
         ScopedPadder p(field_size, padinfo_, dest);
         fmt_helper::append_int(msg.source.line, dest);
-    }
+#endif
+	}
 };
 
 // print source funcname
@@ -864,11 +872,13 @@ public:
             ScopedPadder p(0, padinfo_, dest);
             return;
         }
+#if !defined(SPDLOG_NO_SOURCE_LOC)
         size_t text_size =
             padinfo_.enabled() ? std::char_traits<char>::length(msg.source.funcname) : 0;
         ScopedPadder p(text_size, padinfo_, dest);
         fmt_helper::append_string_view(msg.source.funcname, dest);
-    }
+#endif
+	}
 };
 
 // print elapsed time since last message
@@ -1015,6 +1025,7 @@ public:
         dest.push_back(' ');
 
         // add source location if present
+#if !defined(SPDLOG_NO_SOURCE_LOC)
         if (!msg.source.empty()) {
             dest.push_back('[');
             const char *filename =
@@ -1026,6 +1037,7 @@ public:
             dest.push_back(']');
             dest.push_back(' ');
         }
+#endif
 
 #ifndef SPDLOG_NO_TLS
         // add mdc if present

@@ -228,6 +228,10 @@ private:
 
 struct source_loc {
     SPDLOG_CONSTEXPR source_loc() = default;
+
+	SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT {
+        return true;
+    }
 };
 
 template <typename T, typename Char>
