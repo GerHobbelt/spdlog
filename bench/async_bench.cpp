@@ -11,11 +11,11 @@
 #include "spdlog/sinks/basic_file_sink.h"
 
 #if defined(SPDLOG_USE_STD_FORMAT)
-    #include <format>
+#include <format>
 #elif defined(SPDLOG_FMT_EXTERNAL)
-    #include <fmt/format.h>
+#include <fmt/format.h>
 #else
-    #include "spdlog/fmt/bundled/format.h"
+#include "spdlog/fmt/bundled/format.h"
 #endif
 
 #include "utils.h"
@@ -39,9 +39,9 @@ using namespace utils;
 static void bench_mt(int howmany, std::shared_ptr<spdlog::logger> log, int thread_count);
 
 #ifdef _MSC_VER
-    #pragma warning(push)
-    #pragma warning(disable : 4996)  // disable fopen warning under msvc
-#endif                               // _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4996)  // disable fopen warning under msvc
+#endif                           // _MSC_VER
 
 static int count_lines(const char *filename) {
     int counter = 0;
@@ -67,7 +67,7 @@ static void verify_file(const char *filename, int expected_count) {
 }
 
 #ifdef _MSC_VER
-    #pragma warning(pop)
+#pragma warning(pop)
 #endif
 
 

@@ -232,7 +232,7 @@ static void async_example() {
 // {:n} - don't split the output to lines.
 
 #if !defined SPDLOG_USE_STD_FORMAT || defined(_MSC_VER)
-    #include "spdlog/fmt/bin_to_hex.h"
+#include "spdlog/fmt/bin_to_hex.h"
 
 static void binary_example() {
     std::vector<char> buf;
@@ -258,7 +258,7 @@ static void binary_example() {
 
 // Log a vector of numbers
 #ifndef SPDLOG_USE_STD_FORMAT
-    #include "spdlog/fmt/ranges.h"
+#include "spdlog/fmt/ranges.h"
 static void vector_example() {
     std::vector<int> vec = {1, 2, 3};
     spdlog::info("Vector example: {}", vec);
@@ -527,7 +527,7 @@ static void extended_stlying()
 // thread-local storage.
 
 #ifndef SPDLOG_NO_TLS
-    #include "spdlog/mdc.h"
+#include "spdlog/mdc.h"
 static void mdc_example() {
     spdlog::mdc::put("key1", "value1");
     spdlog::mdc::put("key2", "value2");

@@ -99,7 +99,7 @@ using wincolor_dual_sink_st = wincolor_dual_sink<details::console_nullmutex>;
 }  // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY
-    #include "wincolor_sink-inl.h"
+#include "wincolor_sink-inl.h"
 #endif
 
 #endif

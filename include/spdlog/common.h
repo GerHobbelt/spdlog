@@ -31,57 +31,57 @@
 #include <type_traits>
 
 #ifdef SPDLOG_USE_STD_FORMAT
-    #include <version>
-    #if __cpp_lib_format >= 202110L
-        #include <format>
-    #else
-        #include <string_view>
-    #endif
+#include <version>
+#if __cpp_lib_format >= 202207L
+#include <format>
+#else
+#include <string_view>
+#endif
 #endif
 
 #ifdef SPDLOG_COMPILED_LIB
-    #undef SPDLOG_HEADER_ONLY
-    #if defined(SPDLOG_SHARED_LIB)
-        #if defined(_WIN32)
-            #ifdef spdlog_EXPORTS
-                #define SPDLOG_API __declspec(dllexport)
-            #else  // !spdlog_EXPORTS
-                #define SPDLOG_API __declspec(dllimport)
-            #endif
-        #else  // !defined(_WIN32)
-            #define SPDLOG_API __attribute__((visibility("default")))
-        #endif
-    #else  // !defined(SPDLOG_SHARED_LIB)
-        #define SPDLOG_API
-    #endif
-    #define SPDLOG_INLINE
+#undef SPDLOG_HEADER_ONLY
+#if defined(SPDLOG_SHARED_LIB)
+#if defined(_WIN32)
+#ifdef spdlog_EXPORTS
+#define SPDLOG_API __declspec(dllexport)
+#else  // !spdlog_EXPORTS
+#define SPDLOG_API __declspec(dllimport)
+#endif
+#else  // !defined(_WIN32)
+#define SPDLOG_API __attribute__((visibility("default")))
+#endif
+#else  // !defined(SPDLOG_SHARED_LIB)
+#define SPDLOG_API
+#endif
+#define SPDLOG_INLINE
 #else  // !defined(SPDLOG_COMPILED_LIB)
-    #define SPDLOG_API
-    #define SPDLOG_HEADER_ONLY
-    #define SPDLOG_INLINE inline
+#define SPDLOG_API
+#define SPDLOG_HEADER_ONLY
+#define SPDLOG_INLINE inline
 #endif  // #ifdef SPDLOG_COMPILED_LIB
 
 #include <spdlog/fmt/fmt.h>
 
 #if !defined(SPDLOG_USE_STD_FORMAT) && \
     FMT_VERSION >= 80000  // backward compatibility with fmt versions older than 8
-    #define SPDLOG_FMT_RUNTIME(format_string) fmt::runtime(format_string)
-    #define SPDLOG_FMT_STRING(format_string) FMT_STRING(format_string)
-    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
-        #include <spdlog/fmt/xchar.h>
-    #endif
+#define SPDLOG_FMT_RUNTIME(format_string) fmt::runtime(format_string)
+#define SPDLOG_FMT_STRING(format_string) FMT_STRING(format_string)
+#if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
+#include <spdlog/fmt/xchar.h>
+#endif
 #else
-    #define SPDLOG_FMT_RUNTIME(format_string) format_string
-    #define SPDLOG_FMT_STRING(format_string) format_string
+#define SPDLOG_FMT_RUNTIME(format_string) format_string
+#define SPDLOG_FMT_STRING(format_string) format_string
 #endif
 
 // visual studio up to 2013 does not support noexcept nor constexpr
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
-    #define SPDLOG_NOEXCEPT _NOEXCEPT
-    #define SPDLOG_CONSTEXPR
+#define SPDLOG_NOEXCEPT _NOEXCEPT
+#define SPDLOG_CONSTEXPR
 #else
-    #define SPDLOG_NOEXCEPT noexcept
-    #define SPDLOG_CONSTEXPR constexpr
+#define SPDLOG_NOEXCEPT noexcept
+#define SPDLOG_CONSTEXPR constexpr
 #endif
 
 #ifdef SPDLOG_LOGGER_NOEXCEPT
@@ -96,48 +96,48 @@
 // depending on the compiler
 // If fmt determines it can't use constexpr, we should inline the function instead
 #ifdef SPDLOG_USE_STD_FORMAT
-    #define SPDLOG_CONSTEXPR_FUNC constexpr
+#define SPDLOG_CONSTEXPR_FUNC constexpr
 #else  // Being built with fmt
-    #if FMT_USE_CONSTEXPR
-        #define SPDLOG_CONSTEXPR_FUNC FMT_CONSTEXPR
-    #else
-        #define SPDLOG_CONSTEXPR_FUNC inline
-    #endif
+#if FMT_USE_CONSTEXPR
+#define SPDLOG_CONSTEXPR_FUNC FMT_CONSTEXPR
+#else
+#define SPDLOG_CONSTEXPR_FUNC inline
+#endif
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
-    #define SPDLOG_DEPRECATED __attribute__((deprecated))
+#define SPDLOG_DEPRECATED __attribute__((deprecated))
 #elif defined(_MSC_VER)
-    #define SPDLOG_DEPRECATED __declspec(deprecated)
+#define SPDLOG_DEPRECATED __declspec(deprecated)
 #else
-    #define SPDLOG_DEPRECATED
+#define SPDLOG_DEPRECATED
 #endif
 
 // disable thread local on msvc 2013
 #ifndef SPDLOG_NO_TLS
-    #if (defined(_MSC_VER) && (_MSC_VER < 1900)) || defined(__cplusplus_winrt)
-        #define SPDLOG_NO_TLS 1
-    #endif
+#if (defined(_MSC_VER) && (_MSC_VER < 1900)) || defined(__cplusplus_winrt)
+#define SPDLOG_NO_TLS 1
+#endif
 #endif
 
 #ifndef SPDLOG_FUNCTION
-    #define SPDLOG_FUNCTION static_cast<const char *>(__FUNCTION__)
+#define SPDLOG_FUNCTION static_cast<const char *>(__FUNCTION__)
 #endif
 
 #ifdef SPDLOG_NO_EXCEPTIONS
-    #define SPDLOG_TRY
-    #define SPDLOG_THROW(ex)                               \
-        do {                                               \
-            printf("spdlog fatal error: %s\n", ex.what()); \
-            std::abort();                                  \
-        } while (0)
-    #define SPDLOG_CATCH_STD
+#define SPDLOG_TRY
+#define SPDLOG_THROW(ex)                               \
+    do {                                               \
+        printf("spdlog fatal error: %s\n", ex.what()); \
+        std::abort();                                  \
+    } while (0)
+#define SPDLOG_CATCH_STD
 #else
-    #define SPDLOG_TRY try
-    #define SPDLOG_THROW(ex) throw(ex)
-    #define SPDLOG_CATCH_STD             \
-        catch (const std::exception &) { \
-        }
+#define SPDLOG_TRY try
+#define SPDLOG_THROW(ex) throw(ex)
+#define SPDLOG_CATCH_STD             \
+    catch (const std::exception &) { \
+    }
 #endif
 
 #if SPDLOG_CPLUSPLUS > 201811L
@@ -259,12 +259,12 @@ class sink;
 
 #if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
 using filename_t = std::wstring;
-    // allow macro expansion to occur in SPDLOG_FILENAME_T
-    #define SPDLOG_FILENAME_T_INNER(s) L##s
-    #define SPDLOG_FILENAME_T(s) SPDLOG_FILENAME_T_INNER(s)
+// allow macro expansion to occur in SPDLOG_FILENAME_T
+#define SPDLOG_FILENAME_T_INNER(s) L##s
+#define SPDLOG_FILENAME_T(s) SPDLOG_FILENAME_T_INNER(s)
 #else
 using filename_t = std::string;
-    #define SPDLOG_FILENAME_T(s) s
+#define SPDLOG_FILENAME_T(s) s
 #endif
 
 using log_clock = std::chrono::system_clock;
@@ -278,28 +278,28 @@ using string_view_t = std::string_view;
 using memory_buf_t = std::string;
 
 template <typename... Args>
-    #if __cpp_lib_format >= 202110L
+#if __cpp_lib_format >= 202207L
 using format_string_t = format_string_wrapper<std::format_string<Args...>, char>;
-    #else
+#else
 using format_string_t = format_string_wrapper<std::string_view, char>;
-    #endif
+#endif
 
 template <class T, class Char = char>
 struct is_convertible_to_basic_format_string
     : std::integral_constant<bool, std::is_convertible<T, std::basic_string_view<Char>>::value> {};
 
-    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
+#if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
 using wstring_view_t = std::wstring_view;
 using wmemory_buf_t = std::wstring;
 
 template <typename... Args>
-        #if __cpp_lib_format >= 202110L
+#if __cpp_lib_format >= 202207L
 using wformat_string_t = format_string_wrapper<std::wformat_string<Args...>, wchar_t>;
-        #else
+#else
 using wformat_string_t = format_string_wrapper<std::wstring_view, wchar_t>;
-        #endif
-    #endif
-    #define SPDLOG_BUF_TO_STRING(x) x
+#endif
+#endif
+#define SPDLOG_BUF_TO_STRING(x) x
 #else  // use fmt lib instead of std::format
 namespace fmt_lib = fmt;
 
@@ -313,11 +313,11 @@ template <class T>
 using remove_cvref_t = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
 
 template <typename Char>
-    #if FMT_VERSION >= 90101
+#if FMT_VERSION >= 90101
 using fmt_runtime_string = fmt::runtime_format_string<Char>;
-    #else
+#else
 using fmt_runtime_string = fmt::basic_runtime<Char>;
-    #endif
+#endif
 
 // clang doesn't like SFINAE disabled constructor in std::is_convertible<> so have to repeat the
 // condition from basic_format_string here, in addition, fmt::basic_runtime<Char> is only
@@ -330,21 +330,21 @@ struct is_convertible_to_basic_format_string
 };
 
 
-    #if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
+#if defined(SPDLOG_WCHAR_FILENAMES) || defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_UTF8_TO_WCHAR_CONSOLE)
 using wstring_view_t = fmt::basic_string_view<wchar_t>;
 using wmemory_buf_t = fmt::basic_memory_buffer<wchar_t, 250>;
 
 template <typename... Args>
 using wformat_string_t = format_string_wrapper<fmt::wformat_string<Args...>, wchar_t>;
-    #endif
-    #define SPDLOG_BUF_TO_STRING(x) fmt::to_string(x)
+#endif
+#define SPDLOG_BUF_TO_STRING(x) fmt::to_string(x)
 #endif
 
 #ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
-    #ifndef _WIN32
-        #error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
-    #endif  // _WIN32
-#endif      // SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#ifndef _WIN32
+#error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
+#endif  // _WIN32
+#endif  // SPDLOG_WCHAR_TO_UTF8_SUPPORT
 
 template <class T>
 struct is_convertible_to_any_format_string
@@ -367,7 +367,7 @@ using level_t = std::atomic<int>;
 #define SPDLOG_LEVEL_OFF 6
 
 #if !defined(SPDLOG_ACTIVE_LEVEL)
-    #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 #endif
 
 // Log level enum
@@ -392,18 +392,18 @@ enum level_enum : int {
 #define SPDLOG_LEVEL_NAME_OFF spdlog::string_view_t("off", 3)
 
 #if !defined(SPDLOG_LEVEL_NAMES)
-    #define SPDLOG_LEVEL_NAMES                                                                  \
-        {                                                                                       \
-            SPDLOG_LEVEL_NAME_TRACE, SPDLOG_LEVEL_NAME_DEBUG, SPDLOG_LEVEL_NAME_INFO,           \
-                SPDLOG_LEVEL_NAME_WARNING, SPDLOG_LEVEL_NAME_ERROR, SPDLOG_LEVEL_NAME_CRITICAL, \
-                SPDLOG_LEVEL_NAME_OFF                                                           \
-        }
+#define SPDLOG_LEVEL_NAMES                                                                  \
+    {                                                                                       \
+        SPDLOG_LEVEL_NAME_TRACE, SPDLOG_LEVEL_NAME_DEBUG, SPDLOG_LEVEL_NAME_INFO,           \
+            SPDLOG_LEVEL_NAME_WARNING, SPDLOG_LEVEL_NAME_ERROR, SPDLOG_LEVEL_NAME_CRITICAL, \
+            SPDLOG_LEVEL_NAME_OFF                                                           \
+    }
 #endif
 
 #if !defined(SPDLOG_SHORT_LEVEL_NAMES)
 
-    #define SPDLOG_SHORT_LEVEL_NAMES \
-        { "T", "D", "I", "W", "E", "C", "O" }
+#define SPDLOG_SHORT_LEVEL_NAMES \
+    { "T", "D", "I", "W", "E", "C", "O" }
 #endif
 
 SPDLOG_API const string_view_t &to_string_view(spdlog::level::level_enum l) SPDLOG_NOEXCEPT;
@@ -604,5 +604,5 @@ constexpr T conditional_static_cast(U value) {
 }  // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY
-    #include "common-inl.h"
+#include "common-inl.h"
 #endif

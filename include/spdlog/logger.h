@@ -21,28 +21,28 @@
 #include <spdlog/details/os.h>
 
 #ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
-    #ifndef _WIN32
-        #error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
-    #endif
+#ifndef _WIN32
+#error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
+#endif
 #endif
 
 #include <vector>
 
 #ifndef SPDLOG_NO_EXCEPTIONS
   #ifndef SPDLOG_NO_SOURCE_LOC
-    #define SPDLOG_LOGGER_CATCH(location)                                                 \
-        catch (const std::exception &ex) {                                                \
-            if (location.filename) {                                                      \
-                err_handler_(fmt_lib::format(SPDLOG_FMT_STRING("{} [{}({})]"), ex.what(), \
-                                             location.filename, location.line));          \
-            } else {                                                                      \
-                err_handler_(ex.what());                                                  \
-            }                                                                             \
-        }                                                                                 \
-        catch (...) {                                                                     \
-            err_handler_("Rethrowing unknown exception in logger");                       \
-            throw;                                                                        \
-        }
+	#define SPDLOG_LOGGER_CATCH(location)                                                 \
+	    catch (const std::exception &ex) {                                                \
+	        if (location.filename) {                                                      \
+	            err_handler_(fmt_lib::format(SPDLOG_FMT_STRING("{} [{}({})]"), ex.what(), \
+	                                         location.filename, location.line));          \
+	        } else {                                                                      \
+	            err_handler_(ex.what());                                                  \
+	        }                                                                             \
+	    }                                                                                 \
+	    catch (...) {                                                                     \
+	        err_handler_("Rethrowing unknown exception in logger");                       \
+	        throw;                                                                        \
+	    }
   #else
     #define SPDLOG_LOGGER_CATCH(location)                                                 \
         catch (const std::exception &ex) {                                                \
@@ -54,7 +54,7 @@
         }
   #endif
 #else
-    #define SPDLOG_LOGGER_CATCH(location)
+#define SPDLOG_LOGGER_CATCH(location)
 #endif
 
 namespace spdlog {
@@ -514,5 +514,5 @@ void swap(logger &a, logger &b) noexcept;
 }  // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY
-    #include "logger-inl.h"
+#include "logger-inl.h"
 #endif

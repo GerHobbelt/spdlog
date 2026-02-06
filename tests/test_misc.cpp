@@ -1,5 +1,5 @@
 #ifndef _CRT_SECURE_NO_WARNINGS  // to prevent fopen warning on windows
-    #define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #endif
 
 #include "includes.h"

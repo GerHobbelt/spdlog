@@ -4,7 +4,7 @@
 #pragma once
 
 #ifndef SPDLOG_HEADER_ONLY
-    #include <spdlog/pattern_formatter.h>
+#include <spdlog/pattern_formatter.h>
 #endif
 
 #include <spdlog/details/fmt_helper.h>
@@ -12,7 +12,7 @@
 #include <spdlog/details/os.h>
 
 #ifndef SPDLOG_NO_TLS
-    #include <spdlog/mdc.h>
+#include <spdlog/mdc.h>
 #endif
 
 #include <spdlog/fmt/fmt.h>
@@ -514,6 +514,7 @@ public:
 };
 
 // ISO 8601 offset from UTC in timezone (+-HH:MM)
+// If SPDLOG_NO_TZ_OFFSET is defined, print "+??.??" instead.
 template <typename ScopedPadder>
 class z_formatter final : public flag_formatter {
 public:
@@ -528,6 +529,10 @@ public:
         const size_t field_size = 6;
         ScopedPadder p(field_size, padinfo_, dest);
 
+#ifdef SPDLOG_NO_TZ_OFFSET
+        const char *str = "+??:??";
+        dest.append(str, str + 6);
+#else
         auto total_minutes = get_cached_offset(msg, tm_time);
         bool is_negative = total_minutes < 0;
         if (is_negative) {
@@ -540,6 +545,7 @@ public:
         fmt_helper::pad2(total_minutes / 60, dest);  // hours
         dest.push_back(':');
         fmt_helper::pad2(total_minutes % 60, dest);  // minutes
+#endif  // SPDLOG_NO_TZ_OFFSET
     }
 
 private:
@@ -788,9 +794,9 @@ public:
         : flag_formatter(padinfo) {}
 
 #ifdef _MSC_VER
-    #pragma warning(push)
-    #pragma warning(disable : 4127)  // consider using 'if constexpr' instead
-#endif                               // _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4127)  // consider using 'if constexpr' instead
+#endif                           // _MSC_VER
     static const char *basename(const char *filename) {
         // if the size is 2 (1 character + null terminator) we can use the more efficient strrchr
         // the branch will be elided by optimizations
@@ -807,7 +813,7 @@ public:
         }
     }
 #ifdef _MSC_VER
-    #pragma warning(pop)
+#pragma warning(pop)
 #endif  // _MSC_VER
 
     void format(const details::log_msg &msg, const std::tm &, memory_buf_t &dest) override {

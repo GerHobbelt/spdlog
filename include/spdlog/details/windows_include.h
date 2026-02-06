@@ -1,12 +1,12 @@
 #pragma once
 
 #ifndef NOMINMAX
-    #define NOMINMAX  // prevent windows redefining min/max
+#define NOMINMAX  // prevent windows redefining min/max
 #endif
 
 #if 0		               // [GHo: WIN32_LEAN_AND_MEAN is cute, but no cigar: when header files such as these do this and are themselves loaded in sourcefiles of larger applications/userland code, things can break in very hard-to-diagnose ways! So... DON'T!
 #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
 #endif
 

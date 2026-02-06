@@ -178,5 +178,5 @@ namespace details {
 }  // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY
-    #include "ansicolor_sink-inl.h"
+#include "ansicolor_sink-inl.h"
 #endif
