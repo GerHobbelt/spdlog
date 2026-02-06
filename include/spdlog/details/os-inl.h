@@ -400,7 +400,9 @@ SPDLOG_INLINE std::string thread_name() SPDLOG_NOEXCEPT {
     typedef HRESULT(WINAPI* GetThreadDescriptionFunc)(HANDLE, PWSTR*);
     static GetThreadDescriptionFunc getThreadDescFunc = nullptr;
     static bool initialized = false;
-    
+
+#pragma warning(push)
+#pragma warning(disable : 4191)
     if (!initialized) {
         HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
         if (kernel32) {
@@ -409,7 +411,7 @@ SPDLOG_INLINE std::string thread_name() SPDLOG_NOEXCEPT {
         }
         initialized = true;
     }
-    
+#pragma warning(pop)    
     if (getThreadDescFunc && SUCCEEDED(getThreadDescFunc(hThread, &threadName)) && threadName) {
         // Convert wide string to narrow string
         int size = WideCharToMultiByte(CP_UTF8, 0, threadName, -1, nullptr, 0, nullptr, nullptr);
